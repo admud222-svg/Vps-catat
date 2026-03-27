@@ -865,7 +865,7 @@
             <div class="page active" id="homePage">
                 <div class="page-header">
                     <h2>📁 Kategori VPS</h2>
-                    <button class="btn btn-primary" onclick="openCategoryModal()">
+                    <button class="btn btn-primary" id="addCategoryBtn">
                         <span>➕</span> Tambah Kategori
                     </button>
                 </div>
@@ -1111,6 +1111,7 @@
             checkLocalStorageAvailability();
             initializeApp();
             populateVPSTemplates();
+            setupEventListeners();
             
             // Show storage warning
             setTimeout(() => {
@@ -1119,6 +1120,51 @@
                 }
             }, 3000);
         });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add category button
+            const addCategoryBtn = document.getElementById('addCategoryBtn');
+            if (addCategoryBtn) {
+                addCategoryBtn.addEventListener('click', openCategoryModal);
+                console.log('✅ Event listener attached to add category button');
+            }
+            
+            // Category form submit
+            const categoryForm = document.getElementById('categoryForm');
+            if (categoryForm) {
+                categoryForm.addEventListener('submit', addCategory);
+                console.log('✅ Event listener attached to category form');
+            }
+            
+            // Modal close buttons
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Modal click outside to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal.active').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                }
+            });
+        }
 
         // Check if localStorage is available
         function checkLocalStorageAvailability() {
@@ -1747,8 +1793,16 @@ Simpan bukti ini sebagai arsip.
 
         // Modal functions
         function openCategoryModal() {
-            document.getElementById('categoryModal').classList.add('active');
-            document.getElementById('categoryName').focus();
+            console.log('🔧 Opening category modal...');
+            const modal = document.getElementById('categoryModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.getElementById('categoryName').focus();
+                console.log('✅ Modal should be visible now');
+            } else {
+                console.error('❌ Category modal not found!');
+                showToast('Modal tidak ditemukan!', 'error');
+            }
         }
 
         function openVPSModal() {
@@ -1791,7 +1845,11 @@ Simpan bukti ini sebagai arsip.
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            
             if (modalId === 'vpsModal') {
                 document.getElementById('vpsForm').reset();
                 document.getElementById('uploadPreview').innerHTML = `
@@ -1814,18 +1872,26 @@ Simpan bukti ini sebagai arsip.
         function addCategory(event) {
             event.preventDefault();
             
+            console.log('🔧 Adding new category...');
+            
             const nameInput = document.getElementById('categoryName');
             const name = nameInput.value.trim();
             
+            console.log('Input value:', name);
+            
             if (!name) {
+                console.error('❌ ERROR: Nama kategori kosong');
                 showToast('Nama kategori tidak boleh kosong!', 'error');
                 return;
             }
             
             if (categories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
+                console.error('❌ ERROR: Kategori dengan nama ini sudah ada');
                 showToast('Kategori dengan nama ini sudah ada!', 'error');
                 return;
             }
+            
+            console.log('✅ Validasi berhasil, menambahkan kategori...');
             
             const newCategory = {
                 id: Date.now(),
@@ -1834,13 +1900,19 @@ Simpan bukti ini sebagai arsip.
             };
             
             categories.push(newCategory);
+            console.log('Kategori baru:', newCategory);
+            console.log('Total kategori saat ini:', categories.length);
             
             if (saveData()) {
+                console.log('✅ Data berhasil disimpan');
                 renderCategories();
                 updateStats();
                 closeModal('categoryModal');
                 showToast(`Kategori "${name}" berhasil ditambahkan!`, 'success');
                 nameInput.value = '';
+            } else {
+                console.error('❌ ERROR: Gagal menyimpan data');
+                showToast('Gagal menyimpan data, coba lagi!', 'error');
             }
         }
 
@@ -2026,21 +2098,31 @@ Simpan bukti ini sebagai arsip.
             }, duration);
         }
 
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
+        // Test function for debugging
+        function testModal() {
+            console.log('🧪 Testing modal functionality...');
+            const modal = document.getElementById('categoryModal');
+            if (modal) {
+                modal.classList.add('active');
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 2000);
+            } else {
+                console.error('❌ Modal not found!');
             }
         }
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
+        // Add test button to header for debugging
+        function addTestButton() {
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions) {
+                const testBtn = document.createElement('button');
+                testBtn.className = 'btn btn-info';
+                testBtn.innerHTML = '🧪 Test Modal';
+                testBtn.onclick = testModal;
+                headerActions.appendChild(testBtn);
             }
-        });
+        }
     </script>
 </body>
 </html>
