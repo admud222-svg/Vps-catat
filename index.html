@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdHost VPS Pro - Cloud Sync Edition</title>
+    <title>AdHost VPS Pro - Auto Sync Edition</title>
     <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
@@ -68,10 +68,10 @@
 
         .view-section.active { display: block; opacity: 1; transform: translateY(0) scale(1); }
 
-        /* Page Transition Loader */
+        /* Loader & Animations */
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 17, 32, 0.8); backdrop-filter: blur(5px); z-index: 9999;
+            background: rgba(11, 17, 32, 0.85); backdrop-filter: blur(5px); z-index: 9999;
             display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 15px;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
@@ -81,6 +81,33 @@
             border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 🔥 ROCKET ANIMATION 🔥 */
+        .rocket-icon {
+            display: inline-block;
+            font-size: 2.2rem;
+            animation: flyRocket 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+        }
+        @keyframes flyRocket {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); }
+            50%  { transform: translateY(-8px) rotate(15deg) scale(1.1); }
+            100% { transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+        /* Auto Sync Indicator */
+        .sync-badge {
+            padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+            display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+        }
+        .sync-dot {
+            width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        }
+        @keyframes pulseDot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .spinner-small {
+            width: 14px; height: 14px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block;
+        }
 
         /* Typography & Headers */
         h1 {
@@ -104,11 +131,6 @@
         .btn:active { transform: scale(0.95); }
         .btn-primary { background: linear-gradient(135deg, var(--primary), #8b5cf6); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         .btn-primary:hover { box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); transform: translateY(-2px); filter: brightness(1.1); }
-        
-        /* Tombol Cloud Khusus */
-        .btn-cloud-upload { background: linear-gradient(135deg, #0ea5e9, #2563eb); box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); }
-        .btn-cloud-upload:hover { box-shadow: 0 8px 25px rgba(14, 165, 233, 0.5); transform: translateY(-2px); filter: brightness(1.1); }
-        
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
         .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); }
@@ -155,7 +177,6 @@
         
         .tab-pane { display: none; animation: fadeIn 0.4s ease; }
         .tab-pane.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Forms & Inputs */
         .form-control {
@@ -219,19 +240,20 @@
 
     <div id="pageLoader">
         <div class="spinner"></div>
-        <div id="loaderText" style="color: white; font-weight: bold; margin-top: 10px;">Loading...</div>
+        <div id="loaderText" style="color: white; font-weight: bold; margin-top: 15px;">Menyiapkan Sistem...</div>
     </div>
 
     <div class="container">
         <div id="view-home" class="view-section active">
             <header class="top-navbar glass-panel">
                 <div style="margin-bottom: 10px;">
-                    <h1><span style="font-size: 2rem;">🚀</span> AdHost Pro</h1>
+                    <h1><span class="rocket-icon">🚀</span> AdHost Pro</h1>
                     <p style="color: var(--text-muted);">Sistem Manajemen Inventaris Server</p>
                 </div>
-                <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                    <button class="btn btn-cloud-upload" onclick="uploadToCloud()">☁️ Upload ke Cloud</button>
-                    <button class="btn btn-secondary" onclick="loadFromCloud()">🔄 Sync dari Cloud</button>
+                <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
+                    <div id="cloudSyncStatus" class="sync-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <span class="sync-dot" style="background: #34d399; animation: pulseDot 2s infinite;"></span> ☁️ Standby
+                    </div>
                 </div>
             </header>
 
@@ -363,9 +385,7 @@
         const JSONBIN_MASTER_KEY = "$2a$10$1WzAEjKDOESCz17Q.8aduu6Bx.jkQ15lI5cjfeweV.7X8AnYG5LH.";
         const JSONBIN_ID = "69c6ba09c3097a1dd5689eac"; 
 
-        // ==========================================
-        // DATA PRESET VPS ADHOST
-        // ==========================================
+        // DATA PRESET
         const vpsTemplates = [
             { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Genoa' },
             { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Genoa' },
@@ -382,19 +402,61 @@
         let categories = JSON.parse(localStorage.getItem('adhostData'))?.categories || [];
         let currentCategory = null;
         let editingVPS = null;
+        let isSyncing = false; // Mencegah double sync
 
+        // INITIALIZE APP - AUTO LOAD DARI CLOUD SAAT DIBUKA
         document.addEventListener('DOMContentLoaded', () => {
-            updateStats();
             populateVPSTemplates();
-            handleRouting(); 
+            autoLoadFromCloud(); // Tarik data cloud begitu web dibuka
             window.addEventListener('hashchange', handleRouting);
         });
 
         // ==========================================
-        // FUNGSI CLOUD SYNC (UPLOAD & DOWNLOAD)
+        // SISTEM AUTO-SYNC (BACKGROUND PROCESS)
         // ==========================================
-        async function uploadToCloud() {
-            showLoader("Menyimpan ke Cloud...");
+        function updateSyncStatus(status) {
+            const badge = document.getElementById('cloudSyncStatus');
+            if(!badge) return;
+
+            if(status === 'syncing') {
+                badge.style.background = 'rgba(245, 158, 11, 0.2)'; badge.style.color = '#fbbf24'; badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                badge.innerHTML = `<span class="spinner-small"></span> ☁️ Menyimpan...`;
+            } else if (status === 'synced') {
+                badge.style.background = 'rgba(16, 185, 129, 0.2)'; badge.style.color = '#34d399'; badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                badge.innerHTML = `<span class="sync-dot" style="background: #34d399; animation: pulseDot 2s infinite;"></span> ☁️ Tersinkronisasi`;
+            } else if (status === 'error') {
+                badge.style.background = 'rgba(239, 68, 68, 0.2)'; badge.style.color = '#f87171'; badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                badge.innerHTML = `⚠️ Gagal Sync`;
+            }
+        }
+
+        async function autoLoadFromCloud() {
+            showLoader("Menyinkronkan Data Cloud...");
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+                    method: 'GET',
+                    headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    categories = data.record.categories || [];
+                    localStorage.setItem('adhostData', JSON.stringify({ categories })); 
+                    updateSyncStatus('synced');
+                }
+            } catch (error) {
+                console.error("Gagal load dari cloud:", error);
+                updateSyncStatus('error');
+            }
+            // Lanjutkan routing / render UI walaupun gagal narik dari cloud
+            handleRouting();
+            hideLoader();
+        }
+
+        async function backgroundSync() {
+            if(isSyncing) return; // Cegah numpuk request
+            isSyncing = true;
+            updateSyncStatus('syncing');
+
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
                     method: 'PUT',
@@ -405,40 +467,19 @@
                     body: JSON.stringify({ categories: categories })
                 });
 
-                if(res.ok) {
-                    showToast('Data berhasil disimpan ke Cloud! ☁️', 'success');
-                } else {
-                    throw new Error('Gagal update ke Cloud. Cek koneksi.');
-                }
+                if(res.ok) updateSyncStatus('synced');
+                else updateSyncStatus('error');
             } catch (error) {
-                showToast(error.message, 'error');
+                updateSyncStatus('error');
             }
-            hideLoader();
+            isSyncing = false;
         }
 
-        async function loadFromCloud() {
-            showLoader("Menarik data dari Cloud...");
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': JSONBIN_MASTER_KEY
-                    }
-                });
-
-                if(res.ok) {
-                    const data = await res.json();
-                    categories = data.record.categories || [];
-                    saveData(); // Save ke local storage HP/PC masing-masing
-                    loadHomePage(); // Refresh tampilan
-                    showToast('Data berhasil disinkronisasi! 🔄', 'success');
-                } else {
-                    throw new Error('Gagal tarik data dari Cloud.');
-                }
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-            hideLoader();
+        // Modifikasi saveData supaya otomatis trigger backgroundSync
+        function saveData() {
+            localStorage.setItem('adhostData', JSON.stringify({ categories }));
+            updateStats();
+            backgroundSync(); // Panggil fungsi ajaib ini setiap kali ada perubahan data!
         }
 
 
@@ -473,7 +514,8 @@
         // ==========================================
         function handleRouting() {
             const hash = window.location.hash;
-            showLoader("Memuat...");
+            document.getElementById('pageLoader').style.opacity = '1'; 
+            document.getElementById('pageLoader').style.pointerEvents = 'all';
 
             setTimeout(() => {
                 if (hash.startsWith('#category-')) {
@@ -543,11 +585,6 @@
         // ==========================================
         // RENDER FUNCTIONS
         // ==========================================
-        function saveData() {
-            localStorage.setItem('adhostData', JSON.stringify({ categories }));
-            updateStats();
-        }
-
         function updateStats() {
             document.getElementById('totalCategories').textContent = categories.length;
             document.getElementById('totalVPS').textContent = categories.reduce((sum, cat) => sum + cat.vpsList.length, 0);
