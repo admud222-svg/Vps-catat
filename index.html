@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VPS Purchase Tracker - Auto Cloud Sync</title>
+    <title>VPS Purchase Tracker - Catat Pembelian VPS</title>
     <style>
         * {
             margin: 0;
@@ -118,11 +118,6 @@
         .storage-status.warning {
             background: rgba(237, 137, 54, 0.1);
             color: var(--warning);
-        }
-
-        .storage-status.syncing {
-            background: rgba(102, 126, 234, 0.1);
-            color: var(--primary);
         }
 
         @keyframes fadeIn {
@@ -696,42 +691,6 @@
             line-height: 1.6;
         }
 
-        .sync-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            background: rgba(72, 187, 120, 0.1);
-            color: var(--secondary);
-        }
-
-        .sync-indicator.syncing {
-            background: rgba(102, 126, 234, 0.1);
-            color: var(--primary);
-        }
-
-        .sync-indicator.error {
-            background: rgba(245, 101, 101, 0.1);
-            color: var(--danger);
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
         @media (max-width: 768px) {
             .vps-grid {
                 grid-template-columns: 1fr;
@@ -753,20 +712,20 @@
             <h1>
                 <div class="logo">🖥️</div>
                 VPS Purchase Tracker
-                <div class="sync-indicator" id="syncIndicator">
-                    <span class="spinner" id="syncSpinner" style="display: none;"></span>
-                    <span id="syncText">🌐 Cloud Sync</span>
-                </div>
             </h1>
-            <p class="subtitle">Kelola dan catat semua pembelian VPS Anda dengan mudah - Auto Cloud Sync</p>
+            <p class="subtitle">Kelola dan catat semua pembelian VPS Anda dengan mudah</p>
             <div class="header-actions">
                 <div class="storage-status" id="storageStatus">
-                    <span id="storageIcon">☁️</span>
-                    <span id="storageText">Menghubungkan ke cloud...</span>
+                    <span id="storageIcon">💾</span>
+                    <span id="storageText">Memeriksa penyimpanan...</span>
                 </div>
-                <button class="btn btn-info" onclick="forceSync()">
-                    🔄 Force Sync
+                <button class="btn btn-info" onclick="exportData()">
+                    💾 Export Data
                 </button>
+                <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
+                    📂 Import Data
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
                 <button class="btn btn-warning" onclick="clearAllData()">
                     🔄 Reset Data
                 </button>
@@ -776,13 +735,12 @@
             </div>
             
             <div class="data-info">
-                <h4>☁️ Auto Cloud Storage</h4>
+                <h4>ℹ️ Info Penyimpanan Data</h4>
                 <ul>
-                    <li>Data <strong>otomatis tersimpan</strong> di cloud storage</li>
-                    <li>Bisa diakses dari <strong>device dan akun Chrome mana pun</strong></li>
-                    <li>Tidak perlu export/import manual</li>
-                    <li>Data sync real-time saat ada perubahan</li>
-                    <li>Gratis dan tidak perlu registrasi</li>
+                    <li>Data tersimpan di <strong>localStorage browser</strong> Anda</li>
+                    <li>Data akan <strong>hilang</strong> jika: ganti browser, ganti akun Chrome, atau clear cache</li>
+                    <li><strong>Backup data</strong> Anda dengan tombol "Export Data" secara berkala</li>
+                    <li>File backup bisa disimpan di Google Drive, Dropbox, atau email</li>
                 </ul>
             </div>
         </header>
@@ -965,8 +923,8 @@
         let currentCategory = null;
         let currentImageData = null;
         let editingVPS = null;
-        let isCloudSyncing = false;
-        let lastSyncTime = null;
+        const STORAGE_KEY = 'vpsPurchaseTrackerData';
+        let isLocalStorageAvailable = false;
 
         // VPS Templates
         const vpsTemplates = [
@@ -985,16 +943,41 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             console.log('=== VPS Purchase Tracker Initializing ===');
+            checkLocalStorageAvailability();
             initializeApp();
             populateVPSTemplates();
+            
+            // Show storage warning
+            setTimeout(() => {
+                if (categories.length > 0) {
+                    showToast('💡 Tips: Backup data Anda dengan "Export Data" agar tidak hilang!', 'warning', 5000);
+                }
+            }, 3000);
         });
 
-        // Initialize the app with cloud sync
-        async function initializeApp() {
-            console.log('Memulai inisialisasi aplikasi dengan cloud sync...');
+        // Check if localStorage is available
+        function checkLocalStorageAvailability() {
+            try {
+                const test = '__test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                isLocalStorageAvailable = true;
+                updateStorageStatus('Tersimpan otomatis', 'success');
+                console.log('✅ LocalStorage tersedia');
+            } catch (e) {
+                isLocalStorageAvailable = false;
+                updateStorageStatus('Penyimpanan tidak tersedia', 'error');
+                console.error('❌ LocalStorage tidak tersedia:', e);
+                showToast('Peringatan: Data tidak akan tersimpan setelah refresh browser', 'error');
+            }
+        }
+
+        // Initialize the app
+        function initializeApp() {
+            console.log('Memulai inisialisasi aplikasi...');
             
-            // Load from cloud first
-            await loadFromCloud();
+            // Load data from storage
+            loadData();
             
             // Render UI
             renderCategories();
@@ -1004,186 +987,82 @@
             if (categories.length === 0) {
                 showToast('Selamat datang! Tambah kategori atau load sample data untuk memulai', 'info');
             } else {
-                showToast(`Berhasil memuat ${categories.length} kategori dari cloud`, 'success');
+                showToast(`Berhasil memuat ${categories.length} kategori`, 'success');
             }
             
-            console.log('Aplikasi berhasil diinisialisasi dengan cloud sync');
+            console.log('Aplikasi berhasil diinisialisasi');
         }
 
-        // Cloud Storage Functions
-        async function loadFromCloud() {
+        // Export data to file
+        function exportData() {
             try {
-                setSyncStatus('syncing', 'Mengunduh data...');
-                
-                // Using JSONBin.io as free cloud storage
-                const BIN_ID = '656b4a7c266cfc3a8e44c5e2'; // Public bin ID
-                const API_KEY = '$2a$10$X1kZQK8Z9Z9Z9Z9Z9Z9ZO'; // Read-only API key
-                
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': API_KEY
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.record && data.record.categories) {
-                        categories = data.record.categories;
-                        lastSyncTime = new Date();
-                        setSyncStatus('success', '✅ Tersinkron cloud');
-                        console.log('✅ Data berhasil dimuat dari cloud');
-                        return true;
-                    }
-                }
-                
-                // Fallback to localStorage if cloud fails
-                loadFromLocalStorage();
-                setSyncStatus('warning', '⚠️ Menggunakan local storage');
-                return false;
-            } catch (error) {
-                console.error('❌ Gagal memuat dari cloud:', error);
-                // Fallback to localStorage
-                loadFromLocalStorage();
-                setSyncStatus('error', '❌ Offline mode');
-                return false;
-            }
-        }
-
-        async function saveToCloud() {
-            if (isCloudSyncing) return;
-            
-            try {
-                isCloudSyncing = true;
-                setSyncStatus('syncing', 'Mengunggah...');
-                
-                const dataToSave = {
+                const dataToExport = {
                     categories: categories,
-                    lastUpdated: new Date().toISOString(),
-                    app: 'VPS Purchase Tracker'
+                    exportDate: new Date().toISOString(),
+                    version: '1.0',
+                    appInfo: 'VPS Purchase Tracker Export'
                 };
                 
-                // Using JSONBin.io as free cloud storage
-                const BIN_ID = '656b4a7c266cfc3a8e44c5e2';
-                const API_KEY = '$2a$10$X1kZQK8Z9Z9Z9Z9Z9Z9ZO';
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
                 
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataToSave)
-                });
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vps-data-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
                 
-                if (response.ok) {
-                    lastSyncTime = new Date();
-                    setSyncStatus('success', '✅ Tersinkron cloud');
-                    console.log('✅ Data berhasil disimpan ke cloud');
+                showToast('Data berhasil diexport! Simpan file ini dengan aman.', 'success');
+                console.log('✅ Data berhasil diexport');
+            } catch (error) {
+                console.error('❌ Gagal export data:', error);
+                showToast('Gagal export data: ' + error.message, 'error');
+            }
+        }
+
+        // Import data from file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
                     
-                    // Also save to localStorage as backup
-                    saveToLocalStorage();
-                    return true;
-                } else {
-                    throw new Error('Cloud sync failed');
-                }
-            } catch (error) {
-                console.error('❌ Gagal menyimpan ke cloud:', error);
-                setSyncStatus('error', '❌ Sync gagal');
-                
-                // Fallback to localStorage
-                saveToLocalStorage();
-                showToast('Gagal sync ke cloud, data tersimpan lokal', 'warning');
-                return false;
-            } finally {
-                isCloudSyncing = false;
-            }
-        }
-
-        // LocalStorage fallback
-        function saveToLocalStorage() {
-            try {
-                const dataToSave = {
-                    categories: categories,
-                    lastSaved: new Date().toISOString(),
-                    version: '1.0'
-                };
-                localStorage.setItem('vpsPurchaseTrackerData', JSON.stringify(dataToSave));
-                console.log('✅ Data tersimpan di localStorage');
-            } catch (error) {
-                console.error('❌ Gagal menyimpan ke localStorage:', error);
-            }
-        }
-
-        function loadFromLocalStorage() {
-            try {
-                const savedData = localStorage.getItem('vpsPurchaseTrackerData');
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
-                        categories = parsedData.categories;
-                        console.log('✅ Data dimuat dari localStorage');
+                    // Validate imported data
+                    if (!importedData.categories || !Array.isArray(importedData.categories)) {
+                        throw new Error('Format file tidak valid!');
                     }
+                    
+                    // Ask for confirmation
+                    if (categories.length > 0) {
+                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
+                            return;
+                        }
+                    }
+                    
+                    // Import the data
+                    categories = importedData.categories;
+                    
+                    if (saveData()) {
+                        renderCategories();
+                        updateStats();
+                        showToast(`Berhasil import ${categories.length} kategori!`, 'success');
+                        console.log('✅ Data berhasil diimport');
+                    }
+                } catch (error) {
+                    console.error('❌ Gagal import data:', error);
+                    showToast('Gagal import data: ' + error.message, 'error');
                 }
-            } catch (error) {
-                console.error('❌ Gagal memuat dari localStorage:', error);
-            }
-        }
-
-        // Force sync
-        async function forceSync() {
-            showToast('Memulai force sync...', 'info');
-            const success = await saveToCloud();
-            if (success) {
-                showToast('Force sync berhasil!', 'success');
-            } else {
-                showToast('Force sync gagal, coba lagi nanti', 'error');
-            }
-        }
-
-        // Update sync status
-        function setSyncStatus(status, text) {
-            const statusEl = document.getElementById('storageStatus');
-            const iconEl = document.getElementById('storageIcon');
-            const textEl = document.getElementById('storageText');
-            const syncEl = document.getElementById('syncIndicator');
-            const syncTextEl = document.getElementById('syncText');
-            const spinnerEl = document.getElementById('syncSpinner');
+            };
             
-            statusEl.className = 'storage-status';
-            syncEl.className = 'sync-indicator';
-            
-            switch(status) {
-                case 'syncing':
-                    statusEl.classList.add('syncing');
-                    syncEl.classList.add('syncing');
-                    iconEl.textContent = '☁️';
-                    textEl.textContent = text;
-                    syncTextEl.textContent = 'Syncing...';
-                    spinnerEl.style.display = 'inline-block';
-                    break;
-                case 'success':
-                    iconEl.textContent = '☁️';
-                    textEl.textContent = text;
-                    syncTextEl.textContent = '☁️ Cloud Sync';
-                    spinnerEl.style.display = 'none';
-                    break;
-                case 'error':
-                    statusEl.classList.add('error');
-                    syncEl.classList.add('error');
-                    iconEl.textContent = '⚠️';
-                    textEl.textContent = text;
-                    syncTextEl.textContent = '❌ Offline';
-                    spinnerEl.style.display = 'none';
-                    break;
-                case 'warning':
-                    statusEl.classList.add('warning');
-                    iconEl.textContent = '⚡';
-                    textEl.textContent = text;
-                    syncTextEl.textContent = '⚡ Local';
-                    spinnerEl.style.display = 'none';
-                    break;
-            }
+            reader.readAsText(file);
+            // Clear the file input
+            event.target.value = '';
         }
 
         // Populate VPS templates dropdown
@@ -1210,6 +1089,91 @@
                 document.getElementById('bandwidth').value = template.bandwidth;
                 document.getElementById('price').value = template.price;
                 document.getElementById('location').value = template.location;
+            }
+        }
+
+        // Update storage status indicator
+        function updateStorageStatus(text, type = 'success') {
+            const statusEl = document.getElementById('storageStatus');
+            const iconEl = document.getElementById('storageIcon');
+            const textEl = document.getElementById('storageText');
+            
+            statusEl.className = 'storage-status';
+            if (type === 'error') {
+                statusEl.classList.add('error');
+                iconEl.textContent = '⚠️';
+            } else if (type === 'warning') {
+                statusEl.classList.add('warning');
+                iconEl.textContent = '⚡';
+            } else {
+                iconEl.textContent = '💾';
+            }
+            textEl.textContent = text;
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, data tidak disimpan');
+                showToast('Data tidak disimpan - LocalStorage tidak tersedia', 'error');
+                return false;
+            }
+
+            try {
+                const dataToSave = {
+                    categories: categories,
+                    lastSaved: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const serializedData = JSON.stringify(dataToSave);
+                localStorage.setItem(STORAGE_KEY, serializedData);
+                
+                console.log('✅ Data berhasil disimpan ke localStorage');
+                updateStorageStatus('Tersimpan', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Gagal menyimpan data:', error);
+                updateStorageStatus('Gagal menyimpan', 'error');
+                showToast('Gagal menyimpan data: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, menggunakan data kosong');
+                categories = [];
+                return;
+            }
+
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
+                        categories = parsedData.categories;
+                        console.log('✅ Data berhasil dimuat dari localStorage');
+                        
+                        if (parsedData.lastSaved) {
+                            const lastSaved = new Date(parsedData.lastSaved);
+                            console.log('Terakhir disimpan:', lastSaved.toLocaleString('id-ID'));
+                        }
+                    } else {
+                        console.warn('Struktur data tidak valid, menggunakan data kosong');
+                        categories = [];
+                    }
+                } else {
+                    console.log('Tidak ada data tersimpan, menggunakan data kosong');
+                    categories = [];
+                }
+            } catch (error) {
+                console.error('❌ Gagal memuat data:', error);
+                categories = [];
+                showToast('Gagal memuat data, menggunakan data kosong', 'error');
             }
         }
 
@@ -1500,7 +1464,7 @@ Simpan bukti ini sebagai arsip.
         }
 
         // Add category
-        async function addCategory(event) {
+        function addCategory(event) {
             event.preventDefault();
             
             const nameInput = document.getElementById('categoryName');
@@ -1524,9 +1488,7 @@ Simpan bukti ini sebagai arsip.
             
             categories.push(newCategory);
             
-            // Save to cloud
-            const success = await saveToCloud();
-            if (success || categories.length > 0) {
+            if (saveData()) {
                 renderCategories();
                 updateStats();
                 closeModal('categoryModal');
@@ -1536,7 +1498,7 @@ Simpan bukti ini sebagai arsip.
         }
 
         // Save VPS (add or edit)
-        async function saveVPS(event) {
+        function saveVPS(event) {
             event.preventDefault();
             
             const vpsData = {
@@ -1567,9 +1529,7 @@ Simpan bukti ini sebagai arsip.
                 showToast('VPS berhasil ditambahkan!', 'success');
             }
             
-            // Save to cloud
-            const success = await saveToCloud();
-            if (success || categories.length > 0) {
+            if (saveData()) {
                 renderVPSList();
                 updateStats();
                 closeModal('vpsModal');
@@ -1577,15 +1537,14 @@ Simpan bukti ini sebagai arsip.
         }
 
         // Delete functions
-        async function deleteCategory(categoryId) {
+        function deleteCategory(categoryId) {
             const category = categories.find(c => c.id === categoryId);
             if (!category) return;
             
             if (confirm(`Apakah Anda yakin ingin menghapus kategori "${category.name}"? Semua VPS di dalamnya akan terhapus.`)) {
                 categories = categories.filter(c => c.id !== categoryId);
                 
-                const success = await saveToCloud();
-                if (success || categories.length >= 0) {
+                if (saveData()) {
                     renderCategories();
                     updateStats();
                     showToast(`Kategori "${category.name}" berhasil dihapus!`, 'success');
@@ -1593,14 +1552,13 @@ Simpan bukti ini sebagai arsip.
             }
         }
 
-        async function deleteVPS(vpsId) {
+        function deleteVPS(vpsId) {
             if (confirm('Apakah Anda yakin ingin menghapus VPS ini?')) {
                 const index = currentCategory.vpsList.findIndex(v => v.id === vpsId);
                 if (index !== -1) {
                     currentCategory.vpsList.splice(index, 1);
                     
-                    const success = await saveToCloud();
-                    if (success || categories.length >= 0) {
+                    if (saveData()) {
                         renderVPSList();
                         updateStats();
                         showToast('VPS berhasil dihapus!', 'success');
@@ -1644,7 +1602,7 @@ Simpan bukti ini sebagai arsip.
         }
 
         // Load sample data
-        async function loadSampleData() {
+        function loadSampleData() {
             console.log('Loading sample data...');
             
             const genoaCategory = {
@@ -1671,8 +1629,7 @@ Simpan bukti ini sebagai arsip.
 
             categories = [genoaCategory, milanCategory];
             
-            const success = await saveToCloud();
-            if (success || categories.length > 0) {
+            if (saveData()) {
                 renderCategories();
                 updateStats();
                 showToast('Sample data berhasil dimuat dan disimpan!', 'success');
@@ -1680,24 +1637,26 @@ Simpan bukti ini sebagai arsip.
         }
 
         // Clear all data
-        async function clearAllData() {
+        function clearAllData() {
             if (!confirm('Apakah Anda yakin ingin menghapus SEMUA data? Ini tidak dapat dibatalkan!')) {
                 return;
             }
             
             categories = [];
             
-            const success = await saveToCloud();
-            if (success || categories.length === 0) {
-                // Also clear localStorage
+            if (isLocalStorageAvailable) {
                 try {
-                    localStorage.removeItem('vpsPurchaseTrackerData');
-                } catch (e) {}
-                
-                renderCategories();
-                updateStats();
-                showToast('Semua data telah dihapus!', 'info');
+                    localStorage.removeItem(STORAGE_KEY);
+                    console.log('✅ Data dihapus dari localStorage');
+                    updateStorageStatus('Data dihapus', 'success');
+                } catch (error) {
+                    console.error('❌ Gagal menghapus data:', error);
+                }
             }
+            
+            renderCategories();
+            updateStats();
+            showToast('Semua data telah dihapus!', 'info');
         }
 
         // Toast notification
@@ -1726,13 +1685,6 @@ Simpan bukti ini sebagai arsip.
                 });
             }
         });
-
-        // Auto-sync every 30 seconds
-        setInterval(async () => {
-            if (categories.length > 0 && !isCloudSyncing) {
-                await saveToCloud();
-            }
-        }, 30000);
     </script>
 </body>
 </html>
