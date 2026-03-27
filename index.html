@@ -81,13 +81,12 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 🔥 ROCKET ANIMATION FIXED (Anti Hilang di HP) 🔥 */
+        /* 🔥 ROCKET ANIMATION FIXED (Anti-Blur di Android) 🔥 */
         .rocket-icon {
             display: inline-block; font-size: 2.2rem;
-            transform-origin: bottom center; /* Biar goyangnya natural dari ekor */
+            transform-origin: bottom center; 
             animation: flyRocket 3s ease-in-out infinite;
-            /* Filter drop-shadow dihapus, diganti text-shadow biar aman di Android/iOS */
-            text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+            /* Efek shadow DIHAPUS TOTAL karena bikin bug render blur di HP */
         }
         @keyframes flyRocket {
             0%   { transform: translateY(0) rotate(0deg) scale(1); }
@@ -402,7 +401,7 @@
         });
 
         // ==========================================
-        // SISTEM SILENT SYNC & DEBOUNCE (ANTI LEMOT)
+        // SISTEM SILENT SYNC & DEBOUNCE
         // ==========================================
         function updateSyncStatus(status) {
             const badge = document.getElementById('cloudSyncStatus');
@@ -413,7 +412,7 @@
                 badge.innerHTML = `<span class="spinner-small"></span> ☁️ Menyimpan...`;
             } else if (status === 'synced') {
                 badge.style.background = 'rgba(16, 185, 129, 0.2)'; badge.style.color = '#34d399'; badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-                badge.innerHTML = `<span class="sync-dot" style="animation: pulseDot 2s infinite;"></span> ☁️ Tersinkronisasi`;
+                badge.innerHTML = `<span class="sync-dot" style="background:#34d399; animation: pulseDot 2s infinite;"></span> ☁️ Tersinkronisasi`;
             } else if (status === 'waiting') {
                 badge.style.background = 'rgba(0, 0, 0, 0.2)'; badge.style.color = 'var(--text-muted)'; badge.style.borderColor = 'transparent';
                 badge.innerHTML = `⏳ Menunggu Jeda...`;
