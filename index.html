@@ -232,10 +232,20 @@
 
         .page {
             display: none;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
         }
 
         .page.active {
             display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .page-leave {
+            opacity: 0;
+            transform: translateX(-20px);
         }
 
         .breadcrumb {
@@ -316,6 +326,15 @@
             margin-top: 15px;
             display: flex;
             gap: 10px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .vps-grid {
@@ -774,13 +793,6 @@
                     <span id="storageIcon">💾</span>
                     <span id="storageText">Memeriksa penyimpanan...</span>
                 </div>
-                <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
-                    📂 Import Kategori
-                </button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <button class="btn btn-info" onclick="exportAllData()">
-                    💾 Export Semua Data
-                </button>
                 <button class="btn btn-danger" onclick="clearAllData()">
                     🔄 Reset Data
                 </button>
@@ -790,12 +802,11 @@
             </div>
             
             <div class="data-info">
-                <h4>ℹ️ Info Import/Export Kategori</h4>
+                <h4>ℹ️ Info Penyimpanan Data</h4>
                 <ul>
-                    <li><strong>Export Kategori:</strong> Simpan kategori beserta semua VPS di dalamnya</li>
-                    <li><strong>Import Kategori:</strong> Tambahkan kategori yang sudah dibuat sebelumnya</li>
-                    <li><strong>Mode Merge:</strong> Menambahkan kategori baru tanpa menghapus yang sudah ada</li>
-                    <li><strong>Mode Replace:</strong> Mengganti semua data dengan yang diimport</li>
+                    <li>Data tersimpan di <strong>localStorage browser</strong> Anda</li>
+                    <li>Data akan <strong>hilang</strong> jika: ganti browser, ganti akun Chrome, atau clear cache</li>
+                    <li><strong>Backup data</strong> Anda dengan tombol "Export Kategori" di halaman kategori</li>
                     <li>File backup bisa disimpan di Google Drive, Dropbox, atau email</li>
                 </ul>
             </div>
@@ -830,10 +841,25 @@
 
             <!-- Category Detail Page -->
             <div class="page" id="categoryPage">
-                <div class="breadcrumb">
-                    <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Beranda</span>
-                    <span>›</span>
-                    <span id="breadcrumbCategory"></span>
+                <div class="category-header">
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Beranda</span>
+                        <span>›</span>
+                        <span id="breadcrumbCategory"></span>
+                    </div>
+                    
+                    <div class="header-actions" style="background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
+                            📂 Import Kategori
+                        </button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                        <button class="btn btn-info" onclick="exportCategory()">
+                            📤 Export Kategori
+                        </button>
+                        <button class="btn btn-primary" onclick="openVPSModal()">
+                            <span>➕</span> Tambah VPS
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="tab-navigation">
@@ -844,13 +870,6 @@
 
                 <!-- List VPS Tab -->
                 <div class="tab-content active" id="listTab">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 id="categoryTitle"></h3>
-                        <button class="btn btn-primary" onclick="openVPSModal()">
-                            <span>➕</span> Tambah VPS
-                        </button>
-                    </div>
-                    
                     <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Cari VPS...">
                     <div class="vps-grid" id="vpsGrid"></div>
                 </div>
@@ -1021,7 +1040,7 @@
             // Show storage warning
             setTimeout(() => {
                 if (categories.length > 0) {
-                    showToast('💡 Tips: Backup data Anda dengan "Export Kategori" agar tidak hilang!', 'warning', 5000);
+                    showToast('💡 Tips: Backup data Anda dengan "Export Kategori" di halaman kategori!', 'warning', 5000);
                 }
             }, 3000);
         });
@@ -1064,196 +1083,29 @@
             console.log('Aplikasi berhasil diinisialisasi');
         }
 
-        // Export all data to file
-        function exportAllData() {
-            try {
-                const dataToExport = {
-                    categories: categories,
-                    exportDate: new Date().toISOString(),
-                    version: '1.0',
-                    appInfo: 'VPS Purchase Tracker Export - All Data'
-                };
+        // Page navigation with animation
+        function showPage(pageId, categoryId = null) {
+            // Set current category if provided
+            if (categoryId) {
+                currentCategory = categories.find(c => c.id === categoryId);
+                if (!currentCategory) return;
                 
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-all-data-backup-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast('Semua data berhasil diexport! Simpan file ini dengan aman.', 'success');
-                console.log('✅ Semua data berhasil diexport');
-            } catch (error) {
-                console.error('❌ Gagal export data:', error);
-                showToast('Gagal export data: ' + error.message, 'error');
+                document.getElementById('breadcrumbCategory').textContent = currentCategory.name;
+                document.getElementById('categoryId').value = categoryId;
+                renderVPSList();
             }
-        }
-
-        // Import data from file
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Validate imported data
-                    if (!importedData.categories || !Array.isArray(importedData.categories)) {
-                        throw new Error('Format file tidak valid! File harus berisi data kategori.');
-                    }
-                    
-                    // Ask for confirmation
-                    if (categories.length > 0) {
-                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
-                            return;
-                        }
-                    }
-                    
-                    // Import the data
-                    categories = importedData.categories;
-                    
-                    if (saveData()) {
-                        renderCategories();
-                        updateStats();
-                        showToast(`Berhasil import ${categories.length} kategori!`, 'success');
-                        console.log('✅ Data berhasil diimport');
-                    }
-                } catch (error) {
-                    console.error('❌ Gagal import data:', error);
-                    showToast('Gagal import data: ' + error.message, 'error');
-                }
-            };
-            
-            reader.readAsText(file);
-            // Clear the file input
-            event.target.value = '';
-        }
-
-        // Populate VPS templates dropdown
-        function populateVPSTemplates() {
-            const select = document.getElementById('vpsTemplate');
-            vpsTemplates.forEach((template, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`;
-                select.appendChild(option);
-            });
-        }
-
-        // Fill form with template data
-        function fillVPSTemplate() {
-            const select = document.getElementById('vpsTemplate');
-            const index = select.value;
-            
-            if (index !== '') {
-                const template = vpsTemplates[index];
-                document.getElementById('ram').value = template.ram;
-                document.getElementById('core').value = template.core;
-                document.getElementById('ssd').value = template.ssd;
-                document.getElementById('bandwidth').value = template.bandwidth;
-                document.getElementById('price').value = template.price;
-                document.getElementById('location').value = template.location;
-            }
-        }
-
-        // Update storage status indicator
-        function updateStorageStatus(text, type = 'success') {
-            const statusEl = document.getElementById('storageStatus');
-            const iconEl = document.getElementById('storageIcon');
-            const textEl = document.getElementById('storageText');
-            
-            statusEl.className = 'storage-status';
-            if (type === 'error') {
-                statusEl.classList.add('error');
-                iconEl.textContent = '⚠️';
-            } else if (type === 'warning') {
-                statusEl.classList.add('warning');
-                iconEl.textContent = '⚡';
-            } else {
-                iconEl.textContent = '💾';
-            }
-            textEl.textContent = text;
-        }
-
-        // Save data to localStorage
-        function saveData() {
-            if (!isLocalStorageAvailable) {
-                console.warn('LocalStorage tidak tersedia, data tidak disimpan');
-                showToast('Data tidak disimpan - LocalStorage tidak tersedia', 'error');
-                return false;
-            }
-
-            try {
-                const dataToSave = {
-                    categories: categories,
-                    lastSaved: new Date().toISOString(),
-                    version: '1.0'
-                };
-                
-                const serializedData = JSON.stringify(dataToSave);
-                localStorage.setItem(STORAGE_KEY, serializedData);
-                
-                console.log('✅ Data berhasil disimpan ke localStorage');
-                updateStorageStatus('Tersimpan', 'success');
-                return true;
-            } catch (error) {
-                console.error('❌ Gagal menyimpan data:', error);
-                updateStorageStatus('Gagal menyimpan', 'error');
-                showToast('Gagal menyimpan data: ' + error.message, 'error');
-                return false;
-            }
-        }
-
-        // Load data from localStorage
-        function loadData() {
-            if (!isLocalStorageAvailable) {
-                console.warn('LocalStorage tidak tersedia, menggunakan data kosong');
-                categories = [];
-                return;
-            }
-
-            try {
-                const savedData = localStorage.getItem(STORAGE_KEY);
-                
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    
-                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
-                        categories = parsedData.categories;
-                        console.log('✅ Data berhasil dimuat dari localStorage');
-                        
-                        if (parsedData.lastSaved) {
-                            const lastSaved = new Date(parsedData.lastSaved);
-                            console.log('Terakhir disimpan:', lastSaved.toLocaleString('id-ID'));
-                        }
-                    } else {
-                        console.warn('Struktur data tidak valid, menggunakan data kosong');
-                        categories = [];
-                    }
-                } else {
-                    console.log('Tidak ada data tersimpan, menggunakan data kosong');
-                    categories = [];
-                }
-            } catch (error) {
-                console.error('❌ Gagal memuat data:', error);
-                categories = [];
-                showToast('Gagal memuat data, menggunakan data kosong', 'error');
-            }
-        }
-
-        // Page navigation
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
+            // Hide all pages with leave animation
+            document.querySelectorAll('.page.active').forEach(page => {
+                page.classList.add('page-leave');
                 page.classList.remove('active');
             });
-            document.getElementById(pageId).classList.add('active');
+            
+            // Show new page with enter animation
+            setTimeout(() => {
+                document.getElementById(pageId).classList.remove('page-leave');
+                document.getElementById(pageId).classList.add('active');
+            }, 300);
         }
 
         // Switch tab
@@ -1295,7 +1147,7 @@
             }
 
             container.innerHTML = categories.map(category => `
-                <div class="category-card" onclick="openCategory(${category.id})">
+                <div class="category-card" onclick="showPage('categoryPage', ${category.id})">
                     <div class="category-icon">📁</div>
                     <div class="category-name">${category.name}</div>
                     <div class="category-stats">
@@ -1303,11 +1155,8 @@
                         Total: Rp ${category.vpsList.reduce((sum, vps) => sum + vps.price, 0)}K/bulan
                     </div>
                     <div class="category-actions">
-                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openCategory(${category.id})">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); showPage('categoryPage', ${category.id})">
                             Buka
-                        </button>
-                        <button class="btn btn-info btn-sm" onclick="event.stopPropagation(); exportCategory(${category.id})">
-                            📤
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${category.id})">
                             🗑️
@@ -1315,19 +1164,6 @@
                     </div>
                 </div>
             `).join('');
-        }
-
-        // Open category detail
-        function openCategory(categoryId) {
-            currentCategory = categories.find(c => c.id === categoryId);
-            if (!currentCategory) return;
-            
-            document.getElementById('breadcrumbCategory').textContent = currentCategory.name;
-            document.getElementById('categoryTitle').textContent = `📁 ${currentCategory.name}`;
-            document.getElementById('categoryId').value = categoryId;
-            
-            renderVPSList();
-            showPage('categoryPage');
         }
 
         // Render VPS list
@@ -1523,16 +1359,191 @@ Simpan bukti ini sebagai arsip.
             });
         }
 
-        // Search functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchBar = document.getElementById('searchBar');
-            if (searchBar) {
-                searchBar.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    renderVPSList(searchTerm);
-                });
+        // Export single category
+        function exportCategory() {
+            if (!currentCategory) return;
+            
+            try {
+                const dataToExport = {
+                    category: currentCategory,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0',
+                    appInfo: `VPS Purchase Tracker Export - ${currentCategory.name}`
+                };
+                
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vps-category-${currentCategory.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Kategori "${currentCategory.name}" berhasil diexport!`, 'success');
+                console.log(`✅ Kategori "${currentCategory.name}" berhasil diexport`);
+            } catch (error) {
+                console.error('❌ Gagal export kategori:', error);
+                showToast('Gagal export kategori: ' + error.message, 'error');
             }
-        });
+        }
+
+        // Import data from file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate imported data
+                    if (!importedData.category) {
+                        throw new Error('Format file tidak valid! File harus berisi data kategori.');
+                    }
+                    
+                    // Ask for confirmation
+                    if (categories.length > 0) {
+                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
+                            return;
+                        }
+                    }
+                    
+                    // Import the data
+                    categories = [importedData.category];
+                    
+                    if (saveData()) {
+                        renderCategories();
+                        updateStats();
+                        showToast(`Berhasil import kategori "${importedData.category.name}"!`, 'success');
+                        console.log('✅ Data berhasil diimport');
+                    }
+                } catch (error) {
+                    console.error('❌ Gagal import data:', error);
+                    showToast('Gagal import data: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            // Clear the file input
+            event.target.value = '';
+        }
+
+        // Populate VPS templates dropdown
+        function populateVPSTemplates() {
+            const select = document.getElementById('vpsTemplate');
+            vpsTemplates.forEach((template, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`;
+                select.appendChild(option);
+            });
+        }
+
+        // Fill form with template data
+        function fillVPSTemplate() {
+            const select = document.getElementById('vpsTemplate');
+            const index = select.value;
+            
+            if (index !== '') {
+                const template = vpsTemplates[index];
+                document.getElementById('ram').value = template.ram;
+                document.getElementById('core').value = template.core;
+                document.getElementById('ssd').value = template.ssd;
+                document.getElementById('bandwidth').value = template.bandwidth;
+                document.getElementById('price').value = template.price;
+                document.getElementById('location').value = template.location;
+            }
+        }
+
+        // Update storage status indicator
+        function updateStorageStatus(text, type = 'success') {
+            const statusEl = document.getElementById('storageStatus');
+            const iconEl = document.getElementById('storageIcon');
+            const textEl = document.getElementById('storageText');
+            
+            statusEl.className = 'storage-status';
+            if (type === 'error') {
+                statusEl.classList.add('error');
+                iconEl.textContent = '⚠️';
+            } else if (type === 'warning') {
+                statusEl.classList.add('warning');
+                iconEl.textContent = '⚡';
+            } else {
+                iconEl.textContent = '💾';
+            }
+            textEl.textContent = text;
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, data tidak disimpan');
+                showToast('Data tidak disimpan - LocalStorage tidak tersedia', 'error');
+                return false;
+            }
+
+            try {
+                const dataToSave = {
+                    categories: categories,
+                    lastSaved: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const serializedData = JSON.stringify(dataToSave);
+                localStorage.setItem(STORAGE_KEY, serializedData);
+                
+                console.log('✅ Data berhasil disimpan ke localStorage');
+                updateStorageStatus('Tersimpan', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Gagal menyimpan data:', error);
+                updateStorageStatus('Gagal menyimpan', 'error');
+                showToast('Gagal menyimpan data: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, menggunakan data kosong');
+                categories = [];
+                return;
+            }
+
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
+                        categories = parsedData.categories;
+                        console.log('✅ Data berhasil dimuat dari localStorage');
+                        
+                        if (parsedData.lastSaved) {
+                            const lastSaved = new Date(parsedData.lastSaved);
+                            console.log('Terakhir disimpan:', lastSaved.toLocaleString('id-ID'));
+                        }
+                    } else {
+                        console.warn('Struktur data tidak valid, menggunakan data kosong');
+                        categories = [];
+                    }
+                } else {
+                    console.log('Tidak ada data tersimpan, menggunakan data kosong');
+                    categories = [];
+                }
+            } catch (error) {
+                console.error('❌ Gagal memuat data:', error);
+                categories = [];
+                showToast('Gagal memuat data, menggunakan data kosong', 'error');
+            }
+        }
 
         // Modal functions
         function openCategoryModal() {
@@ -1591,39 +1602,6 @@ Simpan bukti ini sebagai arsip.
                 editingVPS = null;
             } else if (modalId === 'categoryModal') {
                 document.getElementById('categoryForm').reset();
-            }
-        }
-
-        // Export single category
-        function exportCategory(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            if (!category) return;
-            
-            try {
-                const dataToExport = {
-                    category: category,
-                    exportDate: new Date().toISOString(),
-                    version: '1.0',
-                    appInfo: `VPS Purchase Tracker Export - ${category.name}`
-                };
-                
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-category-${category.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast(`Kategori "${category.name}" berhasil diexport!`, 'success');
-                console.log(`✅ Kategori "${category.name}" berhasil diexport`);
-            } catch (error) {
-                console.error('❌ Gagal export kategori:', error);
-                showToast('Gagal export kategori: ' + error.message, 'error');
             }
         }
 
