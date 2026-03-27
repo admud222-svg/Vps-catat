@@ -95,6 +95,29 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .storage-status {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--secondary);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .storage-status.error {
+            background: rgba(245, 101, 101, 0.1);
+            color: var(--danger);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .stats-container {
@@ -117,17 +140,6 @@
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
         }
 
         .stat-number {
@@ -184,7 +196,7 @@
             font-size: 0.9rem;
         }
 
-        .categories-container {
+        .page-container {
             background: var(--white);
             border-radius: 20px;
             padding: 30px;
@@ -203,54 +215,99 @@
             }
         }
 
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
+        .page {
+            display: none;
         }
 
-        .category-item {
+        .page.active {
+            display: block;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+
+        .breadcrumb-item {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
             background: var(--light);
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            animation: fadeInScale 0.3s ease;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
-        .category-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .category-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .category-icon {
+            font-size: 3rem;
             margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
         }
 
         .category-name {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .category-stats {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .category-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
 
         .vps-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 20px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .vps-card {
@@ -260,12 +317,39 @@
             box-shadow: var(--shadow-sm);
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            position: relative;
         }
 
         .vps-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow);
             border-color: var(--primary);
+        }
+
+        .vps-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-safe {
+            background: rgba(72, 187, 120, 0.2);
+            color: var(--secondary);
+        }
+
+        .status-error {
+            background: rgba(245, 101, 101, 0.2);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background: rgba(237, 137, 54, 0.2);
+            color: var(--warning);
         }
 
         .vps-header {
@@ -316,6 +400,12 @@
             font-size: 0.9rem;
             color: var(--gray);
             margin-bottom: 15px;
+        }
+
+        .vps-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
         }
 
         .transaction-proof {
@@ -494,19 +584,87 @@
             transform: translateX(400px);
             transition: transform 0.3s ease;
             z-index: 2000;
+            max-width: 300px;
         }
 
         .toast.show {
             transform: translateX(0);
         }
 
-        .debug-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
+        .toast.success {
+            background: var(--secondary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.info {
+            background: var(--primary);
+        }
+
+        .bon-container {
+            background: var(--light);
             border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .bon-header {
+            text-align: center;
+            border-bottom: 2px dashed var(--gray);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .bon-footer {
+            text-align: center;
+            border-top: 2px dashed var(--gray);
+            padding-top: 10px;
             margin-top: 10px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -533,6 +691,10 @@
             </h1>
             <p class="subtitle">Kelola dan catat semua pembelian VPS Anda dengan mudah</p>
             <div class="header-actions">
+                <div class="storage-status" id="storageStatus">
+                    <span id="storageIcon">💾</span>
+                    <span id="storageText">Memeriksa penyimpanan...</span>
+                </div>
                 <button class="btn btn-warning" onclick="clearAllData()">
                     🔄 Reset Data
                 </button>
@@ -557,17 +719,53 @@
             </div>
         </div>
 
-        <div class="categories-container">
-            <div class="category-header">
-                <h2>📁 Kategori VPS</h2>
-                <button class="btn btn-primary" onclick="openCategoryModal()">
-                    <span>➕</span> Tambah Kategori
-                </button>
+        <div class="page-container">
+            <!-- Home Page -->
+            <div class="page active" id="homePage">
+                <div class="page-header">
+                    <h2>📁 Kategori VPS</h2>
+                    <button class="btn btn-primary" onclick="openCategoryModal()">
+                        <span>➕</span> Tambah Kategori
+                    </button>
+                </div>
+                <div class="category-grid" id="categoryGrid"></div>
             </div>
 
-            <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Cari VPS berdasarkan spesifikasi atau lokasi...">
+            <!-- Category Detail Page -->
+            <div class="page" id="categoryPage">
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Beranda</span>
+                    <span>›</span>
+                    <span id="breadcrumbCategory"></span>
+                </div>
+                
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="switchTab('list')">📋 List VPS</button>
+                    <button class="tab-btn" onclick="switchTab('bon')">🧾 Bon VPS</button>
+                </div>
 
-            <div id="categoriesList"></div>
+                <!-- List VPS Tab -->
+                <div class="tab-content active" id="listTab">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 id="categoryTitle"></h3>
+                        <button class="btn btn-primary" onclick="openVPSModal()">
+                            <span>➕</span> Tambah VPS
+                        </button>
+                    </div>
+                    
+                    <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Cari VPS...">
+                    <div class="vps-grid" id="vpsGrid"></div>
+                </div>
+
+                <!-- Bon VPS Tab -->
+                <div class="tab-content" id="bonTab">
+                    <h3>🧾 Bon/Struk VPS</h3>
+                    <div class="bon-container" id="bonContainer">
+                        <button class="btn btn-sm btn-primary copy-btn" onclick="copyBon()">📋 Salin</button>
+                        <div id="bonContent"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -592,12 +790,20 @@
     <div class="modal" id="vpsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Tambah VPS Baru</h3>
+                <h3 class="modal-title" id="vpsModalTitle">Tambah VPS Baru</h3>
                 <button class="close-btn" onclick="closeModal('vpsModal')">&times;</button>
             </div>
-            <form id="vpsForm" onsubmit="addVPS(event)">
+            <form id="vpsForm" onsubmit="saveVPS(event)">
+                <input type="hidden" id="vpsId">
                 <input type="hidden" id="categoryId">
                 
+                <div class="form-group">
+                    <label class="form-label">Pilih Tipe VPS</label>
+                    <select class="form-control" id="vpsTemplate" onchange="fillVPSTemplate()">
+                        <option value="">-- Pilih Tipe VPS --</option>
+                    </select>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">RAM (GB)</label>
@@ -632,6 +838,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Status VPS</label>
+                    <select class="form-control" id="status">
+                        <option value="safe">✅ Safe</option>
+                        <option value="pending">⏳ Pending</option>
+                        <option value="error">❌ Error</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Bukti Transaksi</label>
                     <div class="image-upload-area" onclick="document.getElementById('proofInput').click()">
                         <input type="file" id="proofInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
@@ -662,92 +877,211 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // Global variables
         let categories = [];
+        let currentCategory = null;
         let currentImageData = null;
-        let hasLoadedSample = false;
+        let editingVPS = null;
+        const STORAGE_KEY = 'vpsPurchaseTrackerData';
+        let isLocalStorageAvailable = false;
 
-        // Initialize
+        // VPS Templates
+        const vpsTemplates = [
+            { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Genoa' },
+            { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Genoa' },
+            { ram: 8, core: 4, ssd: 160, bandwidth: 2, price: 65, location: 'Genoa' },
+            { ram: 16, core: 4, ssd: 160, bandwidth: 2, price: 70, location: 'Milan' },
+            { ram: 16, core: 8, ssd: 320, bandwidth: 3, price: 80, location: 'Genoa' },
+            { ram: 32, core: 8, ssd: 240, bandwidth: 3, price: 90, location: 'Milan' },
+            { ram: 32, core: 16, ssd: 680, bandwidth: 5, price: 100, location: 'Genoa' },
+            { ram: 64, core: 8, ssd: 320, bandwidth: 4, price: 110, location: 'Milan' },
+            { ram: 128, core: 32, ssd: 600, bandwidth: 6, price: 140, location: 'Milan' },
+            { ram: 192, core: 48, ssd: 960, bandwidth: 8, price: 180, location: 'Milan' }
+        ];
+
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Initializing app...');
+            console.log('=== VPS Purchase Tracker Initializing ===');
+            checkLocalStorageAvailability();
+            initializeApp();
+            populateVPSTemplates();
+        });
+
+        // Check if localStorage is available
+        function checkLocalStorageAvailability() {
+            try {
+                const test = '__test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                isLocalStorageAvailable = true;
+                updateStorageStatus('Tersimpan otomatis', 'success');
+                console.log('✅ LocalStorage tersedia');
+            } catch (e) {
+                isLocalStorageAvailable = false;
+                updateStorageStatus('Penyimpanan tidak tersedia', 'error');
+                console.error('❌ LocalStorage tidak tersedia:', e);
+                showToast('Peringatan: Data tidak akan tersimpan setelah refresh browser', 'error');
+            }
+        }
+
+        // Initialize the app
+        function initializeApp() {
+            console.log('Memulai inisialisasi aplikasi...');
+            
+            // Load data from storage
             loadData();
+            
+            // Render UI
             renderCategories();
             updateStats();
             
-            // Check if we need to show sample data button
-            if (categories.length === 0 && !hasLoadedSample) {
-                showToast('Selamat datang! Klik "Load Sample Data" untuk melihat contoh atau tambah kategori baru');
+            // Show welcome message if empty
+            if (categories.length === 0) {
+                showToast('Selamat datang! Tambah kategori atau load sample data untuk memulai', 'info');
+            } else {
+                showToast(`Berhasil memuat ${categories.length} kategori`, 'success');
             }
-        });
-
-        // Load sample data manually
-        function loadSampleData() {
-            console.log('Loading sample data...');
-            const sampleVPS = [
-                { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Genoa' },
-                { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Genoa' },
-                { ram: 8, core: 4, ssd: 160, bandwidth: 2, price: 65, location: 'Genoa' },
-                { ram: 16, core: 4, ssd: 160, bandwidth: 2, price: 70, location: 'Milan' },
-                { ram: 16, core: 8, ssd: 320, bandwidth: 3, price: 80, location: 'Genoa' },
-                { ram: 32, core: 8, ssd: 240, bandwidth: 3, price: 90, location: 'Milan' },
-                { ram: 32, core: 16, ssd: 680, bandwidth: 5, price: 100, location: 'Genoa' },
-                { ram: 64, core: 8, ssd: 320, bandwidth: 4, price: 110, location: 'Milan' },
-                { ram: 128, core: 32, ssd: 600, bandwidth: 6, price: 140, location: 'Milan' },
-                { ram: 192, core: 48, ssd: 960, bandwidth: 8, price: 180, location: 'Milan' }
-            ];
-
-            const genoaCategory = {
-                id: Date.now(),
-                name: 'VPS Genoa',
-                vpsList: sampleVPS.filter(v => v.location === 'Genoa').map(v => ({
-                    ...v,
-                    id: Date.now() + Math.random(),
-                    proof: `https://picsum.photos/seed/genoa${v.ram}/400/300.jpg`
-                }))
-            };
-
-            const milanCategory = {
-                id: Date.now() + 1,
-                name: 'VPS Milan',
-                vpsList: sampleVPS.filter(v => v.location === 'Milan').map(v => ({
-                    ...v,
-                    id: Date.now() + Math.random() + 1,
-                    proof: `https://picsum.photos/seed/milan${v.ram}/400/300.jpg`
-                }))
-            };
-
-            categories = [genoaCategory, milanCategory];
-            hasLoadedSample = true;
-            saveData();
-            renderCategories();
-            updateStats();
-            showToast('Sample data berhasil dimuat!');
+            
+            console.log('Aplikasi berhasil diinisialisasi');
         }
 
-        // Clear all data
-        function clearAllData() {
-            if (confirm('Apakah Anda yakin ingin menghapus semua data?')) {
+        // Populate VPS templates dropdown
+        function populateVPSTemplates() {
+            const select = document.getElementById('vpsTemplate');
+            vpsTemplates.forEach((template, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`;
+                select.appendChild(option);
+            });
+        }
+
+        // Fill form with template data
+        function fillVPSTemplate() {
+            const select = document.getElementById('vpsTemplate');
+            const index = select.value;
+            
+            if (index !== '') {
+                const template = vpsTemplates[index];
+                document.getElementById('ram').value = template.ram;
+                document.getElementById('core').value = template.core;
+                document.getElementById('ssd').value = template.ssd;
+                document.getElementById('bandwidth').value = template.bandwidth;
+                document.getElementById('price').value = template.price;
+                document.getElementById('location').value = template.location;
+            }
+        }
+
+        // Update storage status indicator
+        function updateStorageStatus(text, type = 'success') {
+            const statusEl = document.getElementById('storageStatus');
+            const iconEl = document.getElementById('storageIcon');
+            const textEl = document.getElementById('storageText');
+            
+            statusEl.className = 'storage-status';
+            if (type === 'error') {
+                statusEl.classList.add('error');
+                iconEl.textContent = '⚠️';
+            } else {
+                iconEl.textContent = '💾';
+            }
+            textEl.textContent = text;
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, data tidak disimpan');
+                showToast('Data tidak disimpan - LocalStorage tidak tersedia', 'error');
+                return false;
+            }
+
+            try {
+                const dataToSave = {
+                    categories: categories,
+                    lastSaved: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const serializedData = JSON.stringify(dataToSave);
+                localStorage.setItem(STORAGE_KEY, serializedData);
+                
+                console.log('✅ Data berhasil disimpan ke localStorage');
+                updateStorageStatus('Tersimpan', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Gagal menyimpan data:', error);
+                updateStorageStatus('Gagal menyimpan', 'error');
+                showToast('Gagal menyimpan data: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            if (!isLocalStorageAvailable) {
+                console.warn('LocalStorage tidak tersedia, menggunakan data kosong');
                 categories = [];
-                hasLoadedSample = false;
-                localStorage.removeItem('vpsCategories');
-                renderCategories();
-                updateStats();
-                showToast('Semua data telah dihapus!');
+                return;
+            }
+
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
+                        categories = parsedData.categories;
+                        console.log('✅ Data berhasil dimuat dari localStorage');
+                    } else {
+                        console.warn('Struktur data tidak valid, menggunakan data kosong');
+                        categories = [];
+                    }
+                } else {
+                    console.log('Tidak ada data tersimpan, menggunakan data kosong');
+                    categories = [];
+                }
+            } catch (error) {
+                console.error('❌ Gagal memuat data:', error);
+                categories = [];
+                showToast('Gagal memuat data, menggunakan data kosong', 'error');
             }
         }
 
-        // Search functionality
-        document.getElementById('searchBar').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            renderCategories(searchTerm);
-        });
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
 
-        function renderCategories(searchTerm = '') {
-            console.log('Rendering categories...', categories.length);
-            const container = document.getElementById('categoriesList');
+        // Switch tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            if (tabName === 'bon') {
+                generateBon();
+            }
+        }
+
+        // Render categories
+        function renderCategories() {
+            console.log(`Rendering categories (${categories.length} total)...`);
+            const container = document.getElementById('categoryGrid');
             
             if (categories.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
+                    <div class="empty-state" style="grid-column: 1 / -1;">
                         <div class="empty-icon">📂</div>
                         <h3>Belum ada kategori</h3>
                         <p>Tambahkan kategori pertama Anda untuk memulai</p>
@@ -759,95 +1093,224 @@
                 return;
             }
 
-            container.innerHTML = categories.map(category => {
-                let filteredVPS = category.vpsList;
-                
-                if (searchTerm) {
-                    filteredVPS = category.vpsList.filter(vps => 
-                        vps.location.toLowerCase().includes(searchTerm) ||
-                        vps.ram.toString().includes(searchTerm) ||
-                        vps.core.toString().includes(searchTerm) ||
-                        vps.ssd.toString().includes(searchTerm) ||
-                        vps.bandwidth.toString().includes(searchTerm) ||
-                        vps.price.toString().includes(searchTerm)
-                    );
-                }
-
-                return `
-                    <div class="category-item">
-                        <div class="category-title">
-                            <span class="category-name">📁 ${category.name}</span>
-                            <div>
-                                <button class="btn btn-success btn-sm" onclick="openVPSModal(${category.id})">
-                                    ➕ Tambah VPS
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCategory(${category.id})">
-                                    🗑️
-                                </button>
-                            </div>
-                        </div>
-                        ${filteredVPS.length > 0 ? `
-                            <div class="vps-grid">
-                                ${filteredVPS.map(vps => `
-                                    <div class="vps-card">
-                                        <div class="vps-header">
-                                            <div>
-                                                <div class="vps-price">Rp ${vps.price}K/bulan</div>
-                                                <span class="vps-location">📍 ${vps.location}</span>
-                                            </div>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteVPS(${category.id}, ${vps.id})">
-                                                🗑️
-                                            </button>
-                                        </div>
-                                        <div class="vps-specs">
-                                            <div class="spec-item">
-                                                <span class="spec-icon">💾</span>
-                                                <span>RAM: ${vps.ram}GB</span>
-                                            </div>
-                                            <div class="spec-item">
-                                                <span class="spec-icon">⚡</span>
-                                                <span>Core: ${vps.core}</span>
-                                            </div>
-                                            <div class="spec-item">
-                                                <span class="spec-icon">💿</span>
-                                                <span>SSD: ${vps.ssd}GB</span>
-                                            </div>
-                                            <div class="spec-item">
-                                                <span class="spec-icon">🌐</span>
-                                                <span>Bandwidth: ${vps.bandwidth}TB</span>
-                                            </div>
-                                        </div>
-                                        ${vps.proof ? `
-                                            <div class="transaction-proof">
-                                                <div class="proof-label">Bukti Transaksi:</div>
-                                                <img src="${vps.proof}" class="proof-image" onclick="openImageModal('${vps.proof}')" alt="Bukti Transaksi">
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : searchTerm ? `
-                            <p style="text-align: center; color: var(--gray); padding: 20px;">
-                                Tidak ada VPS yang cocok dengan pencarian "${searchTerm}"
-                            </p>
-                        ` : `
-                            <p style="text-align: center; color: var(--gray); padding: 20px;">
-                                Belum ada VPS dalam kategori ini. Klik "Tambah VPS" untuk menambahkan.
-                            </p>
-                        `}
+            container.innerHTML = categories.map(category => `
+                <div class="category-card" onclick="openCategory(${category.id})">
+                    <div class="category-icon">📁</div>
+                    <div class="category-name">${category.name}</div>
+                    <div class="category-stats">
+                        ${category.vpsList.length} VPS • 
+                        Total: Rp ${category.vpsList.reduce((sum, vps) => sum + vps.price, 0)}K/bulan
                     </div>
-                `;
-            }).join('');
+                    <div class="category-actions">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openCategory(${category.id})">
+                            Buka
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${category.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
         }
 
+        // Open category detail
+        function openCategory(categoryId) {
+            currentCategory = categories.find(c => c.id === categoryId);
+            if (!currentCategory) return;
+            
+            document.getElementById('breadcrumbCategory').textContent = currentCategory.name;
+            document.getElementById('categoryTitle').textContent = `📁 ${currentCategory.name}`;
+            document.getElementById('categoryId').value = categoryId;
+            
+            renderVPSList();
+            showPage('categoryPage');
+        }
+
+        // Render VPS list
+        function renderVPSList(searchTerm = '') {
+            if (!currentCategory) return;
+            
+            let filteredVPS = currentCategory.vpsList;
+            
+            if (searchTerm) {
+                filteredVPS = currentCategory.vpsList.filter(vps => 
+                    vps.location.toLowerCase().includes(searchTerm) ||
+                    vps.ram.toString().includes(searchTerm) ||
+                    vps.core.toString().includes(searchTerm) ||
+                    vps.ssd.toString().includes(searchTerm) ||
+                    vps.bandwidth.toString().includes(searchTerm) ||
+                    vps.price.toString().includes(searchTerm) ||
+                    (vps.status && vps.status.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            const container = document.getElementById('vpsGrid');
+            
+            if (filteredVPS.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">🖥️</div>
+                        <h3>${searchTerm ? 'Tidak ada VPS yang cocok' : 'Belum ada VPS'}</h3>
+                        <p>${searchTerm ? 'Coba kata kunci lain' : 'Klik "Tambah VPS" untuk memulai'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredVPS.map(vps => `
+                <div class="vps-card">
+                    ${vps.status ? `<div class="vps-status status-${vps.status}">${vps.status}</div>` : ''}
+                    <div class="vps-header">
+                        <div>
+                            <div class="vps-price">Rp ${vps.price}K/bulan</div>
+                            <span class="vps-location">📍 ${vps.location}</span>
+                        </div>
+                    </div>
+                    <div class="vps-specs">
+                        <div class="spec-item">
+                            <span class="spec-icon">💾</span>
+                            <span>RAM: ${vps.ram}GB</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-icon">⚡</span>
+                            <span>Core: ${vps.core}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-icon">💿</span>
+                            <span>SSD: ${vps.ssd}GB</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-icon">🌐</span>
+                            <span>Bandwidth: ${vps.bandwidth}TB</span>
+                        </div>
+                    </div>
+                    ${vps.proof ? `
+                        <div class="transaction-proof">
+                            <div class="proof-label">Bukti Transaksi:</div>
+                            <img src="${vps.proof}" class="proof-image" onclick="openImageModal('${vps.proof}')" alt="Bukti Transaksi">
+                        </div>
+                    ` : ''}
+                    <div class="vps-actions">
+                        <button class="btn btn-primary btn-sm" onclick="editVPS(${vps.id})">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteVPS(${vps.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generate Bon/Struk
+        function generateBon() {
+            if (!currentCategory) return;
+            
+            const date = new Date().toLocaleString('id-ID');
+            const totalVPS = currentCategory.vpsList.length;
+            const totalValue = currentCategory.vpsList.reduce((sum, vps) => sum + vps.price, 0);
+            
+            let bonContent = `
+╔══════════════════════════════════════╗
+║         BUKTI PEMBAYARAN VPS          ║
+║            ${currentCategory.name.toUpperCase()}            ║
+╚══════════════════════════════════════╝
+
+Tanggal: ${date}
+========================================
+
+DAFTAR VPS:
+----------------------------------------
+`;
+
+            currentCategory.vpsList.forEach((vps, index) => {
+                const status = vps.status ? `[${vps.status.toUpperCase()}]` : '';
+                bonContent += `
+ ${index + 1}. RAM ${vps.ram}GB | ${vps.core} Core
+   SSD: ${vps.ssd}GB | BW: ${vps.bandwidth}TB
+   Lokasi: ${vps.location} | Harga: Rp ${vps.price}K
+   Status: ${status}
+   ${vps.proof ? 'Bukti: Tersedia' : 'Bukti: -'}
+----------------------------------------
+`;
+            });
+
+            bonContent += `
+RINGKASAN:
+----------------------------------------
+Total VPS: ${totalVPS} unit
+Total Nilai: Rp ${totalValue}K/bulan
+
+========================================
+Terima kasih atas pembelian Anda!
+Silakan simpan bukti ini sebagai arsip.
+            `;
+            
+            document.getElementById('bonContent').textContent = bonContent;
+        }
+
+        // Copy bon to clipboard
+        function copyBon() {
+            const bonContent = document.getElementById('bonContent').textContent;
+            navigator.clipboard.writeText(bonContent).then(() => {
+                showToast('Bon berhasil disalin!', 'success');
+            }).catch(() => {
+                showToast('Gagal menyalin bon', 'error');
+            });
+        }
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    renderVPSList(searchTerm);
+                });
+            }
+        });
+
+        // Modal functions
         function openCategoryModal() {
-            console.log('Opening category modal...');
             document.getElementById('categoryModal').classList.add('active');
             document.getElementById('categoryName').focus();
         }
 
-        function openVPSModal(categoryId) {
-            document.getElementById('categoryId').value = categoryId;
+        function openVPSModal() {
+            editingVPS = null;
+            document.getElementById('vpsModalTitle').textContent = 'Tambah VPS Baru';
+            document.getElementById('vpsForm').reset();
+            document.getElementById('uploadPreview').innerHTML = `
+                <div style="font-size: 2rem;">📷</div>
+                <p>Klik untuk upload gambar atau masukkan URL</p>
+            `;
+            currentImageData = null;
+            document.getElementById('vpsModal').classList.add('active');
+        }
+
+        function editVPS(vpsId) {
+            const vps = currentCategory.vpsList.find(v => v.id === vpsId);
+            if (!vps) return;
+            
+            editingVPS = vps;
+            document.getElementById('vpsModalTitle').textContent = 'Edit VPS';
+            document.getElementById('vpsId').value = vps.id;
+            document.getElementById('ram').value = vps.ram;
+            document.getElementById('core').value = vps.core;
+            document.getElementById('ssd').value = vps.ssd;
+            document.getElementById('bandwidth').value = vps.bandwidth;
+            document.getElementById('price').value = vps.price;
+            document.getElementById('location').value = vps.location;
+            document.getElementById('status').value = vps.status || 'safe';
+            
+            if (vps.proof) {
+                document.getElementById('uploadPreview').innerHTML = `
+                    <img src="${vps.proof}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
+                    <p>✅ Gambar tersimpan</p>
+                `;
+                currentImageData = vps.proof;
+            }
+            
             document.getElementById('vpsModal').classList.add('active');
         }
 
@@ -860,20 +1323,26 @@
                     <p>Klik untuk upload gambar atau masukkan URL</p>
                 `;
                 currentImageData = null;
+                editingVPS = null;
             } else if (modalId === 'categoryModal') {
                 document.getElementById('categoryForm').reset();
             }
         }
 
+        // Add category
         function addCategory(event) {
             event.preventDefault();
-            console.log('Adding category...');
             
             const nameInput = document.getElementById('categoryName');
             const name = nameInput.value.trim();
             
             if (!name) {
-                showToast('Nama kategori tidak boleh kosong!');
+                showToast('Nama kategori tidak boleh kosong!', 'error');
+                return;
+            }
+            
+            if (categories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
+                showToast('Kategori dengan nama ini sudah ada!', 'error');
                 return;
             }
             
@@ -883,68 +1352,88 @@
                 vpsList: []
             };
             
-            console.log('New category:', newCategory);
             categories.push(newCategory);
             
-            saveData();
-            renderCategories();
-            updateStats();
-            closeModal('categoryModal');
-            showToast(`Kategori "${name}" berhasil ditambahkan!`);
-            
-            // Clear form
-            nameInput.value = '';
+            if (saveData()) {
+                renderCategories();
+                updateStats();
+                closeModal('categoryModal');
+                showToast(`Kategori "${name}" berhasil ditambahkan!`, 'success');
+                nameInput.value = '';
+            }
         }
 
-        function addVPS(event) {
+        // Save VPS (add or edit)
+        function saveVPS(event) {
             event.preventDefault();
-            const categoryId = parseInt(document.getElementById('categoryId').value);
             
-            const newVPS = {
-                id: Date.now(),
+            const vpsData = {
                 ram: parseInt(document.getElementById('ram').value),
                 core: parseInt(document.getElementById('core').value),
                 ssd: parseInt(document.getElementById('ssd').value),
                 bandwidth: parseFloat(document.getElementById('bandwidth').value),
                 price: parseInt(document.getElementById('price').value),
                 location: document.getElementById('location').value,
+                status: document.getElementById('status').value,
                 proof: currentImageData || document.getElementById('proofUrl').value
             };
             
-            const category = categories.find(c => c.id === categoryId);
-            if (category) {
-                category.vpsList.push(newVPS);
-                saveData();
-                renderCategories();
+            if (editingVPS) {
+                // Edit existing VPS
+                const index = currentCategory.vpsList.findIndex(v => v.id === editingVPS.id);
+                if (index !== -1) {
+                    currentCategory.vpsList[index] = { ...editingVPS, ...vpsData };
+                    showToast('VPS berhasil diperbarui!', 'success');
+                }
+            } else {
+                // Add new VPS
+                const newVPS = {
+                    id: Date.now(),
+                    ...vpsData
+                };
+                currentCategory.vpsList.push(newVPS);
+                showToast('VPS berhasil ditambahkan!', 'success');
+            }
+            
+            if (saveData()) {
+                renderVPSList();
                 updateStats();
                 closeModal('vpsModal');
-                showToast('VPS berhasil ditambahkan!');
             }
         }
 
+        // Delete functions
         function deleteCategory(categoryId) {
-            if (confirm('Apakah Anda yakin ingin menghapus kategori ini? Semua VPS di dalamnya akan terhapus.')) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            if (confirm(`Apakah Anda yakin ingin menghapus kategori "${category.name}"? Semua VPS di dalamnya akan terhapus.`)) {
                 categories = categories.filter(c => c.id !== categoryId);
-                saveData();
-                renderCategories();
-                updateStats();
-                showToast('Kategori berhasil dihapus!');
-            }
-        }
-
-        function deleteVPS(categoryId, vpsId) {
-            if (confirm('Apakah Anda yakin ingin menghapus VPS ini?')) {
-                const category = categories.find(c => c.id === categoryId);
-                if (category) {
-                    category.vpsList = category.vpsList.filter(v => v.id !== vpsId);
-                    saveData();
+                
+                if (saveData()) {
                     renderCategories();
                     updateStats();
-                    showToast('VPS berhasil dihapus!');
+                    showToast(`Kategori "${category.name}" berhasil dihapus!`, 'success');
                 }
             }
         }
 
+        function deleteVPS(vpsId) {
+            if (confirm('Apakah Anda yakin ingin menghapus VPS ini?')) {
+                const index = currentCategory.vpsList.findIndex(v => v.id === vpsId);
+                if (index !== -1) {
+                    currentCategory.vpsList.splice(index, 1);
+                    
+                    if (saveData()) {
+                        renderVPSList();
+                        updateStats();
+                        showToast('VPS berhasil dihapus!', 'success');
+                    }
+                }
+            }
+        }
+
+        // Image handling
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -965,6 +1454,7 @@
             document.getElementById('imageModal').classList.add('active');
         }
 
+        // Update statistics
         function updateStats() {
             const totalCategories = categories.length;
             const totalVPS = categories.reduce((sum, cat) => sum + cat.vpsList.length, 0);
@@ -977,33 +1467,70 @@
             document.getElementById('totalValue').textContent = totalValue;
         }
 
-        function saveData() {
-            console.log('Saving data to localStorage...');
-            localStorage.setItem('vpsCategories', JSON.stringify(categories));
-            console.log('Data saved:', categories);
-        }
+        // Load sample data
+        function loadSampleData() {
+            console.log('Loading sample data...');
+            
+            const genoaCategory = {
+                id: Date.now(),
+                name: 'VPS Genoa',
+                vpsList: vpsTemplates.filter(v => v.location === 'Genoa').map(v => ({
+                    ...v,
+                    id: Date.now() + Math.random(),
+                    status: 'safe',
+                    proof: `https://picsum.photos/seed/genoa${v.ram}/400/300.jpg`
+                }))
+            };
 
-        function loadData() {
-            console.log('Loading data from localStorage...');
-            const saved = localStorage.getItem('vpsCategories');
-            if (saved) {
-                try {
-                    categories = JSON.parse(saved);
-                    console.log('Data loaded:', categories);
-                } catch (e) {
-                    console.error('Error loading data:', e);
-                    categories = [];
-                }
-            } else {
-                console.log('No saved data found');
-                categories = [];
+            const milanCategory = {
+                id: Date.now() + 1,
+                name: 'VPS Milan',
+                vpsList: vpsTemplates.filter(v => v.location === 'Milan').map(v => ({
+                    ...v,
+                    id: Date.now() + Math.random() + 1,
+                    status: 'safe',
+                    proof: `https://picsum.photos/seed/milan${v.ram}/400/300.jpg`
+                }))
+            };
+
+            categories = [genoaCategory, milanCategory];
+            
+            if (saveData()) {
+                renderCategories();
+                updateStats();
+                showToast('Sample data berhasil dimuat dan disimpan!', 'success');
             }
         }
 
-        function showToast(message) {
+        // Clear all data
+        function clearAllData() {
+            if (!confirm('Apakah Anda yakin ingin menghapus SEMUA data? Ini tidak dapat dibatalkan!')) {
+                return;
+            }
+            
+            categories = [];
+            
+            if (isLocalStorageAvailable) {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                    console.log('✅ Data dihapus dari localStorage');
+                    updateStorageStatus('Data dihapus', 'success');
+                } catch (error) {
+                    console.error('❌ Gagal menghapus data:', error);
+                }
+            }
+            
+            renderCategories();
+            updateStats();
+            showToast('Semua data telah dihapus!', 'info');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.classList.add('show');
+            toast.className = 'toast show ' + type;
+            
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
