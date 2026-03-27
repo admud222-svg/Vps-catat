@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VPS Purchase Tracker - Catat Pembelian VPS</title>
+    <title>VPS Purchase Tracker - Manajemen VPS Lengkap</title>
     <style>
         * {
             margin: 0;
@@ -545,6 +545,12 @@
             gap: 15px;
         }
 
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
         .image-upload-area {
             border: 2px dashed #cbd5e0;
             border-radius: 10px;
@@ -696,28 +702,44 @@
             line-height: 1.6;
         }
 
-        .import-options {
+        .info-list {
             background: var(--light);
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-top: 10px;
         }
 
-        .import-options h4 {
+        .info-list h5 {
             color: var(--primary);
             margin-bottom: 10px;
+            font-size: 1.1rem;
         }
 
-        .import-option {
+        .info-list ul {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+
+        .info-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .import-option input[type="radio"] {
-            width: 18px;
-            height: 18px;
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .info-value {
+            color: var(--gray);
+            font-family: monospace;
         }
 
         @media (max-width: 768px) {
@@ -726,6 +748,10 @@
             }
             
             .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row-3 {
                 grid-template-columns: 1fr;
             }
             
@@ -748,10 +774,10 @@
                     <span id="storageIcon">💾</span>
                     <span id="storageText">Memeriksa penyimpanan...</span>
                 </div>
-                <button class="btn btn-warning" onclick="document.getElementById('importCategoryFile').click()">
+                <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
                     📂 Import Kategori
                 </button>
-                <input type="file" id="importCategoryFile" accept=".json" style="display: none;" onchange="importCategory(event)">
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
                 <button class="btn btn-info" onclick="exportAllData()">
                     💾 Export Semua Data
                 </button>
@@ -812,7 +838,8 @@
                 
                 <div class="tab-navigation">
                     <button class="tab-btn active" onclick="switchTab('list')">📋 List VPS</button>
-                    <button class="tab-btn" onclick="switchTab('bon')">🧾 Bon VPS</button>
+                    <button class="tab-btn" onclick="switchTab('bon')">🧾 Bon Pending</button>
+                    <button class="tab-btn" onclick="switchTab('info')">ℹ️ Info</button>
                 </div>
 
                 <!-- List VPS Tab -->
@@ -828,12 +855,20 @@
                     <div class="vps-grid" id="vpsGrid"></div>
                 </div>
 
-                <!-- Bon VPS Tab -->
+                <!-- Bon Pending Tab -->
                 <div class="tab-content" id="bonTab">
-                    <h3>🧾 Bon/Struk VPS</h3>
+                    <h3>🧾 Bon VPS Pending</h3>
                     <div class="bon-container" id="bonContainer">
                         <button class="btn btn-sm btn-primary copy-btn" onclick="copyBon()">📋 Salin</button>
                         <div id="bonContent"></div>
+                    </div>
+                </div>
+
+                <!-- Info Tab -->
+                <div class="tab-content" id="infoTab">
+                    <h3>ℹ️ Info VPS</h3>
+                    <div class="info-list">
+                        <div id="infoList"></div>
                     </div>
                 </div>
             </div>
@@ -908,13 +943,19 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Status VPS</label>
-                    <select class="form-control" id="status">
-                        <option value="safe">Safe</option>
-                        <option value="pending">Pending</option>
-                        <option value="error">Error</option>
-                    </select>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label class="form-label">IP Address</label>
+                        <input type="text" class="form-control" id="ipAddress" placeholder="192.168.1.100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status VPS</label>
+                        <select class="form-control" id="status">
+                            <option value="safe">Safe</option>
+                            <option value="pending">Pending</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -945,47 +986,6 @@
         </div>
     </div>
 
-    <!-- Modal Import Kategori -->
-    <div class="modal" id="importModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Import Kategori</h3>
-                <button class="close-btn" onclick="closeModal('importModal')">&times;</button>
-            </div>
-            
-            <div class="import-options">
-                <h4>Pilih Mode Import:</h4>
-                <div class="import-option">
-                    <input type="radio" id="mergeMode" name="importMode" value="merge" checked>
-                    <label for="mergeMode"><strong>Merge</strong> - Tambahkan kategori baru (default)</label>
-                </div>
-                <div class="import-option">
-                    <input type="radio" id="replaceMode" name="importMode" value="replace">
-                    <label for="replaceMode"><strong>Replace</strong> - Hapus semua data dan ganti dengan yang diimport</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">File Kategori</label>
-                <input type="file" class="form-control" id="importFileInput" accept=".json" onchange="handleImportFileSelect(event)">
-            </div>
-            
-            <div id="importPreview" style="display: none;">
-                <h4>Preview Kategori yang Akan Diimport:</h4>
-                <div id="importPreviewContent" style="background: var(--light); padding: 15px; border-radius: 10px; margin-top: 10px;"></div>
-            </div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-primary" onclick="confirmImport()" id="confirmImportBtn" disabled>
-                    ✅ Konfirmasi Import
-                </button>
-                <button class="btn btn-secondary" onclick="closeModal('importModal')">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-
     <div class="toast" id="toast"></div>
 
     <script>
@@ -996,7 +996,6 @@
         let editingVPS = null;
         const STORAGE_KEY = 'vpsPurchaseTrackerData';
         let isLocalStorageAvailable = false;
-        let importData = null;
 
         // VPS Templates
         const vpsTemplates = [
@@ -1095,41 +1094,8 @@
             }
         }
 
-        // Export single category
-        function exportCategory(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            if (!category) return;
-            
-            try {
-                const dataToExport = {
-                    category: category,
-                    exportDate: new Date().toISOString(),
-                    version: '1.0',
-                    appInfo: `VPS Purchase Tracker Export - ${category.name}`
-                };
-                
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-category-${category.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast(`Kategori "${category.name}" berhasil diexport!`, 'success');
-                console.log(`✅ Kategori "${category.name}" berhasil diexport`);
-            } catch (error) {
-                console.error('❌ Gagal export kategori:', error);
-                showToast('Gagal export kategori: ' + error.message, 'error');
-            }
-        }
-
-        // Import category from file
-        function importCategory(event) {
+        // Import data from file
+        function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
             
@@ -1139,160 +1105,35 @@
                     const importedData = JSON.parse(e.target.result);
                     
                     // Validate imported data
-                    if (!importedData.category) {
+                    if (!importedData.categories || !Array.isArray(importedData.categories)) {
                         throw new Error('Format file tidak valid! File harus berisi data kategori.');
                     }
                     
-                    // Store imported data for confirmation
-                    importData = importedData;
+                    // Ask for confirmation
+                    if (categories.length > 0) {
+                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
+                            return;
+                        }
+                    }
                     
-                    // Show import modal
-                    showImportModal(importedData);
+                    // Import the data
+                    categories = importedData.categories;
+                    
+                    if (saveData()) {
+                        renderCategories();
+                        updateStats();
+                        showToast(`Berhasil import ${categories.length} kategori!`, 'success');
+                        console.log('✅ Data berhasil diimport');
+                    }
                 } catch (error) {
-                    console.error('❌ Gagal import kategori:', error);
-                    showToast('Gagal import kategori: ' + error.message, 'error');
+                    console.error('❌ Gagal import data:', error);
+                    showToast('Gagal import data: ' + error.message, 'error');
                 }
             };
             
             reader.readAsText(file);
             // Clear the file input
             event.target.value = '';
-        }
-
-        // Show import modal with preview
-        function showImportModal(data) {
-            const modal = document.getElementById('importModal');
-            const previewContent = document.getElementById('importPreviewContent');
-            
-            // Show category preview
-            const category = data.category;
-            previewContent.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <strong>Nama Kategori:</strong> ${category.name}<br>
-                    <strong>Jumlah VPS:</strong> ${category.vpsList ? category.vpsList.length : 0}
-                </div>
-                ${category.vpsList && category.vpsList.length > 0 ? `
-                    <div>
-                        <strong>Daftar VPS:</strong>
-                        <ul style="margin-top: 5px; padding-left: 20px;">
-                            ${category.vpsList.slice(0, 5).map(vps => 
-                                `<li>RAM ${vps.ram}GB | ${vps.core} Core | ${vps.location} | Rp ${vps.price}K</li>`
-                            ).join('')}
-                            ${category.vpsList.length > 5 ? `<li>... dan ${category.vpsList.length - 5} VPS lainnya</li>` : ''}
-                        </ul>
-                    </div>
-                ` : '<p><em>Kategori ini tidak memiliki VPS</em></p>'}
-            `;
-            
-            // Enable confirm button
-            document.getElementById('confirmImportBtn').disabled = false;
-            
-            // Show modal
-            modal.classList.add('active');
-            document.getElementById('importPreview').style.display = 'block';
-        }
-
-        // Handle file selection in import modal
-        function handleImportFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Validate imported data
-                    if (!importedData.category) {
-                        throw new Error('Format file tidak valid! File harus berisi data kategori.');
-                    }
-                    
-                    // Store imported data for confirmation
-                    importData = importedData;
-                    
-                    // Show preview
-                    const previewContent = document.getElementById('importPreviewContent');
-                    const category = importedData.category;
-                    previewContent.innerHTML = `
-                        <div style="margin-bottom: 15px;">
-                            <strong>Nama Kategori:</strong> ${category.name}<br>
-                            <strong>Jumlah VPS:</strong> ${category.vpsList ? category.vpsList.length : 0}
-                        </div>
-                        ${category.vpsList && category.vpsList.length > 0 ? `
-                            <div>
-                                <strong>Daftar VPS:</strong>
-                                <ul style="margin-top: 5px; padding-left: 20px;">
-                                    ${category.vpsList.slice(0, 5).map(vps => 
-                                        `<li>RAM ${vps.ram}GB | ${vps.core} Core | ${vps.location} | Rp ${vps.price}K</li>`
-                                    ).join('')}
-                                    ${category.vpsList.length > 5 ? `<li>... dan ${category.vpsList.length - 5} VPS lainnya</li>` : ''}
-                                </ul>
-                            </div>
-                        ` : '<p><em>Kategori ini tidak memiliki VPS</em></p>'}
-                    `;
-                    
-                    // Enable confirm button
-                    document.getElementById('confirmImportBtn').disabled = false;
-                } catch (error) {
-                    console.error('❌ Gagal membaca file:', error);
-                    showToast('Gagal membaca file: ' + error.message, 'error');
-                    document.getElementById('confirmImportBtn').disabled = true;
-                }
-            };
-            
-            reader.readAsText(file);
-        }
-
-        // Confirm import
-        function confirmImport() {
-            if (!importData || !importData.category) return;
-            
-            const importMode = document.querySelector('input[name="importMode"]:checked').value;
-            const importedCategory = importData.category;
-            
-            if (importMode === 'replace') {
-                // Replace all data
-                if (!confirm('Mode Replace akan menghapus SEMUA data yang ada dan menggantinya dengan kategori yang diimport. Lanjutkan?')) {
-                    return;
-                }
-                
-                categories = [importedCategory];
-                showToast('Semua data berhasil diganti dengan kategori yang diimport!', 'success');
-            } else {
-                // Merge mode
-                // Check if category with same name already exists
-                const existingCategory = categories.find(c => 
-                    c.name.toLowerCase() === importedCategory.name.toLowerCase()
-                );
-                
-                if (existingCategory) {
-                    if (!confirm(`Kategori dengan nama "${importedCategory.name}" sudah ada. Apakah Anda ingin menggantinya?`)) {
-                        return;
-                    }
-                    
-                    // Replace existing category
-                    const index = categories.findIndex(c => c.id === existingCategory.id);
-                    if (index !== -1) {
-                        // Generate new ID to avoid conflicts
-                        importedCategory.id = Date.now();
-                        categories[index] = importedCategory;
-                        showToast(`Kategori "${importedCategory.name}" berhasil diperbarui!`, 'success');
-                    }
-                } else {
-                    // Add new category with new ID
-                    importedCategory.id = Date.now();
-                    categories.push(importedCategory);
-                    showToast(`Kategori "${importedCategory.name}" berhasil ditambahkan!`, 'success');
-                }
-            }
-            
-            // Save data
-            if (saveData()) {
-                renderCategories();
-                updateStats();
-                closeModal('importModal');
-                importData = null;
-            }
         }
 
         // Populate VPS templates dropdown
@@ -1429,6 +1270,8 @@
             
             if (tabName === 'bon') {
                 generateBon();
+            } else if (tabName === 'info') {
+                generateInfo();
             }
         }
 
@@ -1501,7 +1344,8 @@
                     vps.ssd.toString().includes(searchTerm) ||
                     vps.bandwidth.toString().includes(searchTerm) ||
                     vps.price.toString().includes(searchTerm) ||
-                    (vps.status && vps.status.toLowerCase().includes(searchTerm))
+                    (vps.status && vps.status.toLowerCase().includes(searchTerm)) ||
+                    (vps.ipAddress && vps.ipAddress.toLowerCase().includes(searchTerm))
                 );
             }
 
@@ -1544,6 +1388,10 @@
                             <span class="spec-icon">🌐</span>
                             <span>Bandwidth: ${vps.bandwidth}TB</span>
                         </div>
+                        <div class="spec-item">
+                            <span class="spec-icon">🌍</span>
+                            <span>IP: ${vps.ipAddress || '-'}</span>
+                        </div>
                     </div>
                     ${vps.proof ? `
                         <div class="transaction-proof">
@@ -1563,13 +1411,14 @@
             `).join('');
         }
 
-        // Generate Bon/Struk - Simple WhatsApp Friendly Version
+        // Generate Bon (only pending VPS)
         function generateBon() {
             if (!currentCategory) return;
             
             const date = new Date().toLocaleString('id-ID');
-            const totalVPS = currentCategory.vpsList.length;
-            const totalValue = currentCategory.vpsList.reduce((sum, vps) => sum + vps.price, 0);
+            const pendingVPS = currentCategory.vpsList.filter(vps => vps.status === 'pending');
+            const totalVPS = pendingVPS.length;
+            const totalValue = pendingVPS.reduce((sum, vps) => sum + vps.price, 0);
             
             // Simple border lines
             const borderLine = '==================================';
@@ -1582,25 +1431,29 @@
             }
             
             let bonContent = `${borderLine}
- ${centerText(currentCategory.name.toUpperCase(), 34)}
+ ${centerText(currentCategory.name.toUpperCase() + ' - VPS PENDING', 34)}
  ${borderLine}
 
 Tanggal: ${date}
  ${dashLine}
 
-DAFTAR VPS:
+DAFTAR VPS PENDING:
  ${dashLine}
 `;
 
-            currentCategory.vpsList.forEach((vps, index) => {
-                const status = vps.status ? `[${vps.status.toUpperCase()}]` : '[SAFE]';
+            if (pendingVPS.length === 0) {
                 bonContent += `
+Tidak ada VPS dengan status pending.
+ ${dashLine}`;
+            } else {
+                pendingVPS.forEach((vps, index) => {
+                    bonContent += `
  ${index + 1}. RAM ${vps.ram}GB | ${vps.core} Core | SSD ${vps.ssd}GB
    BW: ${vps.bandwidth}TB | Lokasi: ${vps.location}
-   Harga: Rp ${vps.price}K/bulan | Status: ${status}
-   ${vps.proof ? 'Bukti: Tersedia' : 'Bukti: -'}
+   Harga: Rp ${vps.price}K/bulan | IP: ${vps.ipAddress || '-'}
  ${dashLine}`;
-            });
+                });
+            }
 
             bonContent += `
 RINGKASAN:
@@ -1614,6 +1467,50 @@ Simpan bukti ini sebagai arsip.
  ${borderLine}`;
             
             document.getElementById('bonContent').textContent = bonContent;
+        }
+
+        // Generate Info (all VPS details)
+        function generateInfo() {
+            if (!currentCategory) return;
+            
+            const date = new Date().toLocaleString('id-ID');
+            const safeVPS = currentCategory.vpsList.filter(vps => vps.status === 'safe');
+            const totalVPS = currentCategory.vpsList.length;
+            const totalValue = currentCategory.vpsList.reduce((sum, vps) => sum + vps.price, 0);
+            
+            let infoContent = `
+                <h5>📊 Informasi VPS - ${currentCategory.name}</h5>
+                <p><strong>Tanggal:</strong> ${date}</p>
+                <p><strong>Total VPS:</strong> ${totalVPS} unit</p>
+                <p><strong>Total Nilai:</strong> Rp ${totalValue}K/bulan</p>
+                
+                <div style="margin-top: 15px;">
+                    <p><strong>Status Breakdown:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>✅ Safe: ${safeVPS.length} unit</li>
+                        <li>⏳ Pending: ${currentCategory.vpsList.filter(v => v.status === 'pending').length} unit</li>
+                        <li>❌ Error: ${currentCategory.vpsList.filter(v => v.status === 'error').length} unit</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <p><strong>Daftar Semua VPS:</strong></p>
+            `;
+            
+            currentCategory.vpsList.forEach((vps, index) => {
+                const statusIcon = vps.status === 'safe' ? '✅' : vps.status === 'pending' ? '⏳' : '❌';
+                infoContent += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: var(--light); border-radius: 8px;">
+                        <strong>${index + 1}.</strong> ${statusIcon} ${vps.name || `VPS-${index + 1}`}<br>
+                        <small style="color: var(--gray);">RAM: ${vps.ram}GB | Core: ${vps.core} | SSD: ${vps.ssd}GB</small><br>
+                        <small style="color: var(--gray);">BW: ${vps.bandwidth}TB | Lokasi: ${vps.location}</small><br>
+                        <small style="color: var(--gray);">IP: ${vps.ipAddress || 'Belum diatur'}</small><br>
+                        <small style="color: var(--primary); font-weight: bold;">Harga: Rp ${vps.price}K/bulan</small>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('infoList').innerHTML = infoContent;
         }
 
         // Copy bon to clipboard
@@ -1668,6 +1565,7 @@ Simpan bukti ini sebagai arsip.
             document.getElementById('bandwidth').value = vps.bandwidth;
             document.getElementById('price').value = vps.price;
             document.getElementById('location').value = vps.location;
+            document.getElementById('ipAddress').value = vps.ipAddress || '';
             document.getElementById('status').value = vps.status || 'safe';
             
             if (vps.proof) {
@@ -1693,11 +1591,39 @@ Simpan bukti ini sebagai arsip.
                 editingVPS = null;
             } else if (modalId === 'categoryModal') {
                 document.getElementById('categoryForm').reset();
-            } else if (modalId === 'importModal') {
-                document.getElementById('importFileInput').value = '';
-                document.getElementById('importPreview').style.display = 'none';
-                document.getElementById('confirmImportBtn').disabled = true;
-                importData = null;
+            }
+        }
+
+        // Export single category
+        function exportCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            try {
+                const dataToExport = {
+                    category: category,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0',
+                    appInfo: `VPS Purchase Tracker Export - ${category.name}`
+                };
+                
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vps-category-${category.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Kategori "${category.name}" berhasil diexport!`, 'success');
+                console.log(`✅ Kategori "${category.name}" berhasil diexport`);
+            } catch (error) {
+                console.error('❌ Gagal export kategori:', error);
+                showToast('Gagal export kategori: ' + error.message, 'error');
             }
         }
 
@@ -1739,6 +1665,12 @@ Simpan bukti ini sebagai arsip.
         function saveVPS(event) {
             event.preventDefault();
             
+            const ipAddress = document.getElementById('ipAddress').value.trim();
+            const status = document.getElementById('status').value;
+            
+            // Auto-set status to pending if IP is empty
+            const finalStatus = (!ipAddress || ipAddress === '') ? 'pending' : status;
+            
             const vpsData = {
                 ram: parseInt(document.getElementById('ram').value),
                 core: parseInt(document.getElementById('core').value),
@@ -1746,7 +1678,8 @@ Simpan bukti ini sebagai arsip.
                 bandwidth: parseFloat(document.getElementById('bandwidth').value),
                 price: parseInt(document.getElementById('price').value),
                 location: document.getElementById('location').value,
-                status: document.getElementById('status').value,
+                ipAddress: ipAddress,
+                status: finalStatus,
                 proof: currentImageData || document.getElementById('proofUrl').value
             };
             
@@ -1850,6 +1783,7 @@ Simpan bukti ini sebagai arsip.
                     ...v,
                     id: Date.now() + Math.random(),
                     status: 'safe',
+                    ipAddress: '192.168.1.100',
                     proof: `https://picsum.photos/seed/genoa${v.ram}/400/300.jpg`
                 }))
             };
@@ -1861,6 +1795,7 @@ Simpan bukti ini sebagai arsip.
                     ...v,
                     id: Date.now() + Math.random() + 1,
                     status: 'safe',
+                    ipAddress: '192.168.2.100',
                     proof: `https://picsum.photos/seed/milan${v.ram}/400/300.jpg`
                 }))
             };
