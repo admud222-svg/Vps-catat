@@ -1123,18 +1123,32 @@
 
         // Setup event listeners
         function setupEventListeners() {
+            console.log('🔧 Setting up event listeners...');
+            
             // Add category button
             const addCategoryBtn = document.getElementById('addCategoryBtn');
             if (addCategoryBtn) {
-                addCategoryBtn.addEventListener('click', openCategoryModal);
+                addCategoryBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Add category button clicked!');
+                    openCategoryModal();
+                });
                 console.log('✅ Event listener attached to add category button');
+            } else {
+                console.error('❌ Add category button not found!');
             }
             
             // Category form submit
             const categoryForm = document.getElementById('categoryForm');
             if (categoryForm) {
-                categoryForm.addEventListener('submit', addCategory);
+                categoryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Category form submitted!');
+                    addCategory(e);
+                });
                 console.log('✅ Event listener attached to category form');
+            } else {
+                console.error('❌ Category form not found!');
             }
             
             // Modal close buttons
@@ -1164,6 +1178,8 @@
                     });
                 }
             });
+            
+            console.log('✅ All event listeners set up successfully');
         }
 
         // Check if localStorage is available
@@ -2123,6 +2139,19 @@ Simpan bukti ini sebagai arsip.
                 headerActions.appendChild(testBtn);
             }
         }
+
+        // Add test button on load
+        window.addEventListener('load', () => {
+            // Add test button for debugging
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions) {
+                const testBtn = document.createElement('button');
+                testBtn.className = 'btn btn-info';
+                testBtn.innerHTML = '🧪 Test Modal';
+                testBtn.onclick = testModal;
+                headerActions.appendChild(testBtn);
+            }
+        });
     </script>
 </body>
 </html>
