@@ -83,14 +83,10 @@
 
         /* 🔥 ROCKET ANIMATION 100% BUG-FREE 🔥 */
         .rocket-icon {
-            display: inline-block; 
-            font-size: 2.2rem;
+            display: inline-block; font-size: 2.2rem;
             animation: bounceRocket 2s ease-in-out infinite;
         }
-        @keyframes bounceRocket {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
+        @keyframes bounceRocket { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         /* Auto Sync Indicator */
         .sync-badge {
@@ -130,6 +126,19 @@
         .btn-info { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; }
 
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+            border: 1px solid rgba(14, 165, 233, 0.3); border-left: 4px solid var(--info);
+            border-radius: 16px; padding: 20px; margin-bottom: 25px;
+            display: flex; gap: 15px; align-items: flex-start;
+            animation: fadeIn 0.5s ease;
+        }
+        .announcement-icon { font-size: 1.5rem; filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.5)); }
+        .announcement-content { flex: 1; }
+        .announcement-title { color: var(--info); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .announcement-text { color: white; line-height: 1.5; white-space: pre-wrap; font-size: 0.95rem; }
+
         /* Dashboard Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { padding: 25px; text-align: center; border-radius: 20px; transition: 0.3s; }
@@ -163,18 +172,18 @@
         .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .spec-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.02); }
 
-        /* TABS - MOBILE RESPONSIVE */
+        /* TABS */
         .tab-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 16px; width: 100%; max-width: max-content; }
         .tab-btn { flex: 1; padding: 10px 20px; background: transparent; border: none; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; white-space: nowrap; text-align: center; }
         .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
-        
         .tab-pane { display: none; animation: fadeIn 0.4s ease; }
         .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Forms & Inputs */
+        /* Forms */
         .form-control {
             width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
-            border-radius: 12px; color: white; font-size: 1rem; transition: 0.3s;
+            border-radius: 12px; color: white; font-size: 1rem; transition: 0.3s; resize: vertical;
         }
         .form-control:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
         .form-label { color: var(--text-muted); font-weight: 500; margin-bottom: 8px; display: block; font-size: 0.95rem; }
@@ -215,8 +224,7 @@
             .top-navbar { flex-direction: column; align-items: stretch; text-align: center; padding: 15px; }
             h1 { justify-content: center; font-size: 1.8rem; }
             .btn { width: 100%; }
-            .category-grid { grid-template-columns: 1fr; }
-            .vps-grid { grid-template-columns: 1fr; }
+            .category-grid, .vps-grid { grid-template-columns: 1fr; }
             .tab-nav { width: 100%; max-width: 100%; border-radius: 12px; }
             .tab-btn { padding: 10px; font-size: 0.85rem; }
             .header-actions-mobile { display: flex; flex-direction: column; gap: 10px; width: 100%; }
@@ -231,9 +239,7 @@
         <div class="orb orb-2"></div>
     </div>
 
-    <div id="pageLoader">
-        <div class="spinner"></div>
-    </div>
+    <div id="pageLoader"><div class="spinner"></div></div>
 
     <div class="container">
         <div id="view-home" class="view-section active">
@@ -267,7 +273,10 @@
             <div class="glass-panel content-padding">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                     <h2 style="font-size: 1.5rem;">🗂️ Direktori Workspace</h2>
-                    <button class="btn btn-primary" onclick="openModal('categoryModal')" id="btnTambahKategori">+ Buat Kategori Baru</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-info" onclick="openAnnouncementModal()" id="btnSetAnnouncement">📢 Set Pengumuman</button>
+                        <button class="btn btn-primary" onclick="openModal('categoryModal')" id="btnTambahKategori">+ Buat Kategori Baru</button>
+                    </div>
                 </div>
                 <div class="category-grid" id="categoryGrid"></div>
             </div>
@@ -280,15 +289,21 @@
                     <h2 id="categoryTitle" style="color: white; font-size: 1.3rem; flex: 1; word-break: break-all;"></h2>
                 </div>
                 <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
-                    <button class="btn btn-info btn-sm" onclick="copyShareLink()" id="btnShareLink">🔗 Share Link</button>
-                    <button class="btn btn-secondary btn-sm" onclick="exportCurrentCategory()" id="btnExport">📤 Export List</button>
-                    <button class="btn btn-warning btn-sm" onclick="document.getElementById('importVpsFile').click()" id="btnImport">📥 Import List</button>
-                    <input type="file" id="importVpsFile" accept=".json" style="display: none;" onchange="importToCurrentCategory(event)">
+                    <button class="btn btn-info btn-sm" onclick="copyShareLink()" id="btnShareLink">🔗 Share Link Kolaborasi</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteCurrentCategory()" id="btnHapusKategori">🗑️ Hapus Kategori</button>
                 </div>
             </div>
 
             <div class="glass-panel content-padding">
+                
+                <div id="announcementBanner" class="announcement-banner" style="display: none;">
+                    <div class="announcement-icon">📢</div>
+                    <div class="announcement-content">
+                        <div class="announcement-title">Info Penting dari Admin</div>
+                        <div class="announcement-text" id="announcementText"></div>
+                    </div>
+                </div>
+
                 <div class="tab-nav">
                     <button class="tab-btn active" onclick="switchTab('tab-list', this)">💻 Nodes/VPS</button>
                     <button class="tab-btn" onclick="switchTab('tab-bon', this)">🧾 Invoice Pending</button>
@@ -370,6 +385,21 @@
         </div>
     </div>
 
+    <div class="modal" id="announcementModal">
+        <div class="modal-content">
+            <h3 style="color: white; margin-bottom: 20px;">📢 Broadcast Pengumuman</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Pesan ini akan muncul di semua halaman kategori (dilihat oleh semua Guest).</p>
+            <form onsubmit="saveAnnouncement(event)">
+                <label class="form-label">Isi Pesan (Kosongkan untuk menghapus)</label>
+                <textarea class="form-control" id="announcementInput" rows="4" placeholder="Ketik info penting di sini..."></textarea>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('announcementModal')">Batal</button>
+                    <button type="submit" class="btn btn-info">Kirim Broadcast</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -389,24 +419,32 @@
             { ram: 192, core: 48, ssd: 960, bandwidth: 8, price: 180, location: 'Milan' }
         ];
 
-        let categories = JSON.parse(localStorage.getItem('adhostData'))?.categories || [];
+        // DATA STATE
+        let savedData = JSON.parse(localStorage.getItem('adhostData')) || {};
+        let categories = savedData.categories || [];
+        let globalAnnouncement = savedData.announcement || "";
+        
         let currentCategory = null;
         let editingVPS = null;
-        
         let syncTimeout = null;
         let isSyncing = false;
 
-        // ==========================================
-        // GUEST MODE MENGGUNAKAN URL PARAMETER (SANGAT AMAN)
-        // ==========================================
+        // GUEST MODE LOGIC
         let isGuestMode = new URLSearchParams(window.location.search).get('mode') === 'guest';
         let initialGuestCategory = "";
+        let isAdmin = localStorage.getItem('adhostAdmin') === 'true';
 
         document.addEventListener('DOMContentLoaded', () => {
             populateVPSTemplates();
 
-            if (isGuestMode) {
-                initialGuestCategory = window.location.hash; // Kunci dia di hash/kategori pertama dia mendarat
+            const currentHash = window.location.hash;
+            
+            if (!currentHash || currentHash === '#' || currentHash === '') {
+                localStorage.setItem('adhostAdmin', 'true');
+                isAdmin = true;
+            } else if (!isAdmin) {
+                isGuestMode = true;
+                initialGuestCategory = currentHash; 
             }
 
             handleRouting();
@@ -414,14 +452,43 @@
             window.addEventListener('hashchange', handleRouting);
         });
 
-        // Generate URL khusus untuk tamu
+        // 🔗 GENERATE SHARE LINK
         function copyShareLink() {
             if (!currentCategory) return;
             const baseUrl = window.location.origin + window.location.pathname;
             const shareUrl = `${baseUrl}?mode=guest#category-${currentCategory.id}`;
             navigator.clipboard.writeText(shareUrl);
-            showToast('Link Share disalin! Bagikan ke orang lain.', 'info');
+            showToast('🔗 Link Kolaborasi disalin!', 'info');
         }
+
+        // 📢 ANNOUNCEMENT LOGIC
+        function openAnnouncementModal() {
+            document.getElementById('announcementInput').value = globalAnnouncement;
+            openModal('announcementModal');
+        }
+
+        function saveAnnouncement(e) {
+            e.preventDefault();
+            globalAnnouncement = document.getElementById('announcementInput').value.trim();
+            saveData(); // Save & Sync
+            closeModal('announcementModal');
+            renderAnnouncementBanner();
+            if(globalAnnouncement) showToast('Pengumuman di-broadcast!', 'info');
+            else showToast('Pengumuman dihapus.', 'success');
+        }
+
+        function renderAnnouncementBanner() {
+            const banner = document.getElementById('announcementBanner');
+            const textEl = document.getElementById('announcementText');
+            
+            if (globalAnnouncement && globalAnnouncement.length > 0) {
+                textEl.textContent = globalAnnouncement;
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
 
         // ==========================================
         // SISTEM SILENT SYNC & DEBOUNCE
@@ -443,7 +510,6 @@
                 badge.style.background = 'rgba(239, 68, 68, 0.2)'; badge.style.color = '#f87171'; badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
                 badge.innerHTML = `⚠️ Gagal Sync`;
             } else if (status === 'guest') {
-                // Tampilan khusus buat tamu
                 badge.style.background = 'rgba(14, 165, 233, 0.2)'; badge.style.color = '#0ea5e9'; badge.style.borderColor = 'rgba(14, 165, 233, 0.3)';
                 badge.innerHTML = `🤝 Mode Kolaborasi`;
             }
@@ -458,7 +524,9 @@
                 if(res.ok) {
                     const data = await res.json();
                     categories = data.record.categories || [];
-                    localStorage.setItem('adhostData', JSON.stringify({ categories })); 
+                    globalAnnouncement = data.record.announcement || ""; // Tarik pengumuman
+                    
+                    localStorage.setItem('adhostData', JSON.stringify({ categories, announcement: globalAnnouncement })); 
                     
                     if(!isGuestMode) updateSyncStatus('synced');
                     
@@ -468,6 +536,7 @@
                         if(currentCategory) {
                             currentCategory = categories.find(c => c.id === currentCategory.id);
                             renderVPSList(document.getElementById('searchBar')?.value);
+                            renderAnnouncementBanner(); // Render banner realtime kalau admin lg ngedit
                         }
                         updateStats();
                     }
@@ -484,7 +553,7 @@
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_MASTER_KEY },
-                    body: JSON.stringify({ categories: categories })
+                    body: JSON.stringify({ categories: categories, announcement: globalAnnouncement }) // Push juga announcement
                 });
                 if(res.ok && !isGuestMode) updateSyncStatus('synced');
                 else if(!isGuestMode) updateSyncStatus('error');
@@ -493,7 +562,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('adhostData', JSON.stringify({ categories }));
+            localStorage.setItem('adhostData', JSON.stringify({ categories, announcement: globalAnnouncement }));
             updateStats();
             
             if(!isGuestMode) updateSyncStatus('waiting');
@@ -503,9 +572,7 @@
 
         function populateVPSTemplates() {
             const select = document.getElementById('vpsTemplate');
-            vpsTemplates.forEach((template, index) => {
-                select.appendChild(new Option(`RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`, index));
-            });
+            vpsTemplates.forEach((template, index) => { select.appendChild(new Option(`RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`, index)); });
         }
 
         function fillVPSTemplate() {
@@ -519,17 +586,15 @@
         }
 
         // ==========================================
-        // SPA ROUTER LOGIC
+        // SPA ROUTER LOGIC & GUEST CONTROL
         // ==========================================
         function handleRouting() {
             const hash = window.location.hash;
 
-            // PROTEKSI GUEST MODE
             if (isGuestMode) {
-                // Jika guest berusaha hapus hash buat ke beranda, atau ganti kategori lain
                 if (hash !== initialGuestCategory) {
-                    window.location.hash = initialGuestCategory; // Paksa balik ke asalnya
-                    showToast("Akses Terbatas: Anda tidak bisa ke Beranda.", "warning");
+                    window.location.hash = initialGuestCategory; 
+                    showToast("Akses Terbatas: Mode Kolaborasi.", "warning");
                     return;
                 }
             }
@@ -568,18 +633,18 @@
             document.getElementById('view-category').classList.add('active');
             document.getElementById('categoryTitle').innerHTML = `🗂️ ${currentCategory.name}`;
             
-            // ATUR TAMPILAN BERDASARKAN MODE GUEST / ADMIN
+            // HIDE ADMIN BUTTONS FOR GUEST
             if (isGuestMode) {
                 document.getElementById('btnBackToHome').style.display = 'none';
                 document.getElementById('btnHapusKategori').style.display = 'none';
                 document.getElementById('btnShareLink').style.display = 'none';
-                document.getElementById('btnImport').style.display = 'none'; // Guest gaboleh main import massal
             } else {
                 document.getElementById('btnBackToHome').style.display = 'inline-flex';
                 document.getElementById('btnHapusKategori').style.display = 'inline-flex';
                 document.getElementById('btnShareLink').style.display = 'inline-flex';
-                document.getElementById('btnImport').style.display = 'inline-flex';
             }
+
+            renderAnnouncementBanner(); // Tampilkan banner pengumuman jika ada
 
             const firstTabBtn = document.querySelector('.tab-nav .tab-btn');
             switchTab('tab-list', firstTabBtn);
@@ -595,12 +660,10 @@
 
             if (tabId === 'tab-bon') {
                 const container = document.getElementById('bonContent');
-                container.innerHTML = ''; 
-                generateBonText(container);
+                container.innerHTML = ''; generateBonText(container);
             } else if (tabId === 'tab-info') {
                 const container = document.getElementById('infoContent');
-                container.innerHTML = ''; 
-                generateAnalyticsHTML(container);
+                container.innerHTML = ''; generateAnalyticsHTML(container);
             }
         }
 
@@ -749,24 +812,6 @@
         }
 
         function copyText(elId) { navigator.clipboard.writeText(document.getElementById(elId).innerText); showToast('Teks disalin!'); }
-        
-        function exportCurrentCategory() {
-            const blob = new Blob([JSON.stringify({ vpsList: currentCategory.vpsList, type: 'vps_list_only' }, null, 2)], {type: 'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `List-${currentCategory.name}.json`;
-            a.click(); URL.revokeObjectURL(a.href); showToast('List di-export!');
-        }
-
-        function importToCurrentCategory(e) {
-            const f = e.target.files[0]; if(!f || !currentCategory) return; const reader = new FileReader();
-            reader.onload = (ev) => {
-                try { 
-                    const data = JSON.parse(ev.target.result); 
-                    const list = data.type === 'vps_list_only' ? data.vpsList : data.category.vpsList;
-                    currentCategory.vpsList.push(...list.map(v => ({...v, id: Date.now() + Math.random()})));
-                    saveData(); renderVPSList(); showToast(`${list.length} Node ditambahkan!`); 
-                } catch(err) { showToast('Format salah!', 'error'); }
-            }; reader.readAsText(f); e.target.value = '';
-        }
 
         document.getElementById('searchBar')?.addEventListener('input', e => renderVPSList(e.target.value));
         window.onclick = e => { if(e.target.classList.contains('modal')) closeModal(e.target.id); }
