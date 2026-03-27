@@ -817,7 +817,6 @@
         </div>
 
         <div class="page-container">
-            <!-- Home Page -->
             <div class="page active" id="homePage">
                 <div class="page-header">
                     <h2>📁 Kategori VPS</h2>
@@ -828,7 +827,6 @@
                 <div class="category-grid" id="categoryGrid"></div>
             </div>
 
-            <!-- Category Detail Page -->
             <div class="page" id="categoryPage">
                 <div class="breadcrumb">
                     <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Beranda</span>
@@ -842,20 +840,27 @@
                     <button class="tab-btn" onclick="switchTab('info')">ℹ️ Info</button>
                 </div>
 
-                <!-- List VPS Tab -->
                 <div class="tab-content active" id="listTab">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <h3 id="categoryTitle"></h3>
-                        <button class="btn btn-primary" onclick="openVPSModal()">
-                            <span>➕</span> Tambah VPS
-                        </button>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-info" onclick="exportCurrentCategory()">
+                                📤 Export List VPS
+                            </button>
+                            <button class="btn btn-warning" onclick="document.getElementById('importVpsFile').click()">
+                                📥 Import List VPS
+                            </button>
+                            <input type="file" id="importVpsFile" accept=".json" style="display: none;" onchange="importToCurrentCategory(event)">
+                            <button class="btn btn-primary" onclick="openVPSModal()">
+                                <span>➕</span> Tambah VPS
+                            </button>
+                        </div>
                     </div>
                     
                     <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Cari VPS...">
                     <div class="vps-grid" id="vpsGrid"></div>
                 </div>
 
-                <!-- Bon Pending Tab -->
                 <div class="tab-content" id="bonTab">
                     <h3>🧾 Bon VPS Pending</h3>
                     <div class="bon-container" id="bonContainer">
@@ -864,7 +869,6 @@
                     </div>
                 </div>
 
-                <!-- Info Tab -->
                 <div class="tab-content" id="infoTab">
                     <h3>ℹ️ Info VPS</h3>
                     <div class="info-list">
@@ -875,7 +879,6 @@
         </div>
     </div>
 
-    <!-- Modal Kategori -->
     <div class="modal" id="categoryModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -892,7 +895,6 @@
         </div>
     </div>
 
-    <!-- Modal VPS -->
     <div class="modal" id="vpsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -975,7 +977,6 @@
         </div>
     </div>
 
-    <!-- Modal Preview Gambar -->
     <div class="modal" id="imageModal">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
@@ -1356,7 +1357,7 @@
                     <div class="empty-state" style="grid-column: 1 / -1;">
                         <div class="empty-icon">🖥️</div>
                         <h3>${searchTerm ? 'Tidak ada VPS yang cocok' : 'Belum ada VPS'}</h3>
-                        <p>${searchTerm ? 'Coba kata kunci lain' : 'Klik "Tambah VPS" untuk memulai'}</p>
+                        <p>${searchTerm ? 'Coba kata kunci lain' : 'Klik "Tambah VPS" atau "Import List VPS" untuk memulai'}</p>
                     </div>
                 `;
                 return;
@@ -1858,6 +1859,89 @@ Simpan bukti ini sebagai arsip.
                 });
             }
         });
+
+        // ==========================================
+        // FITUR BARU: EXPORT/IMPORT KHUSUS LIST VPS
+        // ==========================================
+
+        // Export HANYA isi list VPS dari kategori yang sedang dibuka
+        function exportCurrentCategory() {
+            if (!currentCategory) return;
+            
+            try {
+                const dataToExport = {
+                    vpsList: currentCategory.vpsList,
+                    exportDate: new Date().toISOString(),
+                    type: 'vps_list_only' // Penanda bahwa ini cuma list VPS
+                };
+                
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vps-list-${currentCategory.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Data VPS dari "${currentCategory.name}" berhasil diexport!`, 'success');
+            } catch (error) {
+                showToast('Gagal export data: ' + error.message, 'error');
+            }
+        }
+
+        // Import list VPS dan gabungkan ke kategori yang sedang dibuka
+        function importToCurrentCategory(event) {
+            const file = event.target.files[0];
+            if (!file || !currentCategory) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    let vpsToImport = [];
+                    
+                    // Cek kompatibilitas format (bisa baca dari export list ini, atau export kategori lama)
+                    if (importedData.type === 'vps_list_only' && Array.isArray(importedData.vpsList)) {
+                        vpsToImport = importedData.vpsList;
+                    } else if (importedData.category && Array.isArray(importedData.category.vpsList)) {
+                        vpsToImport = importedData.category.vpsList;
+                    } else {
+                        throw new Error('Format file tidak valid!');
+                    }
+                    
+                    if (vpsToImport.length === 0) {
+                        showToast('Tidak ada data VPS dalam file tersebut.', 'warning');
+                        return;
+                    }
+
+                    // Generate ID unik baru agar tidak bentrok dengan VPS yang sudah ada
+                    const newVpsList = vpsToImport.map(vps => ({
+                        ...vps,
+                        id: Date.now() + Math.random()
+                    }));
+                    
+                    // Gabungkan data yang sudah ada dengan data yang baru diimport
+                    currentCategory.vpsList = [...currentCategory.vpsList, ...newVpsList];
+                    
+                    if (saveData()) {
+                        renderVPSList();
+                        updateStats();
+                        showToast(`Berhasil menambahkan ${newVpsList.length} VPS ke kategori ini!`, 'success');
+                    }
+                } catch (error) {
+                    console.error('❌ Gagal import data:', error);
+                    showToast('Gagal import data: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            // Reset input file supaya bisa import file yang sama lagi jika dibutuhkan
+            event.target.value = '';
+        }
     </script>
 </body>
 </html>
