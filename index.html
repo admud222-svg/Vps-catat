@@ -58,7 +58,7 @@
             border: 1px solid var(--border-color); border-radius: 24px; box-shadow: var(--glass-shadow);
         }
 
-        /* View Router Transitions (THE MAGIC FOR "REAL NEW PAGE" FEEL) */
+        /* View Router Transitions */
         .view-section {
             display: none;
             opacity: 0;
@@ -72,7 +72,7 @@
             transform: translateY(0) scale(1);
         }
 
-        /* Page Transition Overlay */
+        /* Page Transition Loader */
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-main); z-index: 9999;
@@ -148,7 +148,7 @@
         .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .spec-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.02); }
 
-        /* TABS - FIXED ACCUMULATION BUG */
+        /* TABS */
         .tab-nav { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 16px; width: fit-content; }
         .tab-btn { padding: 12px 25px; background: transparent; border: none; color: var(--text-muted); border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; }
         .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
@@ -164,7 +164,7 @@
         }
         .form-control:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
         .form-label { color: var(--text-muted); font-weight: 500; margin-bottom: 8px; display: block; font-size: 0.95rem; }
-
+        
         /* Modals */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -313,6 +313,14 @@
         <div class="modal-content">
             <h3 id="vpsModalTitle" style="color: white; margin-bottom: 20px;">Deploy Server Baru</h3>
             <form onsubmit="saveVPS(event)" id="vpsForm">
+                
+                <div style="margin-bottom: 15px;">
+                    <label class="form-label">AdHost Quick Preset (Otomatis Isi)</label>
+                    <select class="form-control" id="vpsTemplate" onchange="fillVPSTemplate()" style="appearance: none; background-color: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.5);">
+                        <option value="">-- Pilih Preset VPS AdHost --</option>
+                    </select>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div><label class="form-label">RAM (GB)</label><input type="number" class="form-control" id="ram" required></div>
                     <div><label class="form-label">vCPU Core</label><input type="number" class="form-control" id="core" required></div>
@@ -343,6 +351,22 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // ==========================================
+        // DATA PRESET VPS ADHOST
+        // ==========================================
+        const vpsTemplates = [
+            { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Genoa' },
+            { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Genoa' },
+            { ram: 8, core: 4, ssd: 160, bandwidth: 2, price: 65, location: 'Genoa' },
+            { ram: 16, core: 4, ssd: 160, bandwidth: 2, price: 70, location: 'Milan' },
+            { ram: 16, core: 8, ssd: 320, bandwidth: 3, price: 80, location: 'Genoa' },
+            { ram: 32, core: 8, ssd: 240, bandwidth: 3, price: 90, location: 'Milan' },
+            { ram: 32, core: 16, ssd: 680, bandwidth: 5, price: 100, location: 'Genoa' },
+            { ram: 64, core: 8, ssd: 320, bandwidth: 4, price: 110, location: 'Milan' },
+            { ram: 128, core: 32, ssd: 600, bandwidth: 6, price: 140, location: 'Milan' },
+            { ram: 192, core: 48, ssd: 960, bandwidth: 8, price: 180, location: 'Milan' }
+        ];
+
         // CORE DATA
         let categories = JSON.parse(localStorage.getItem('adhostData'))?.categories || [];
         let currentCategory = null;
@@ -351,9 +375,36 @@
         // INITIALIZE APP
         document.addEventListener('DOMContentLoaded', () => {
             updateStats();
-            handleRouting(); // Jalankan router saat pertama dibuka
-            window.addEventListener('hashchange', handleRouting); // Dengarkan perubahan URL
+            populateVPSTemplates(); // Load presets ke dropdown
+            handleRouting(); 
+            window.addEventListener('hashchange', handleRouting);
         });
+
+        // ==========================================
+        // PRESET TEMPLATE LOGIC
+        // ==========================================
+        function populateVPSTemplates() {
+            const select = document.getElementById('vpsTemplate');
+            vpsTemplates.forEach((template, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`;
+                select.appendChild(option);
+            });
+        }
+
+        function fillVPSTemplate() {
+            const index = document.getElementById('vpsTemplate').value;
+            if (index !== '') {
+                const t = vpsTemplates[index];
+                document.getElementById('ram').value = t.ram;
+                document.getElementById('core').value = t.core;
+                document.getElementById('ssd').value = t.ssd;
+                document.getElementById('bandwidth').value = t.bandwidth;
+                document.getElementById('price').value = t.price;
+                document.getElementById('location').value = t.location;
+            }
+        }
 
         // ==========================================
         // SINGLE PAGE APPLICATION (SPA) ROUTER LOGIC
@@ -371,13 +422,13 @@
                 }
                 hideLoader();
                 window.scrollTo(0,0);
-            }, 300); // Durasi loading palsu supaya terasa smooth
+            }, 300);
         }
 
         function showLoader() { document.getElementById('pageLoader').classList.add('loading'); }
         function hideLoader() { document.getElementById('pageLoader').classList.remove('loading'); }
 
-        function goHome() { window.location.hash = ''; } // Ini akan trigger handleRouting()
+        function goHome() { window.location.hash = ''; } 
 
         function loadHomePage() {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -399,7 +450,6 @@
             
             document.getElementById('categoryTitle').innerHTML = `🗂️ ${currentCategory.name}`;
             
-            // Reset Tab ke List setiap buka kategori baru
             const firstTabBtn = document.querySelector('.tab-nav .tab-btn');
             switchTab('tab-list', firstTabBtn);
             
@@ -407,25 +457,22 @@
         }
 
         // ==========================================
-        // TAB LOGIC - FIXED "NUMPUK" BUG
+        // TAB LOGIC
         // ==========================================
         function switchTab(tabId, btnElement) {
-            // 1. Reset semua class active di tombol & konten tab
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             
-            // 2. Tambahkan class active ke yang diklik
             if(btnElement) btnElement.classList.add('active');
             document.getElementById(tabId).classList.add('active');
 
-            // 3. Render ulang konten HANYA saat tab dibuka & HAPUS BERSIH yang lama
             if (tabId === 'tab-bon') {
                 const container = document.getElementById('bonContent');
-                container.innerHTML = ''; // BERSHKAN TOTAL DOM SEBELUMNYA
+                container.innerHTML = ''; 
                 generateBonText(container);
             } else if (tabId === 'tab-info') {
                 const container = document.getElementById('infoContent');
-                container.innerHTML = ''; // BERSHKAN TOTAL DOM SEBELUMNYA
+                container.innerHTML = ''; 
                 generateAnalyticsHTML(container);
             }
         }
@@ -499,7 +546,7 @@
         }
 
         // ==========================================
-        // GENERATOR TAB KONTEN (ANTI NUMPUK)
+        // GENERATOR TAB KONTEN
         // ==========================================
         function generateBonText(container) {
             const pend = currentCategory.vpsList.filter(v => v.status === 'pending');
@@ -514,8 +561,6 @@
             }
             
             text += `Total Node Pending : ${pend.length}\nTotal Tagihan    : Rp ${pend.reduce((s, v) => s + v.price, 0)}K/bln\n==================================`;
-            
-            // Masukkan teks menggunakan innerText (aman dari tumpukan)
             container.innerText = text;
         }
 
@@ -525,7 +570,6 @@
             const err = currentCategory.vpsList.filter(v => v.status === 'error').length;
             const totalVal = currentCategory.vpsList.reduce((s, v) => s + v.price, 0);
 
-            // Tulis ulang HTML ke dalam kontainer yang kosong
             container.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; text-align: center;">
                     <div style="background: rgba(16, 185, 129, 0.2); padding: 20px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
@@ -549,7 +593,7 @@
         }
 
         // ==========================================
-        // CRUD & UTILS (MODAL, ADD, EDIT, DELETE)
+        // CRUD & UTILS
         // ==========================================
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -567,7 +611,6 @@
             categories.push({ id: newId, name, vpsList: [] });
             saveData(); closeModal('categoryModal'); document.getElementById('categoryName').value = '';
             
-            // Otomatis buka kategori yang baru dibuat
             window.location.hash = `#category-${newId}`;
             showToast('Workspace Dibuat!');
         }
@@ -579,8 +622,11 @@
         }
 
         function openVPSModal() {
-            editingVPS = null; document.getElementById('vpsModalTitle').textContent = 'Deploy Server Baru';
-            document.getElementById('vpsForm').reset(); openModal('vpsModal');
+            editingVPS = null; 
+            document.getElementById('vpsModalTitle').textContent = 'Deploy Server Baru';
+            document.getElementById('vpsForm').reset(); 
+            document.getElementById('vpsTemplate').value = ""; // Reset dropdown
+            openModal('vpsModal');
         }
 
         function saveVPS(e) {
@@ -603,6 +649,7 @@
         function editVPS(id) {
             editingVPS = currentCategory.vpsList.find(v=>v.id===id); if(!editingVPS) return;
             document.getElementById('vpsModalTitle').textContent = 'Edit Konfigurasi';
+            document.getElementById('vpsTemplate').value = ""; // Clear template selector on edit
             ['ram','core','ssd','bandwidth','price','location','ipAddress','status','proofUrl'].forEach(k => {
                 if(document.getElementById(k)) document.getElementById(k).value = editingVPS[k] || '';
             });
