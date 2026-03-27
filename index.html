@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdHost VPS Pro - Cloud Sync Edition</title>
+    <title>AdHost VPS Pro - Secure Cloud Sync</title>
     <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
@@ -71,7 +71,7 @@
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-main); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
             opacity: 0; pointer-events: none; transition: opacity 0.2s;
         }
         #pageLoader.loading { opacity: 1; pointer-events: all; }
@@ -81,16 +81,15 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 🔥 ROCKET ANIMATION FIXED 🔥 */
+        /* 🔥 ROCKET ANIMATION 100% BUG-FREE 🔥 */
         .rocket-icon {
             display: inline-block; 
             font-size: 2.2rem;
-            animation: flyRocket 2.5s ease-in-out infinite;
+            animation: bounceRocket 2s ease-in-out infinite;
         }
-        @keyframes flyRocket {
-            0%   { transform: translateY(0); }
-            50%  { transform: translateY(-12px); }
-            100% { transform: translateY(0); }
+        @keyframes bounceRocket {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
         /* Auto Sync Indicator */
@@ -128,6 +127,7 @@
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
         .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); }
         .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .btn-info { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; }
 
         /* Dashboard Grid */
@@ -280,6 +280,10 @@
                     <h2 id="categoryTitle" style="color: white; font-size: 1.3rem; flex: 1; word-break: break-all;"></h2>
                 </div>
                 <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
+                    <button class="btn btn-info btn-sm" onclick="copyShareLink()" id="btnShareLink">🔗 Share Link</button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportCurrentCategory()" id="btnExport">📤 Export List</button>
+                    <button class="btn btn-warning btn-sm" onclick="document.getElementById('importVpsFile').click()" id="btnImport">📥 Import List</button>
+                    <input type="file" id="importVpsFile" accept=".json" style="display: none;" onchange="importToCurrentCategory(event)">
                     <button class="btn btn-danger btn-sm" onclick="deleteCurrentCategory()" id="btnHapusKategori">🗑️ Hapus Kategori</button>
                 </div>
             </div>
@@ -294,7 +298,7 @@
                 <div id="tab-list" class="tab-pane active">
                     <div class="header-actions-mobile" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                         <input type="text" class="form-control" id="searchBar" placeholder="🔍 Cari IP, Lokasi, Spesifikasi..." style="flex: 1; min-width: 250px;">
-                        <button class="btn btn-primary" onclick="openVPSModal()" id="btnTambahVps">+ Deploy Server Baru</button>
+                        <button class="btn btn-primary" onclick="openVPSModal()">+ Deploy Server Baru</button>
                     </div>
                     <div class="vps-grid" id="vpsGrid"></div>
                 </div>
@@ -393,33 +397,31 @@
         let isSyncing = false;
 
         // ==========================================
-        // GUEST MODE (ACCESS CONTROL LOGIC) FIXED
+        // GUEST MODE MENGGUNAKAN URL PARAMETER (SANGAT AMAN)
         // ==========================================
-        let isGuestMode = false;
+        let isGuestMode = new URLSearchParams(window.location.search).get('mode') === 'guest';
         let initialGuestCategory = "";
-        let isAdmin = localStorage.getItem('adhostAdmin') === 'true'; // Cek badge admin di memori
 
         document.addEventListener('DOMContentLoaded', () => {
             populateVPSTemplates();
 
-            const currentHash = window.location.hash;
-            
-            // JIKA BUKA BERANDA -> KASIH BADGE ADMIN PERMANEN
-            if (!currentHash || currentHash === '#' || currentHash === '') {
-                localStorage.setItem('adhostAdmin', 'true');
-                isAdmin = true;
-            } else {
-                // JIKA LANGSUNG BUKA LINK KATEGORI DAN GAK PUNYA BADGE ADMIN -> JADI GUEST
-                if (!isAdmin) {
-                    isGuestMode = true;
-                    initialGuestCategory = currentHash; 
-                }
+            if (isGuestMode) {
+                initialGuestCategory = window.location.hash; // Kunci dia di hash/kategori pertama dia mendarat
             }
 
             handleRouting();
             autoLoadFromCloud(); 
             window.addEventListener('hashchange', handleRouting);
         });
+
+        // Generate URL khusus untuk tamu
+        function copyShareLink() {
+            if (!currentCategory) return;
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?mode=guest#category-${currentCategory.id}`;
+            navigator.clipboard.writeText(shareUrl);
+            showToast('Link Share disalin! Bagikan ke orang lain.', 'info');
+        }
 
         // ==========================================
         // SISTEM SILENT SYNC & DEBOUNCE
@@ -440,21 +442,25 @@
             } else if (status === 'error') {
                 badge.style.background = 'rgba(239, 68, 68, 0.2)'; badge.style.color = '#f87171'; badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
                 badge.innerHTML = `⚠️ Gagal Sync`;
+            } else if (status === 'guest') {
+                // Tampilan khusus buat tamu
+                badge.style.background = 'rgba(14, 165, 233, 0.2)'; badge.style.color = '#0ea5e9'; badge.style.borderColor = 'rgba(14, 165, 233, 0.3)';
+                badge.innerHTML = `🤝 Mode Kolaborasi`;
             }
         }
 
         async function autoLoadFromCloud() {
-            updateSyncStatus('syncing');
+            updateSyncStatus(isGuestMode ? 'guest' : 'syncing');
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-                    method: 'GET',
-                    headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+                    method: 'GET', headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
                 });
                 if(res.ok) {
                     const data = await res.json();
                     categories = data.record.categories || [];
                     localStorage.setItem('adhostData', JSON.stringify({ categories })); 
-                    updateSyncStatus('synced');
+                    
+                    if(!isGuestMode) updateSyncStatus('synced');
                     
                     const isModalOpen = document.querySelector('.modal.active');
                     if(!isModalOpen) {
@@ -465,14 +471,14 @@
                         }
                         updateStats();
                     }
-                } else { updateSyncStatus('error'); }
-            } catch (error) { updateSyncStatus('error'); }
+                } else if (!isGuestMode) { updateSyncStatus('error'); }
+            } catch (error) { if(!isGuestMode) updateSyncStatus('error'); }
         }
 
         async function backgroundSync() {
             if(isSyncing) return; 
             isSyncing = true;
-            updateSyncStatus('syncing');
+            if(!isGuestMode) updateSyncStatus('syncing');
 
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
@@ -480,9 +486,9 @@
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_MASTER_KEY },
                     body: JSON.stringify({ categories: categories })
                 });
-                if(res.ok) updateSyncStatus('synced');
-                else updateSyncStatus('error');
-            } catch (error) { updateSyncStatus('error'); }
+                if(res.ok && !isGuestMode) updateSyncStatus('synced');
+                else if(!isGuestMode) updateSyncStatus('error');
+            } catch (error) { if(!isGuestMode) updateSyncStatus('error'); }
             isSyncing = false;
         }
 
@@ -490,11 +496,9 @@
             localStorage.setItem('adhostData', JSON.stringify({ categories }));
             updateStats();
             
-            updateSyncStatus('waiting');
+            if(!isGuestMode) updateSyncStatus('waiting');
             clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(() => {
-                backgroundSync();
-            }, 2000); 
+            syncTimeout = setTimeout(() => { backgroundSync(); }, 2000); 
         }
 
         function populateVPSTemplates() {
@@ -515,16 +519,19 @@
         }
 
         // ==========================================
-        // SPA ROUTER LOGIC & ACCESS CONTROL
+        // SPA ROUTER LOGIC
         // ==========================================
         function handleRouting() {
             const hash = window.location.hash;
 
-            // CEK AKSES GUEST MODE
-            if (isGuestMode && hash !== initialGuestCategory) {
-                window.location.hash = initialGuestCategory;
-                showToast("Akses Terbatas: Anda tidak bisa ke Beranda.", "warning");
-                return;
+            // PROTEKSI GUEST MODE
+            if (isGuestMode) {
+                // Jika guest berusaha hapus hash buat ke beranda, atau ganti kategori lain
+                if (hash !== initialGuestCategory) {
+                    window.location.hash = initialGuestCategory; // Paksa balik ke asalnya
+                    showToast("Akses Terbatas: Anda tidak bisa ke Beranda.", "warning");
+                    return;
+                }
             }
 
             document.getElementById('pageLoader').style.opacity = '1'; 
@@ -561,13 +568,17 @@
             document.getElementById('view-category').classList.add('active');
             document.getElementById('categoryTitle').innerHTML = `🗂️ ${currentCategory.name}`;
             
-            // LOGIKA GUEST MODE (GUEST BISA NGEDIT VPS, TAPI GAK BISA HAPUS KATEGORI ATAU KE BERANDA)
+            // ATUR TAMPILAN BERDASARKAN MODE GUEST / ADMIN
             if (isGuestMode) {
                 document.getElementById('btnBackToHome').style.display = 'none';
                 document.getElementById('btnHapusKategori').style.display = 'none';
+                document.getElementById('btnShareLink').style.display = 'none';
+                document.getElementById('btnImport').style.display = 'none'; // Guest gaboleh main import massal
             } else {
                 document.getElementById('btnBackToHome').style.display = 'inline-flex';
                 document.getElementById('btnHapusKategori').style.display = 'inline-flex';
+                document.getElementById('btnShareLink').style.display = 'inline-flex';
+                document.getElementById('btnImport').style.display = 'inline-flex';
             }
 
             const firstTabBtn = document.querySelector('.tab-nav .tab-btn');
@@ -738,6 +749,25 @@
         }
 
         function copyText(elId) { navigator.clipboard.writeText(document.getElementById(elId).innerText); showToast('Teks disalin!'); }
+        
+        function exportCurrentCategory() {
+            const blob = new Blob([JSON.stringify({ vpsList: currentCategory.vpsList, type: 'vps_list_only' }, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `List-${currentCategory.name}.json`;
+            a.click(); URL.revokeObjectURL(a.href); showToast('List di-export!');
+        }
+
+        function importToCurrentCategory(e) {
+            const f = e.target.files[0]; if(!f || !currentCategory) return; const reader = new FileReader();
+            reader.onload = (ev) => {
+                try { 
+                    const data = JSON.parse(ev.target.result); 
+                    const list = data.type === 'vps_list_only' ? data.vpsList : data.category.vpsList;
+                    currentCategory.vpsList.push(...list.map(v => ({...v, id: Date.now() + Math.random()})));
+                    saveData(); renderVPSList(); showToast(`${list.length} Node ditambahkan!`); 
+                } catch(err) { showToast('Format salah!', 'error'); }
+            }; reader.readAsText(f); e.target.value = '';
+        }
+
         document.getElementById('searchBar')?.addEventListener('input', e => renderVPSList(e.target.value));
         window.onclick = e => { if(e.target.classList.contains('modal')) closeModal(e.target.id); }
     </script>
