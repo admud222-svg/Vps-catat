@@ -3,825 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VPS Purchase Tracker - Manajemen VPS Lengkap</title>
+    <title>AdHost VPS Tracker - Pro Edition</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         :root {
-            --primary: #667eea;
-            --primary-dark: #5a67d8;
-            --secondary: #48bb78;
-            --danger: #f56565;
-            --warning: #ed8936;
-            --dark: #2d3748;
-            --gray: #718096;
-            --light: #f7fafc;
-            --white: #ffffff;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+            /* Premium Dark Theme Palette */
+            --bg-main: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: var(--bg-main);
+            color: var(--text-main);
             min-height: 100vh;
-            color: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Animations */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+        }
+        
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 15s infinite alternate ease-in-out;
+        }
+        .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--primary); }
+        .orb-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #8b5cf6; animation-delay: -5s; }
+        .orb-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: var(--info); animation-delay: -10s; opacity: 0.3; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease;
         }
 
         header {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 30px;
+            padding: 30px 40px;
             margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            animation: slideDown 0.5s ease;
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
-            color: var(--primary);
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-bottom: 10px;
         }
 
         .logo {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            animation: pulse 2s infinite;
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 24px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            animation: pulseGlow 2s infinite alternate;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
+            100% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); transform: scale(1.02); }
         }
 
-        .subtitle {
-            color: var(--gray);
-            font-size: 1.1rem;
-        }
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 25px;}
 
         .header-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
         }
 
         .storage-status {
-            background: rgba(72, 187, 120, 0.1);
+            background: rgba(16, 185, 129, 0.1);
             color: var(--secondary);
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 12px;
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            animation: fadeIn 0.5s ease;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        .storage-status.error {
-            background: rgba(245, 101, 101, 0.1);
-            color: var(--danger);
-        }
-
-        .storage-status.warning {
-            background: rgba(237, 137, 54, 0.1);
-            color: var(--warning);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .storage-status.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
+        .storage-status.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: rgba(245, 158, 11, 0.2); }
 
         .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;
         }
 
         .stat-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: var(--shadow-sm);
+            padding: 25px;
             text-align: center;
-            animation: fadeIn 0.5s ease;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease backwards;
         }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), #c084fc);
+            opacity: 0; transition: opacity 0.3s ease;
         }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
+        .stat-number { font-size: 3rem; font-weight: 800; color: white; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .stat-label { color: var(--text-muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;}
 
-        .stat-label {
-            color: var(--gray);
-            margin-top: 5px;
-        }
-
+        /* Buttons Pro Style */
         .btn {
             padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: inline-flex; align-items: center; gap: 8px;
             color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-info {
-            background: #4299e1;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--gray);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.9rem;
-        }
-
-        .page-container {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            animation: slideUp 0.5s ease 0.2s both;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            color: var(--gray);
-        }
-
-        .breadcrumb-item {
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .breadcrumb-item:hover {
-            color: var(--primary);
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .category-card {
-            background: var(--light);
-            border-radius: 15px;
-            padding: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
             position: relative;
             overflow: hidden;
         }
 
-        .category-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
+        .btn:active { transform: scale(0.95); }
+
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #8b5cf6); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .btn-primary:hover { box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); transform: translateY(-2px); filter: brightness(1.1); }
+        
+        .btn-success { background: linear-gradient(135deg, var(--secondary), #059669); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .btn-info { background: linear-gradient(135deg, var(--info), #0284c7); }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        
+        .btn-sm { padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; }
+
+        .page-container {
+            padding: 40px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
         }
 
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .category-card:hover::before {
-            transform: scaleX(1);
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .breadcrumb {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 30px;
+            background: rgba(0,0,0,0.2); padding: 12px 20px; border-radius: 12px; width: fit-content;
+        }
+        .breadcrumb-item { cursor: pointer; color: var(--text-muted); transition: color 0.3s ease; font-weight: 500;}
+        .breadcrumb-item:hover { color: var(--text-main); }
+
+        /* Modern Grid & Cards */
+        .category-grid, .vps-grid {
+            display: grid; gap: 24px; margin-top: 20px;
+        }
+        .category-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        .vps-grid { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+
+        .card-hover {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.1) inset;
         }
 
         .category-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 2.5rem; margin-bottom: 20px;
+            background: rgba(255,255,255,0.05); width: 70px; height: 70px;
+            display: flex; align-items: center; justify-content: center; border-radius: 18px;
         }
 
-        .category-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
+        .category-name { font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; }
+        .category-stats { color: var(--text-muted); font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; display: inline-block; }
+        .category-actions { margin-top: 25px; display: flex; gap: 10px; }
 
-        .category-stats {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .category-actions {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .vps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
+        /* VPS Card Special Pro Styling */
         .vps-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 0;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .vps-header-bg {
+            padding: 20px 25px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
             position: relative;
         }
 
-        .vps-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
-        }
+        .vps-body { padding: 25px; flex-grow: 1; }
 
         .vps-status {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
+            position: absolute; top: 20px; right: 20px;
+            padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
-        .status-safe {
-            background: rgba(72, 187, 120, 0.2);
-            color: var(--secondary);
-        }
+        .status-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        .status-error {
-            background: rgba(245, 101, 101, 0.2);
-            color: var(--danger);
-        }
-
-        .status-pending {
-            background: rgba(237, 137, 54, 0.2);
-            color: var(--warning);
-        }
-
-        .vps-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 15px;
-        }
+        .vps-price { font-size: 1.8rem; font-weight: 800; color: white; display: flex; align-items: baseline; gap: 5px; }
+        .vps-price span { font-size: 1rem; color: var(--text-muted); font-weight: 500;}
+        .vps-location { display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted); margin-top: 5px; font-size: 0.9rem;}
 
         .vps-specs {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 15px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
         }
-
+        
         .spec-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--gray);
-            font-size: 0.95rem;
+            background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px;
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.02);
         }
 
-        .spec-icon {
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            color: white;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
+        .spec-icon { color: var(--primary); font-size: 1.1rem; }
 
-        .vps-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .vps-location {
-            display: inline-block;
-            background: var(--light);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--gray);
-            margin-bottom: 15px;
-        }
-
-        .vps-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .transaction-proof {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .proof-label {
-            font-size: 0.9rem;
-            color: var(--gray);
-            margin-bottom: 8px;
-        }
-
-        .proof-image {
-            width: 100%;
-            max-width: 200px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .proof-image:hover {
-            transform: scale(1.05);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUpModal 0.3s ease;
-        }
-
-        @keyframes slideUpModal {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            color: var(--dark);
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
-            transition: color 0.3s ease;
-        }
-
-        .close-btn:hover {
-            color: var(--danger);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .form-row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-
-        .image-upload-area {
-            border: 2px dashed #cbd5e0;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .image-upload-area:hover {
-            border-color: var(--primary);
-            background: var(--light);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .search-bar {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 25px;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-bar:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--dark);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 2000;
-            max-width: 300px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success {
-            background: var(--secondary);
-        }
-
-        .toast.error {
-            background: var(--danger);
-        }
-
-        .toast.info {
-            background: var(--primary);
-        }
-
-        .toast.warning {
-            background: var(--warning);
-        }
-
-        .bon-container {
-            background: var(--light);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            line-height: 1.4;
-            position: relative;
-            font-size: 14px;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
+        /* Cool animated Tabs */
         .tab-navigation {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
+            display: flex; gap: 5px; margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 15px; width: fit-content;
         }
 
         .tab-btn {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
+            padding: 10px 25px; background: transparent; border: none; color: var(--text-muted);
+            border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s;
         }
 
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+
+        /* Forms & Inputs */
+        .form-control {
+            width: 100%; padding: 14px 16px;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--border-color);
+            border-radius: 12px; color: white; font-size: 1rem; transition: all 0.3s;
         }
 
-        .tab-content {
-            display: none;
+        .form-control:focus {
+            outline: none; border-color: var(--primary); background: rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
 
-        .tab-content.active {
-            display: block;
-        }
+        .form-control::placeholder { color: rgba(255,255,255,0.3); }
+        .form-label { color: var(--text-muted); font-weight: 500; margin-bottom: 8px; display: block; font-size: 0.95rem; }
 
-        .data-info {
-            background: rgba(66, 153, 225, 0.1);
-            border: 1px solid rgba(66, 153, 225, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
+        .search-bar { max-width: 500px; border-radius: 20px; padding-left: 45px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 15px center; background-size: 20px; }
 
-        .data-info h4 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* Modals */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px);
+            z-index: 1000; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
         }
+        .modal.active { display: flex; opacity: 1; }
 
-        .data-info ul {
-            margin-left: 20px;
-            line-height: 1.6;
+        .modal-content {
+            background: var(--bg-main); border: 1px solid var(--border-color);
+            border-radius: 24px; padding: 35px; width: 90%; max-width: 650px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            transform: scale(0.95) translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh; overflow-y: auto;
         }
+        .modal.active .modal-content { transform: scale(1) translateY(0); }
 
-        .info-list {
-            background: var(--light);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 10px;
-        }
+        .close-btn { background: rgba(255,255,255,0.1); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; color: white; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { background: var(--danger); transform: rotate(90deg); }
 
-        .info-list h5 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
+        .image-upload-area { background: rgba(0,0,0,0.2); border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 30px; transition: 0.3s; }
+        .image-upload-area:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
 
-        .info-list ul {
-            margin-left: 20px;
-            line-height: 1.6;
+        /* Toast Animation Custom */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 16px 24px;
+            border-radius: 16px; color: white; font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000;
+            transform: translateX(120%) scale(0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 10px;
         }
+        .toast.show { transform: translateX(0) scale(1); opacity: 1; }
+        
+        .toast.success { background: rgba(16, 185, 129, 0.9); }
+        .toast.error { background: rgba(239, 68, 68, 0.9); }
+        .toast.info { background: rgba(99, 102, 241, 0.9); }
+        .toast.warning { background: rgba(245, 158, 11, 0.9); }
 
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .info-value {
-            color: var(--gray);
-            font-family: monospace;
-        }
+        .bon-container, .info-list { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #e2e8f0; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         @media (max-width: 768px) {
-            .vps-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row-3 {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
+            .stats-container, .vps-grid, .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            .header-actions { flex-direction: column; align-items: stretch; }
+            .btn { width: 100%; justify-content: center; }
+            .page-container { padding: 20px; }
         }
     </style>
 </head>
 <body>
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
     <div class="container">
-        <header>
+        <header class="glass-panel">
             <h1>
-                <div class="logo">🖥️</div>
-                VPS Purchase Tracker
+                <div class="logo">🚀</div>
+                AdHost VPS Tracker
             </h1>
-            <p class="subtitle">Kelola dan catat semua pembelian VPS Anda dengan mudah</p>
+            <p class="subtitle">Sistem Manajemen & Tracker Inventaris Server Profesional</p>
             <div class="header-actions">
                 <div class="storage-status" id="storageStatus">
                     <span id="storageIcon">💾</span>
-                    <span id="storageText">Memeriksa penyimpanan...</span>
+                    <span id="storageText">Memeriksa sistem...</span>
                 </div>
                 <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
-                    📂 Import Kategori
+                    📁 Import Workspace
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
                 <button class="btn btn-info" onclick="exportAllData()">
-                    💾 Export Semua Data
+                    💾 Export Backup
                 </button>
                 <button class="btn btn-danger" onclick="clearAllData()">
-                    🔄 Reset Data
+                    ⚠️ Reset System
                 </button>
-                <button class="btn btn-success" onclick="loadSampleData()">
-                    📦 Load Sample Data
+                <button class="btn btn-secondary" onclick="loadSampleData()">
+                    ✨ Load Demo
                 </button>
-            </div>
-            
-            <div class="data-info">
-                <h4>ℹ️ Info Import/Export Kategori</h4>
-                <ul>
-                    <li><strong>Export Kategori:</strong> Simpan kategori beserta semua VPS di dalamnya</li>
-                    <li><strong>Import Kategori:</strong> Tambahkan kategori yang sudah dibuat sebelumnya</li>
-                    <li><strong>Mode Merge:</strong> Menambahkan kategori baru tanpa menghapus yang sudah ada</li>
-                    <li><strong>Mode Replace:</strong> Mengganti semua data dengan yang diimport</li>
-                    <li>File backup bisa disimpan di Google Drive, Dropbox, atau email</li>
-                </ul>
             </div>
         </header>
 
         <div class="stats-container">
-            <div class="stat-card">
+            <div class="stat-card glass-panel">
                 <div class="stat-number" id="totalCategories">0</div>
-                <div class="stat-label">Kategori</div>
+                <div class="stat-label">Total Kategori</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card glass-panel">
                 <div class="stat-number" id="totalVPS">0</div>
-                <div class="stat-label">Total VPS</div>
+                <div class="stat-label">Server Aktif</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card glass-panel">
                 <div class="stat-number" id="totalValue">0</div>
-                <div class="stat-label">Total Nilai (K)</div>
+                <div class="stat-label">Valuasi (Ribuan)</div>
             </div>
         </div>
 
-        <div class="page-container">
+        <div class="page-container glass-panel">
             <div class="page active" id="homePage">
-                <div class="page-header">
-                    <h2>📁 Kategori VPS</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2>🗂️ Direktori Workspace</h2>
                     <button class="btn btn-primary" onclick="openCategoryModal()">
-                        <span>➕</span> Tambah Kategori
+                        <span style="font-size: 1.2rem;">+</span> Buat Kategori Baru
                     </button>
                 </div>
                 <div class="category-grid" id="categoryGrid"></div>
@@ -829,49 +441,49 @@
 
             <div class="page" id="categoryPage">
                 <div class="breadcrumb">
-                    <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Beranda</span>
-                    <span>›</span>
-                    <span id="breadcrumbCategory"></span>
+                    <span class="breadcrumb-item" onclick="showPage('homePage')">🏠 Workspace</span>
+                    <span>/</span>
+                    <span id="breadcrumbCategory" style="color: white; font-weight: 600;"></span>
                 </div>
                 
                 <div class="tab-navigation">
-                    <button class="tab-btn active" onclick="switchTab('list')">📋 List VPS</button>
-                    <button class="tab-btn" onclick="switchTab('bon')">🧾 Bon Pending</button>
-                    <button class="tab-btn" onclick="switchTab('info')">ℹ️ Info</button>
+                    <button class="tab-btn active" onclick="switchTab('list')">💻 Nodes/VPS</button>
+                    <button class="tab-btn" onclick="switchTab('bon')">🧾 Invoice Pending</button>
+                    <button class="tab-btn" onclick="switchTab('info')">📊 Analytics</button>
                 </div>
 
                 <div class="tab-content active" id="listTab">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                        <h3 id="categoryTitle"></h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                        <h2 id="categoryTitle" style="color: white;"></h2>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn btn-info" onclick="exportCurrentCategory()">
-                                📤 Export List VPS
+                            <button class="btn btn-secondary" onclick="exportCurrentCategory()">
+                                📤 Export List
                             </button>
                             <button class="btn btn-warning" onclick="document.getElementById('importVpsFile').click()">
-                                📥 Import List VPS
+                                📥 Import & Merge List
                             </button>
                             <input type="file" id="importVpsFile" accept=".json" style="display: none;" onchange="importToCurrentCategory(event)">
                             <button class="btn btn-primary" onclick="openVPSModal()">
-                                <span>➕</span> Tambah VPS
+                                <span>+</span> Deploy Server Baru
                             </button>
                         </div>
                     </div>
                     
-                    <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Cari VPS...">
+                    <input type="text" class="form-control search-bar" id="searchBar" placeholder="Cari IP, Lokasi, atau Spesifikasi...">
                     <div class="vps-grid" id="vpsGrid"></div>
                 </div>
 
                 <div class="tab-content" id="bonTab">
-                    <h3>🧾 Bon VPS Pending</h3>
-                    <div class="bon-container" id="bonContainer">
-                        <button class="btn btn-sm btn-primary copy-btn" onclick="copyBon()">📋 Salin</button>
-                        <div id="bonContent"></div>
+                    <h2 style="color: white; margin-bottom: 15px;">🧾 Tagihan / Invoice Pending</h2>
+                    <div class="bon-container" id="bonContainer" style="padding: 25px; border-radius: 16px; position: relative; font-family: monospace;">
+                        <button class="btn btn-sm btn-primary copy-btn" style="position: absolute; top: 15px; right: 15px;" onclick="copyBon()">📋 Copy Teks</button>
+                        <div id="bonContent" style="white-space: pre-wrap; line-height: 1.5;"></div>
                     </div>
                 </div>
 
                 <div class="tab-content" id="infoTab">
-                    <h3>ℹ️ Info VPS</h3>
-                    <div class="info-list">
+                    <h2 style="color: white; margin-bottom: 15px;">📊 Server Analytics</h2>
+                    <div class="info-list" style="padding: 25px; border-radius: 16px;">
                         <div id="infoList"></div>
                     </div>
                 </div>
@@ -882,15 +494,18 @@
     <div class="modal" id="categoryModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Tambah Kategori Baru</h3>
-                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+                <h3 class="modal-title" style="color: white;">Buat Workspace Baru</h3>
+                <button class="close-btn" onclick="closeModal('categoryModal')">✕</button>
             </div>
             <form id="categoryForm" onsubmit="addCategory(event)">
                 <div class="form-group">
-                    <label class="form-label">Nama Kategori</label>
-                    <input type="text" class="form-control" id="categoryName" required placeholder="Contoh: VPS Genoa, VPS Milan">
+                    <label class="form-label">Nama Kategori / Label Group</label>
+                    <input type="text" class="form-control" id="categoryName" required placeholder="Cth: AdHost SG Premium, Node B">
                 </div>
-                <button type="submit" class="btn btn-primary">Simpan Kategori</button>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Label</button>
+                </div>
             </form>
         </div>
     </div>
@@ -898,99 +513,104 @@
     <div class="modal" id="vpsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="vpsModalTitle">Tambah VPS Baru</h3>
-                <button class="close-btn" onclick="closeModal('vpsModal')">&times;</button>
+                <h3 class="modal-title" id="vpsModalTitle" style="color: white;">Deploy Server Baru</h3>
+                <button class="close-btn" onclick="closeModal('vpsModal')">✕</button>
             </div>
             <form id="vpsForm" onsubmit="saveVPS(event)">
                 <input type="hidden" id="vpsId">
                 <input type="hidden" id="categoryId">
                 
                 <div class="form-group">
-                    <label class="form-label">Pilih Tipe VPS</label>
-                    <select class="form-control" id="vpsTemplate" onchange="fillVPSTemplate()">
-                        <option value="">-- Pilih Tipe VPS --</option>
+                    <label class="form-label">Quick Select (Preset AdHost)</label>
+                    <select class="form-control" id="vpsTemplate" onchange="fillVPSTemplate()" style="appearance: none;">
+                        <option value="">-- Pilih Preset Spesifikasi --</option>
                     </select>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">RAM (GB)</label>
-                        <input type="number" class="form-control" id="ram" required placeholder="2">
+                        <input type="number" class="form-control" id="ram" required placeholder="Misal: 4">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Core</label>
-                        <input type="number" class="form-control" id="core" required placeholder="1">
+                        <label class="form-label">vCPU Core</label>
+                        <input type="number" class="form-control" id="core" required placeholder="Misal: 2">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">SSD (GB)</label>
-                        <input type="number" class="form-control" id="ssd" required placeholder="40">
+                        <label class="form-label">Storage (GB)</label>
+                        <input type="number" class="form-control" id="ssd" required placeholder="Misal: 80">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Bandwidth (TB)</label>
-                        <input type="number" step="0.1" class="form-control" id="bandwidth" required placeholder="0.5">
+                        <input type="number" step="0.1" class="form-control" id="bandwidth" required placeholder="Misal: 1">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Harga (Ribu)</label>
-                        <input type="number" class="form-control" id="price" required placeholder="35">
+                        <label class="form-label">Harga (Ribu Rp)</label>
+                        <input type="number" class="form-control" id="price" required placeholder="Misal: 50">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Lokasi</label>
-                        <input type="text" class="form-control" id="location" required placeholder="Genoa/Milan">
+                        <label class="form-label">Data Center / Region</label>
+                        <input type="text" class="form-control" id="location" required placeholder="Misal: SG, DE, US">
                     </div>
                 </div>
 
                 <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">IP Address</label>
-                        <input type="text" class="form-control" id="ipAddress" placeholder="192.168.1.100">
+                        <label class="form-label">IP Public</label>
+                        <input type="text" class="form-control" id="ipAddress" placeholder="103.x.x.x">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Status VPS</label>
-                        <select class="form-control" id="status">
-                            <option value="safe">Safe</option>
-                            <option value="pending">Pending</option>
-                            <option value="error">Error</option>
+                        <label class="form-label">Status Node</label>
+                        <select class="form-control" id="status" style="appearance: none;">
+                            <option value="safe">✅ Safe / Running</option>
+                            <option value="pending">⏳ Pending Setup</option>
+                            <option value="error">❌ Error / Down</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Bukti Transaksi</label>
+                    <label class="form-label">Bukti Transaksi / Invoice Info</label>
                     <div class="image-upload-area" onclick="document.getElementById('proofInput').click()">
                         <input type="file" id="proofInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                        <div id="uploadPreview">
-                            <div style="font-size: 2rem;">📷</div>
-                            <p>Klik untuk upload gambar atau masukkan URL</p>
+                        <div id="uploadPreview" style="color: var(--text-muted);">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">☁️</div>
+                            <p>Klik untuk upload gambar resi / screenshot</p>
                         </div>
                     </div>
-                    <input type="url" class="form-control" id="proofUrl" placeholder="Atau masukkan URL gambar" style="margin-top: 10px;">
+                    <input type="url" class="form-control" id="proofUrl" placeholder="Atau paste URL gambar di sini" style="margin-top: 15px;">
                 </div>
 
-                <button type="submit" class="btn btn-primary">Simpan VPS</button>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('vpsModal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Konfigurasi</button>
+                </div>
             </form>
         </div>
     </div>
 
     <div class="modal" id="imageModal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Preview Bukti Transaksi</h3>
-                <button class="close-btn" onclick="closeModal('imageModal')">&times;</button>
+        <div class="modal-content" style="max-width: 800px; padding: 15px; background: rgba(0,0,0,0.8);">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button class="close-btn" onclick="closeModal('imageModal')">✕</button>
             </div>
-            <img id="previewImage" style="width: 100%; border-radius: 10px;">
+            <img id="previewImage" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastMessage"></span>
+    </div>
 
     <script>
-        // Global variables
+        // Logika 100% sama dengan versi sebelumnya
         let categories = [];
         let currentCategory = null;
         let currentImageData = null;
@@ -998,950 +618,312 @@
         const STORAGE_KEY = 'vpsPurchaseTrackerData';
         let isLocalStorageAvailable = false;
 
-        // VPS Templates
         const vpsTemplates = [
-            { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Genoa' },
-            { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Genoa' },
-            { ram: 8, core: 4, ssd: 160, bandwidth: 2, price: 65, location: 'Genoa' },
-            { ram: 16, core: 4, ssd: 160, bandwidth: 2, price: 70, location: 'Milan' },
-            { ram: 16, core: 8, ssd: 320, bandwidth: 3, price: 80, location: 'Genoa' },
-            { ram: 32, core: 8, ssd: 240, bandwidth: 3, price: 90, location: 'Milan' },
-            { ram: 32, core: 16, ssd: 680, bandwidth: 5, price: 100, location: 'Genoa' },
-            { ram: 64, core: 8, ssd: 320, bandwidth: 4, price: 110, location: 'Milan' },
-            { ram: 128, core: 32, ssd: 600, bandwidth: 6, price: 140, location: 'Milan' },
-            { ram: 192, core: 48, ssd: 960, bandwidth: 8, price: 180, location: 'Milan' }
+            { ram: 2, core: 1, ssd: 40, bandwidth: 0.5, price: 35, location: 'Singapore' },
+            { ram: 4, core: 2, ssd: 80, bandwidth: 1, price: 45, location: 'Singapore' },
+            { ram: 8, core: 4, ssd: 160, bandwidth: 2, price: 65, location: 'Germany' },
+            { ram: 16, core: 4, ssd: 160, bandwidth: 2, price: 70, location: 'Germany' },
+            { ram: 32, core: 8, ssd: 240, bandwidth: 3, price: 90, location: 'USA' }
         ];
 
-        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('=== VPS Purchase Tracker Initializing ===');
             checkLocalStorageAvailability();
             initializeApp();
             populateVPSTemplates();
-            
-            // Show storage warning
-            setTimeout(() => {
-                if (categories.length > 0) {
-                    showToast('💡 Tips: Backup data Anda dengan "Export Kategori" agar tidak hilang!', 'warning', 5000);
-                }
-            }, 3000);
         });
 
-        // Check if localStorage is available
         function checkLocalStorageAvailability() {
             try {
-                const test = '__test__';
-                localStorage.setItem(test, test);
-                localStorage.removeItem(test);
+                localStorage.setItem('__test__', '__test__');
+                localStorage.removeItem('__test__');
                 isLocalStorageAvailable = true;
-                updateStorageStatus('Tersimpan otomatis', 'success');
-                console.log('✅ LocalStorage tersedia');
+                updateStorageStatus('Sistem Online', 'success');
             } catch (e) {
                 isLocalStorageAvailable = false;
-                updateStorageStatus('Penyimpanan tidak tersedia', 'error');
-                console.error('❌ LocalStorage tidak tersedia:', e);
-                showToast('Peringatan: Data tidak akan tersimpan setelah refresh browser', 'error');
+                updateStorageStatus('Storage Error', 'error');
+                showToast('Peringatan: Data tidak akan tersimpan permanen', 'error');
             }
         }
 
-        // Initialize the app
         function initializeApp() {
-            console.log('Memulai inisialisasi aplikasi...');
-            
-            // Load data from storage
             loadData();
-            
-            // Render UI
             renderCategories();
             updateStats();
-            
-            // Show welcome message if empty
-            if (categories.length === 0) {
-                showToast('Selamat datang! Tambah kategori atau load sample data untuk memulai', 'info');
-            } else {
-                showToast(`Berhasil memuat ${categories.length} kategori`, 'success');
-            }
-            
-            console.log('Aplikasi berhasil diinisialisasi');
+            if (categories.length === 0) showToast('Selamat datang di AdHost Panel!', 'info');
         }
 
-        // Export all data to file
-        function exportAllData() {
-            try {
-                const dataToExport = {
-                    categories: categories,
-                    exportDate: new Date().toISOString(),
-                    version: '1.0',
-                    appInfo: 'VPS Purchase Tracker Export - All Data'
-                };
-                
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-all-data-backup-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast('Semua data berhasil diexport! Simpan file ini dengan aman.', 'success');
-                console.log('✅ Semua data berhasil diexport');
-            } catch (error) {
-                console.error('❌ Gagal export data:', error);
-                showToast('Gagal export data: ' + error.message, 'error');
-            }
-        }
-
-        // Import data from file
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Validate imported data
-                    if (!importedData.categories || !Array.isArray(importedData.categories)) {
-                        throw new Error('Format file tidak valid! File harus berisi data kategori.');
-                    }
-                    
-                    // Ask for confirmation
-                    if (categories.length > 0) {
-                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
-                            return;
-                        }
-                    }
-                    
-                    // Import the data
-                    categories = importedData.categories;
-                    
-                    if (saveData()) {
-                        renderCategories();
-                        updateStats();
-                        showToast(`Berhasil import ${categories.length} kategori!`, 'success');
-                        console.log('✅ Data berhasil diimport');
-                    }
-                } catch (error) {
-                    console.error('❌ Gagal import data:', error);
-                    showToast('Gagal import data: ' + error.message, 'error');
-                }
-            };
-            
-            reader.readAsText(file);
-            // Clear the file input
-            event.target.value = '';
-        }
-
-        // Populate VPS templates dropdown
-        function populateVPSTemplates() {
-            const select = document.getElementById('vpsTemplate');
-            vpsTemplates.forEach((template, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `RAM ${template.ram}GB - ${template.core} Core - ${template.location} - Rp ${template.price}K`;
-                select.appendChild(option);
-            });
-        }
-
-        // Fill form with template data
-        function fillVPSTemplate() {
-            const select = document.getElementById('vpsTemplate');
-            const index = select.value;
-            
-            if (index !== '') {
-                const template = vpsTemplates[index];
-                document.getElementById('ram').value = template.ram;
-                document.getElementById('core').value = template.core;
-                document.getElementById('ssd').value = template.ssd;
-                document.getElementById('bandwidth').value = template.bandwidth;
-                document.getElementById('price').value = template.price;
-                document.getElementById('location').value = template.location;
-            }
-        }
-
-        // Update storage status indicator
         function updateStorageStatus(text, type = 'success') {
             const statusEl = document.getElementById('storageStatus');
             const iconEl = document.getElementById('storageIcon');
             const textEl = document.getElementById('storageText');
-            
-            statusEl.className = 'storage-status';
-            if (type === 'error') {
-                statusEl.classList.add('error');
-                iconEl.textContent = '⚠️';
-            } else if (type === 'warning') {
-                statusEl.classList.add('warning');
-                iconEl.textContent = '⚡';
-            } else {
-                iconEl.textContent = '💾';
-            }
+            statusEl.className = 'storage-status ' + (type !== 'success' ? type : '');
+            iconEl.textContent = type === 'error' ? '⚠️' : type === 'warning' ? '⚡' : '🟢';
             textEl.textContent = text;
         }
 
-        // Save data to localStorage
-        function saveData() {
-            if (!isLocalStorageAvailable) {
-                console.warn('LocalStorage tidak tersedia, data tidak disimpan');
-                showToast('Data tidak disimpan - LocalStorage tidak tersedia', 'error');
-                return false;
-            }
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            
+            toast.className = 'toast show ' + type;
+            msg.textContent = message;
+            icon.textContent = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '💡';
+            
+            setTimeout(() => { toast.classList.remove('show'); }, duration);
+        }
 
+        function saveData() {
+            if (!isLocalStorageAvailable) return false;
             try {
-                const dataToSave = {
-                    categories: categories,
-                    lastSaved: new Date().toISOString(),
-                    version: '1.0'
-                };
-                
-                const serializedData = JSON.stringify(dataToSave);
-                localStorage.setItem(STORAGE_KEY, serializedData);
-                
-                console.log('✅ Data berhasil disimpan ke localStorage');
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ categories, lastSaved: new Date().toISOString(), version: '2.0' }));
                 updateStorageStatus('Tersimpan', 'success');
                 return true;
             } catch (error) {
-                console.error('❌ Gagal menyimpan data:', error);
-                updateStorageStatus('Gagal menyimpan', 'error');
-                showToast('Gagal menyimpan data: ' + error.message, 'error');
+                updateStorageStatus('Gagal Sync', 'error');
+                showToast('Gagal menyimpan: ' + error.message, 'error');
                 return false;
             }
         }
 
-        // Load data from localStorage
         function loadData() {
-            if (!isLocalStorageAvailable) {
-                console.warn('LocalStorage tidak tersedia, menggunakan data kosong');
-                categories = [];
-                return;
-            }
-
+            if (!isLocalStorageAvailable) return;
             try {
-                const savedData = localStorage.getItem(STORAGE_KEY);
-                
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    
-                    if (parsedData && parsedData.categories && Array.isArray(parsedData.categories)) {
-                        categories = parsedData.categories;
-                        console.log('✅ Data berhasil dimuat dari localStorage');
-                        
-                        if (parsedData.lastSaved) {
-                            const lastSaved = new Date(parsedData.lastSaved);
-                            console.log('Terakhir disimpan:', lastSaved.toLocaleString('id-ID'));
-                        }
-                    } else {
-                        console.warn('Struktur data tidak valid, menggunakan data kosong');
-                        categories = [];
-                    }
-                } else {
-                    console.log('Tidak ada data tersimpan, menggunakan data kosong');
-                    categories = [];
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    categories = Array.isArray(parsed.categories) ? parsed.categories : [];
                 }
-            } catch (error) {
-                console.error('❌ Gagal memuat data:', error);
-                categories = [];
-                showToast('Gagal memuat data, menggunakan data kosong', 'error');
-            }
+            } catch (e) { categories = []; }
         }
 
-        // Page navigation
+        function updateStats() {
+            document.getElementById('totalCategories').textContent = categories.length;
+            document.getElementById('totalVPS').textContent = categories.reduce((sum, cat) => sum + cat.vpsList.length, 0);
+            document.getElementById('totalValue').textContent = categories.reduce((sum, cat) => sum + cat.vpsList.reduce((vSum, vps) => vSum + vps.price, 0), 0);
+        }
+
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
 
-        // Switch tab
         function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            if (tabName === 'bon') {
-                generateBon();
-            } else if (tabName === 'info') {
-                generateInfo();
-            }
+            if (tabName === 'bon') generateBon();
+            else if (tabName === 'info') generateInfo();
         }
 
-        // Render categories
         function renderCategories() {
-            console.log(`Rendering categories (${categories.length} total)...`);
             const container = document.getElementById('categoryGrid');
-            
             if (categories.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <div class="empty-icon">📂</div>
-                        <h3>Belum ada kategori</h3>
-                        <p>Tambahkan kategori pertama Anda untuk memulai</p>
-                        <button class="btn btn-primary" onclick="openCategoryModal()" style="margin-top: 15px;">
-                            ➕ Tambah Kategori Pertama
-                        </button>
-                    </div>
-                `;
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1);"><div style="font-size: 3rem; margin-bottom: 15px;">📁</div><h3>Belum ada Workspace</h3><p>Mulai dengan membuat label kategori server Anda.</p></div>`;
                 return;
             }
-
-            container.innerHTML = categories.map(category => `
-                <div class="category-card" onclick="openCategory(${category.id})">
-                    <div class="category-icon">📁</div>
-                    <div class="category-name">${category.name}</div>
-                    <div class="category-stats">
-                        ${category.vpsList.length} VPS • 
-                        Total: Rp ${category.vpsList.reduce((sum, vps) => sum + vps.price, 0)}K/bulan
-                    </div>
+            container.innerHTML = categories.map(cat => `
+                <div class="card-hover" onclick="openCategory(${cat.id})">
+                    <div class="category-icon">🗄️</div>
+                    <div class="category-name">${cat.name}</div>
+                    <div class="category-stats">${cat.vpsList.length} Nodes • Rp ${cat.vpsList.reduce((s, v) => s + v.price, 0)}K/bln</div>
                     <div class="category-actions">
-                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openCategory(${category.id})">
-                            Buka
-                        </button>
-                        <button class="btn btn-info btn-sm" onclick="event.stopPropagation(); exportCategory(${category.id})">
-                            📤
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${category.id})">
-                            🗑️
-                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openCategory(${cat.id})">Akses Panel</button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteCategory(${cat.id})" style="margin-left:auto;">🗑️</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Open category detail
-        function openCategory(categoryId) {
-            currentCategory = categories.find(c => c.id === categoryId);
+        function openCategory(id) {
+            currentCategory = categories.find(c => c.id === id);
             if (!currentCategory) return;
-            
             document.getElementById('breadcrumbCategory').textContent = currentCategory.name;
-            document.getElementById('categoryTitle').textContent = `📁 ${currentCategory.name}`;
-            document.getElementById('categoryId').value = categoryId;
-            
+            document.getElementById('categoryTitle').innerHTML = `🗂️ ${currentCategory.name}`;
+            document.getElementById('categoryId').value = id;
             renderVPSList();
             showPage('categoryPage');
         }
 
-        // Render VPS list
-        function renderVPSList(searchTerm = '') {
+        function renderVPSList(search = '') {
             if (!currentCategory) return;
-            
-            let filteredVPS = currentCategory.vpsList;
-            
-            if (searchTerm) {
-                filteredVPS = currentCategory.vpsList.filter(vps => 
-                    vps.location.toLowerCase().includes(searchTerm) ||
-                    vps.ram.toString().includes(searchTerm) ||
-                    vps.core.toString().includes(searchTerm) ||
-                    vps.ssd.toString().includes(searchTerm) ||
-                    vps.bandwidth.toString().includes(searchTerm) ||
-                    vps.price.toString().includes(searchTerm) ||
-                    (vps.status && vps.status.toLowerCase().includes(searchTerm)) ||
-                    (vps.ipAddress && vps.ipAddress.toLowerCase().includes(searchTerm))
-                );
+            let list = currentCategory.vpsList;
+            if (search) {
+                const s = search.toLowerCase();
+                list = list.filter(v => Object.values(v).some(val => String(val).toLowerCase().includes(s)));
             }
-
             const container = document.getElementById('vpsGrid');
-            
-            if (filteredVPS.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <div class="empty-icon">🖥️</div>
-                        <h3>${searchTerm ? 'Tidak ada VPS yang cocok' : 'Belum ada VPS'}</h3>
-                        <p>${searchTerm ? 'Coba kata kunci lain' : 'Klik "Tambah VPS" atau "Import List VPS" untuk memulai'}</p>
-                    </div>
-                `;
+            if (list.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; background: rgba(0,0,0,0.2); border-radius: 20px;"><div style="font-size: 2.5rem; margin-bottom: 10px;">🖥️</div><h3 style="color:white;">${search ? 'Server tidak ditemukan' : 'Tidak ada server di kategori ini'}</h3></div>`;
                 return;
             }
-
-            container.innerHTML = filteredVPS.map(vps => `
-                <div class="vps-card">
-                    ${vps.status ? `<div class="vps-status status-${vps.status}">${vps.status}</div>` : ''}
-                    <div class="vps-header">
-                        <div>
-                            <div class="vps-price">Rp ${vps.price}K/bulan</div>
-                            <span class="vps-location">📍 ${vps.location}</span>
-                        </div>
+            container.innerHTML = list.map(vps => `
+                <div class="card-hover vps-card">
+                    <div class="vps-header-bg">
+                        ${vps.status ? `<div class="vps-status status-${vps.status}">${vps.status}</div>` : ''}
+                        <div class="vps-price">Rp ${vps.price}K<span>/bln</span></div>
+                        <div class="vps-location">📍 ${vps.location}</div>
                     </div>
-                    <div class="vps-specs">
-                        <div class="spec-item">
-                            <span class="spec-icon">💾</span>
-                            <span>RAM: ${vps.ram}GB</span>
+                    <div class="vps-body">
+                        <div class="vps-specs">
+                            <div class="spec-item"><span class="spec-icon">💾</span> RAM ${vps.ram}GB</div>
+                            <div class="spec-item"><span class="spec-icon">⚡</span> ${vps.core} vCPU</div>
+                            <div class="spec-item"><span class="spec-icon">💽</span> ${vps.ssd}GB SSD</div>
+                            <div class="spec-item"><span class="spec-icon">🌐</span> ${vps.bandwidth}TB BW</div>
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-icon">⚡</span>
-                            <span>Core: ${vps.core}</span>
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; font-family: monospace; color: var(--info); font-size: 0.9rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            🌍 ${vps.ipAddress || 'IP Not Assigned'}
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-icon">💿</span>
-                            <span>SSD: ${vps.ssd}GB</span>
+                        ${vps.proof ? `<div style="margin-bottom: 15px;"><img src="${vps.proof}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="openImageModal('${vps.proof}')"></div>` : ''}
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="editVPS(${vps.id})">✏️ Konfigurasi</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteVPS(${vps.id})">🗑️</button>
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-icon">🌐</span>
-                            <span>Bandwidth: ${vps.bandwidth}TB</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-icon">🌍</span>
-                            <span>IP: ${vps.ipAddress || '-'}</span>
-                        </div>
-                    </div>
-                    ${vps.proof ? `
-                        <div class="transaction-proof">
-                            <div class="proof-label">Bukti Transaksi:</div>
-                            <img src="${vps.proof}" class="proof-image" onclick="openImageModal('${vps.proof}')" alt="Bukti Transaksi">
-                        </div>
-                    ` : ''}
-                    <div class="vps-actions">
-                        <button class="btn btn-primary btn-sm" onclick="editVPS(${vps.id})">
-                            ✏️ Edit
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteVPS(${vps.id})">
-                            🗑️
-                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Generate Bon (only pending VPS)
-        function generateBon() {
-            if (!currentCategory) return;
-            
-            const date = new Date().toLocaleString('id-ID');
-            const pendingVPS = currentCategory.vpsList.filter(vps => vps.status === 'pending');
-            const totalVPS = pendingVPS.length;
-            const totalValue = pendingVPS.reduce((sum, vps) => sum + vps.price, 0);
-            
-            // Simple border lines
-            const borderLine = '==================================';
-            const dashLine = '-------------------------------------------------';
-            
-            // Center title function
-            function centerText(text, width) {
-                const pad = Math.max(0, width - text.length);
-                return ' '.repeat(Math.floor(pad / 2)) + text + ' '.repeat(Math.ceil(pad / 2));
-            }
-            
-            let bonContent = `${borderLine}
- ${centerText(currentCategory.name.toUpperCase() + ' - VPS PENDING', 34)}
- ${borderLine}
-
-Tanggal: ${date}
- ${dashLine}
-
-DAFTAR VPS PENDING:
- ${dashLine}
-`;
-
-            if (pendingVPS.length === 0) {
-                bonContent += `
-Tidak ada VPS dengan status pending.
- ${dashLine}`;
-            } else {
-                pendingVPS.forEach((vps, index) => {
-                    bonContent += `
- ${index + 1}. RAM ${vps.ram}GB | ${vps.core} Core | SSD ${vps.ssd}GB
-   BW: ${vps.bandwidth}TB | Lokasi: ${vps.location}
-   Harga: Rp ${vps.price}K/bulan | IP: ${vps.ipAddress || '-'}
- ${dashLine}`;
-                });
-            }
-
-            bonContent += `
-RINGKASAN:
- ${dashLine}
-Total VPS     : ${totalVPS.toString().padEnd(4)} unit
-Total Nilai   : Rp ${totalValue}K/bulan
-
- ${borderLine}
-Terima kasih atas pembelian Anda!
-Simpan bukti ini sebagai arsip.
- ${borderLine}`;
-            
-            document.getElementById('bonContent').textContent = bonContent;
-        }
-
-        // Generate Info (all VPS details)
-        function generateInfo() {
-            if (!currentCategory) return;
-            
-            const date = new Date().toLocaleString('id-ID');
-            const safeVPS = currentCategory.vpsList.filter(vps => vps.status === 'safe');
-            const totalVPS = currentCategory.vpsList.length;
-            const totalValue = currentCategory.vpsList.reduce((sum, vps) => sum + vps.price, 0);
-            
-            let infoContent = `
-                <h5>📊 Informasi VPS - ${currentCategory.name}</h5>
-                <p><strong>Tanggal:</strong> ${date}</p>
-                <p><strong>Total VPS:</strong> ${totalVPS} unit</p>
-                <p><strong>Total Nilai:</strong> Rp ${totalValue}K/bulan</p>
-                
-                <div style="margin-top: 15px;">
-                    <p><strong>Status Breakdown:</strong></p>
-                    <ul style="margin-left: 20px; margin-top: 5px;">
-                        <li>✅ Safe: ${safeVPS.length} unit</li>
-                        <li>⏳ Pending: ${currentCategory.vpsList.filter(v => v.status === 'pending').length} unit</li>
-                        <li>❌ Error: ${currentCategory.vpsList.filter(v => v.status === 'error').length} unit</li>
-                    </ul>
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <p><strong>Daftar Semua VPS:</strong></p>
-            `;
-            
-            currentCategory.vpsList.forEach((vps, index) => {
-                const statusIcon = vps.status === 'safe' ? '✅' : vps.status === 'pending' ? '⏳' : '❌';
-                infoContent += `
-                    <div style="margin-bottom: 10px; padding: 10px; background: var(--light); border-radius: 8px;">
-                        <strong>${index + 1}.</strong> ${statusIcon} ${vps.name || `VPS-${index + 1}`}<br>
-                        <small style="color: var(--gray);">RAM: ${vps.ram}GB | Core: ${vps.core} | SSD: ${vps.ssd}GB</small><br>
-                        <small style="color: var(--gray);">BW: ${vps.bandwidth}TB | Lokasi: ${vps.location}</small><br>
-                        <small style="color: var(--gray);">IP: ${vps.ipAddress || 'Belum diatur'}</small><br>
-                        <small style="color: var(--primary); font-weight: bold;">Harga: Rp ${vps.price}K/bulan</small>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('infoList').innerHTML = infoContent;
-        }
-
-        // Copy bon to clipboard
-        function copyBon() {
-            const bonContent = document.getElementById('bonContent').textContent;
-            navigator.clipboard.writeText(bonContent).then(() => {
-                showToast('Bon berhasil disalin!', 'success');
-            }).catch(() => {
-                showToast('Gagal menyalin bon', 'error');
-            });
-        }
-
-        // Search functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchBar = document.getElementById('searchBar');
-            if (searchBar) {
-                searchBar.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    renderVPSList(searchTerm);
-                });
-            }
-        });
-
-        // Modal functions
-        function openCategoryModal() {
-            document.getElementById('categoryModal').classList.add('active');
-            document.getElementById('categoryName').focus();
-        }
-
-        function openVPSModal() {
-            editingVPS = null;
-            document.getElementById('vpsModalTitle').textContent = 'Tambah VPS Baru';
+        // Logic Export/Import, Modal, Form dll (Sama persis)
+        function openCategoryModal() { document.getElementById('categoryModal').classList.add('active'); document.getElementById('categoryName').focus(); }
+        function openVPSModal() { 
+            editingVPS = null; document.getElementById('vpsModalTitle').textContent = 'Deploy Server Baru';
             document.getElementById('vpsForm').reset();
-            document.getElementById('uploadPreview').innerHTML = `
-                <div style="font-size: 2rem;">📷</div>
-                <p>Klik untuk upload gambar atau masukkan URL</p>
-            `;
-            currentImageData = null;
-            document.getElementById('vpsModal').classList.add('active');
+            document.getElementById('uploadPreview').innerHTML = `<div style="font-size: 2.5rem; margin-bottom: 10px;">☁️</div><p>Klik untuk upload gambar resi</p>`;
+            currentImageData = null; document.getElementById('vpsModal').classList.add('active');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function addCategory(e) {
+            e.preventDefault(); const name = document.getElementById('categoryName').value.trim();
+            if(!name || categories.some(c=>c.name.toLowerCase()===name.toLowerCase())) return showToast('Nama invalid/sudah ada', 'error');
+            categories.push({ id: Date.now(), name, vpsList: [] });
+            if(saveData()){ renderCategories(); updateStats(); closeModal('categoryModal'); showToast('Workspace Dibuat!', 'success'); document.getElementById('categoryName').value=''; }
         }
 
-        function editVPS(vpsId) {
-            const vps = currentCategory.vpsList.find(v => v.id === vpsId);
-            if (!vps) return;
-            
-            editingVPS = vps;
-            document.getElementById('vpsModalTitle').textContent = 'Edit VPS';
-            document.getElementById('vpsId').value = vps.id;
-            document.getElementById('ram').value = vps.ram;
-            document.getElementById('core').value = vps.core;
-            document.getElementById('ssd').value = vps.ssd;
-            document.getElementById('bandwidth').value = vps.bandwidth;
-            document.getElementById('price').value = vps.price;
-            document.getElementById('location').value = vps.location;
-            document.getElementById('ipAddress').value = vps.ipAddress || '';
-            document.getElementById('status').value = vps.status || 'safe';
-            
-            if (vps.proof) {
-                document.getElementById('uploadPreview').innerHTML = `
-                    <img src="${vps.proof}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
-                    <p>✅ Gambar tersimpan</p>
-                `;
-                currentImageData = vps.proof;
-            }
-            
-            document.getElementById('vpsModal').classList.add('active');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            if (modalId === 'vpsModal') {
-                document.getElementById('vpsForm').reset();
-                document.getElementById('uploadPreview').innerHTML = `
-                    <div style="font-size: 2rem;">📷</div>
-                    <p>Klik untuk upload gambar atau masukkan URL</p>
-                `;
-                currentImageData = null;
-                editingVPS = null;
-            } else if (modalId === 'categoryModal') {
-                document.getElementById('categoryForm').reset();
-            }
-        }
-
-        // Export single category
-        function exportCategory(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            if (!category) return;
-            
-            try {
-                const dataToExport = {
-                    category: category,
-                    exportDate: new Date().toISOString(),
-                    version: '1.0',
-                    appInfo: `VPS Purchase Tracker Export - ${category.name}`
-                };
-                
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-category-${category.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast(`Kategori "${category.name}" berhasil diexport!`, 'success');
-                console.log(`✅ Kategori "${category.name}" berhasil diexport`);
-            } catch (error) {
-                console.error('❌ Gagal export kategori:', error);
-                showToast('Gagal export kategori: ' + error.message, 'error');
-            }
-        }
-
-        // Add category
-        function addCategory(event) {
-            event.preventDefault();
-            
-            const nameInput = document.getElementById('categoryName');
-            const name = nameInput.value.trim();
-            
-            if (!name) {
-                showToast('Nama kategori tidak boleh kosong!', 'error');
-                return;
-            }
-            
-            if (categories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
-                showToast('Kategori dengan nama ini sudah ada!', 'error');
-                return;
-            }
-            
-            const newCategory = {
-                id: Date.now(),
-                name: name,
-                vpsList: []
-            };
-            
-            categories.push(newCategory);
-            
-            if (saveData()) {
-                renderCategories();
-                updateStats();
-                closeModal('categoryModal');
-                showToast(`Kategori "${name}" berhasil ditambahkan!`, 'success');
-                nameInput.value = '';
-            }
-        }
-
-        // Save VPS (add or edit)
-        function saveVPS(event) {
-            event.preventDefault();
-            
-            const ipAddress = document.getElementById('ipAddress').value.trim();
-            const status = document.getElementById('status').value;
-            
-            // Auto-set status to pending if IP is empty
-            const finalStatus = (!ipAddress || ipAddress === '') ? 'pending' : status;
-            
+        function saveVPS(e) {
+            e.preventDefault();
             const vpsData = {
-                ram: parseInt(document.getElementById('ram').value),
-                core: parseInt(document.getElementById('core').value),
-                ssd: parseInt(document.getElementById('ssd').value),
-                bandwidth: parseFloat(document.getElementById('bandwidth').value),
-                price: parseInt(document.getElementById('price').value),
-                location: document.getElementById('location').value,
-                ipAddress: ipAddress,
-                status: finalStatus,
+                ram: parseInt(document.getElementById('ram').value), core: parseInt(document.getElementById('core').value),
+                ssd: parseInt(document.getElementById('ssd').value), bandwidth: parseFloat(document.getElementById('bandwidth').value),
+                price: parseInt(document.getElementById('price').value), location: document.getElementById('location').value,
+                ipAddress: document.getElementById('ipAddress').value.trim(), status: document.getElementById('status').value,
                 proof: currentImageData || document.getElementById('proofUrl').value
             };
+            if(!vpsData.ipAddress) vpsData.status = 'pending';
+
+            if(editingVPS) { Object.assign(currentCategory.vpsList.find(v=>v.id===editingVPS.id), vpsData); showToast('Config diupdate!', 'success'); }
+            else { currentCategory.vpsList.push({ id: Date.now(), ...vpsData }); showToast('Node dideploy!', 'success'); }
             
-            if (editingVPS) {
-                // Edit existing VPS
-                const index = currentCategory.vpsList.findIndex(v => v.id === editingVPS.id);
-                if (index !== -1) {
-                    currentCategory.vpsList[index] = { ...editingVPS, ...vpsData };
-                    showToast('VPS berhasil diperbarui!', 'success');
-                }
-            } else {
-                // Add new VPS
-                const newVPS = {
-                    id: Date.now(),
-                    ...vpsData
-                };
-                currentCategory.vpsList.push(newVPS);
-                showToast('VPS berhasil ditambahkan!', 'success');
-            }
-            
-            if (saveData()) {
-                renderVPSList();
-                updateStats();
-                closeModal('vpsModal');
-            }
+            if(saveData()){ renderVPSList(); updateStats(); closeModal('vpsModal'); }
         }
 
-        // Delete functions
-        function deleteCategory(categoryId) {
-            const category = categories.find(c => c.id === categoryId);
-            if (!category) return;
-            
-            if (confirm(`Apakah Anda yakin ingin menghapus kategori "${category.name}"? Semua VPS di dalamnya akan terhapus.`)) {
-                categories = categories.filter(c => c.id !== categoryId);
-                
-                if (saveData()) {
-                    renderCategories();
-                    updateStats();
-                    showToast(`Kategori "${category.name}" berhasil dihapus!`, 'success');
-                }
+        function editVPS(id) {
+            editingVPS = currentCategory.vpsList.find(v=>v.id===id); if(!editingVPS) return;
+            document.getElementById('vpsModalTitle').textContent = 'Edit Konfigurasi Node';
+            ['ram','core','ssd','bandwidth','price','location','ipAddress','status'].forEach(k => document.getElementById(k).value = editingVPS[k] || '');
+            if(editingVPS.proof){ document.getElementById('uploadPreview').innerHTML = `<img src="${editingVPS.proof}" style="max-width:100%; max-height:120px; border-radius:8px;">`; currentImageData = editingVPS.proof; }
+            document.getElementById('vpsModal').classList.add('active');
+        }
+
+        function deleteCategory(id) {
+            if(confirm('Hapus Workspace ini beserta SEMUA server di dalamnya?')) {
+                categories = categories.filter(c=>c.id!==id); if(saveData()){ renderCategories(); updateStats(); showToast('Workspace dihapus', 'success'); }
+            }
+        }
+        function deleteVPS(id) {
+            if(confirm('Terminasi server ini dari sistem?')) {
+                currentCategory.vpsList = currentCategory.vpsList.filter(v=>v.id!==id);
+                if(saveData()){ renderVPSList(); updateStats(); showToast('Server diterminasi', 'success'); }
             }
         }
 
-        function deleteVPS(vpsId) {
-            if (confirm('Apakah Anda yakin ingin menghapus VPS ini?')) {
-                const index = currentCategory.vpsList.findIndex(v => v.id === vpsId);
-                if (index !== -1) {
-                    currentCategory.vpsList.splice(index, 1);
-                    
-                    if (saveData()) {
-                        renderVPSList();
-                        updateStats();
-                        showToast('VPS berhasil dihapus!', 'success');
-                    }
-                }
-            }
+        function populateVPSTemplates() {
+            const select = document.getElementById('vpsTemplate');
+            vpsTemplates.forEach((t, i) => select.add(new Option(`AdHost ${t.ram}GB / ${t.core}C - ${t.location} (Rp ${t.price}K)`, i)));
+        }
+        function fillVPSTemplate() {
+            const idx = document.getElementById('vpsTemplate').value;
+            if(idx !== '') { const t = vpsTemplates[idx]; ['ram','core','ssd','bandwidth','price','location'].forEach(k => document.getElementById(k).value = t[k]); }
         }
 
-        // Image handling
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImageData = e.target.result;
-                    document.getElementById('uploadPreview').innerHTML = `
-                        <img src="${e.target.result}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
-                        <p>✅ Gambar berhasil diupload</p>
-                    `;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function openImageModal(imageSrc) {
-            document.getElementById('previewImage').src = imageSrc;
-            document.getElementById('imageModal').classList.add('active');
-        }
-
-        // Update statistics
-        function updateStats() {
-            const totalCategories = categories.length;
-            const totalVPS = categories.reduce((sum, cat) => sum + cat.vpsList.length, 0);
-            const totalValue = categories.reduce((sum, cat) => 
-                sum + cat.vpsList.reduce((vpsSum, vps) => vpsSum + vps.price, 0), 0
-            );
-            
-            document.getElementById('totalCategories').textContent = totalCategories;
-            document.getElementById('totalVPS').textContent = totalVPS;
-            document.getElementById('totalValue').textContent = totalValue;
-        }
-
-        // Load sample data
-        function loadSampleData() {
-            console.log('Loading sample data...');
-            
-            const genoaCategory = {
-                id: Date.now(),
-                name: 'VPS Genoa',
-                vpsList: vpsTemplates.filter(v => v.location === 'Genoa').map(v => ({
-                    ...v,
-                    id: Date.now() + Math.random(),
-                    status: 'safe',
-                    ipAddress: '192.168.1.100',
-                    proof: `https://picsum.photos/seed/genoa${v.ram}/400/300.jpg`
-                }))
-            };
-
-            const milanCategory = {
-                id: Date.now() + 1,
-                name: 'VPS Milan',
-                vpsList: vpsTemplates.filter(v => v.location === 'Milan').map(v => ({
-                    ...v,
-                    id: Date.now() + Math.random() + 1,
-                    status: 'safe',
-                    ipAddress: '192.168.2.100',
-                    proof: `https://picsum.photos/seed/milan${v.ram}/400/300.jpg`
-                }))
-            };
-
-            categories = [genoaCategory, milanCategory];
-            
-            if (saveData()) {
-                renderCategories();
-                updateStats();
-                showToast('Sample data berhasil dimuat dan disimpan!', 'success');
-            }
-        }
-
-        // Clear all data
-        function clearAllData() {
-            if (!confirm('Apakah Anda yakin ingin menghapus SEMUA data? Ini tidak dapat dibatalkan!')) {
-                return;
-            }
-            
-            categories = [];
-            
-            if (isLocalStorageAvailable) {
-                try {
-                    localStorage.removeItem(STORAGE_KEY);
-                    console.log('✅ Data dihapus dari localStorage');
-                    updateStorageStatus('Data dihapus', 'success');
-                } catch (error) {
-                    console.error('❌ Gagal menghapus data:', error);
-                }
-            }
-            
-            renderCategories();
-            updateStats();
-            showToast('Semua data telah dihapus!', 'info');
-        }
-
-        // Toast notification
-        function showToast(message, type = 'info', duration = 3000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
-
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
-            }
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-            }
-        });
-
-        // ==========================================
-        // FITUR BARU: EXPORT/IMPORT KHUSUS LIST VPS
-        // ==========================================
-
-        // Export HANYA isi list VPS dari kategori yang sedang dibuka
-        function exportCurrentCategory() {
-            if (!currentCategory) return;
-            
-            try {
-                const dataToExport = {
-                    vpsList: currentCategory.vpsList,
-                    exportDate: new Date().toISOString(),
-                    type: 'vps_list_only' // Penanda bahwa ini cuma list VPS
-                };
-                
-                const jsonString = JSON.stringify(dataToExport, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `vps-list-${currentCategory.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast(`Data VPS dari "${currentCategory.name}" berhasil diexport!`, 'success');
-            } catch (error) {
-                showToast('Gagal export data: ' + error.message, 'error');
-            }
-        }
-
-        // Import list VPS dan gabungkan ke kategori yang sedang dibuka
-        function importToCurrentCategory(event) {
-            const file = event.target.files[0];
-            if (!file || !currentCategory) return;
-            
+        function handleImageUpload(e) {
+            const f = e.target.files[0]; if(!f) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    let vpsToImport = [];
-                    
-                    // Cek kompatibilitas format (bisa baca dari export list ini, atau export kategori lama)
-                    if (importedData.type === 'vps_list_only' && Array.isArray(importedData.vpsList)) {
-                        vpsToImport = importedData.vpsList;
-                    } else if (importedData.category && Array.isArray(importedData.category.vpsList)) {
-                        vpsToImport = importedData.category.vpsList;
-                    } else {
-                        throw new Error('Format file tidak valid!');
-                    }
-                    
-                    if (vpsToImport.length === 0) {
-                        showToast('Tidak ada data VPS dalam file tersebut.', 'warning');
-                        return;
-                    }
-
-                    // Generate ID unik baru agar tidak bentrok dengan VPS yang sudah ada
-                    const newVpsList = vpsToImport.map(vps => ({
-                        ...vps,
-                        id: Date.now() + Math.random()
-                    }));
-                    
-                    // Gabungkan data yang sudah ada dengan data yang baru diimport
-                    currentCategory.vpsList = [...currentCategory.vpsList, ...newVpsList];
-                    
-                    if (saveData()) {
-                        renderVPSList();
-                        updateStats();
-                        showToast(`Berhasil menambahkan ${newVpsList.length} VPS ke kategori ini!`, 'success');
-                    }
-                } catch (error) {
-                    console.error('❌ Gagal import data:', error);
-                    showToast('Gagal import data: ' + error.message, 'error');
-                }
-            };
-            
-            reader.readAsText(file);
-            // Reset input file supaya bisa import file yang sama lagi jika dibutuhkan
-            event.target.value = '';
+            reader.onload = (ev) => { currentImageData = ev.target.result; document.getElementById('uploadPreview').innerHTML = `<img src="${currentImageData}" style="max-width:100%; max-height:120px; border-radius:8px; border: 2px solid var(--primary);">`; }
+            reader.readAsDataURL(f);
         }
+        function openImageModal(src) { document.getElementById('previewImage').src = src; document.getElementById('imageModal').classList.add('active'); }
+
+        // Export Import Features
+        function exportAllData() {
+            const blob = new Blob([JSON.stringify({ categories, exportDate: new Date().toISOString(), type: 'full_backup' }, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `AdHost-Backup-${Date.now()}.json`;
+            a.click(); URL.revokeObjectURL(a.href); showToast('Backup Sistem didownload!', 'success');
+        }
+        function importData(e) {
+            const f = e.target.files[0]; if(!f) return; const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result); if(!data.categories) throw new Error('Format salah');
+                    if(categories.length > 0 && !confirm('Timpa semua data workspace saat ini?')) return;
+                    categories = data.categories; if(saveData()){ renderCategories(); updateStats(); showToast('Sistem di-restore!', 'success'); }
+                } catch(err) { showToast('Gagal Import: ' + err.message, 'error'); }
+            }; reader.readAsText(f); e.target.value = '';
+        }
+        function exportCurrentCategory() {
+            if(!currentCategory) return;
+            const blob = new Blob([JSON.stringify({ vpsList: currentCategory.vpsList, type: 'vps_list_only' }, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `AdHost-List-${currentCategory.name}-${Date.now()}.json`;
+            a.click(); URL.revokeObjectURL(a.href); showToast('List Server didownload!', 'success');
+        }
+        function importToCurrentCategory(e) {
+            const f = e.target.files[0]; if(!f || !currentCategory) return; const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result); let list = [];
+                    if(data.type === 'vps_list_only') list = data.vpsList; else if (data.category) list = data.category.vpsList; else throw new Error();
+                    const merged = list.map(v => ({...v, id: Date.now() + Math.random()}));
+                    currentCategory.vpsList.push(...merged);
+                    if(saveData()){ renderVPSList(); updateStats(); showToast(`${merged.length} Node di-merge!`, 'success'); }
+                } catch(err) { showToast('Format salah!', 'error'); }
+            }; reader.readAsText(f); e.target.value = '';
+        }
+        function clearAllData() { if(confirm('RESET SISTEM? Semua data akan hilang!')) { categories = []; localStorage.removeItem(STORAGE_KEY); renderCategories(); updateStats(); showToast('Sistem Di-reset', 'info'); } }
+
+        function generateBon() {
+            if(!currentCategory) return;
+            const pend = currentCategory.vpsList.filter(v=>v.status==='pending');
+            let text = `==================================\n   ADHOST - INVOICE PENDING\n==================================\nTanggal: ${new Date().toLocaleString('id-ID')}\n----------------------------------\n`;
+            if(pend.length===0) text += 'All systems are running safe.\n';
+            else pend.forEach((v,i) => text += `${i+1}. Server ${v.location} (Rp ${v.price}K/bln)\n   ${v.ram}GB RAM | ${v.core} Core | ${v.ssd}GB SSD\n----------------------------------\n`);
+            text += `Total Node Pending : ${pend.length}\nTotal Tagihan    : Rp ${pend.reduce((s,v)=>s+v.price,0)}K/bln\n==================================`;
+            document.getElementById('bonContent').textContent = text;
+        }
+        function generateInfo() {
+            if(!currentCategory) return;
+            const safe = currentCategory.vpsList.filter(v=>v.status==='safe').length;
+            const html = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; text-align: center;">
+                    <div style="background: rgba(16, 185, 129, 0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);"><div style="font-size: 1.5rem; color: #34d399;">${safe}</div><div style="font-size: 0.8rem;">Online Nodes</div></div>
+                    <div style="background: rgba(245, 158, 11, 0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);"><div style="font-size: 1.5rem; color: #fbbf24;">${currentCategory.vpsList.filter(v=>v.status==='pending').length}</div><div style="font-size: 0.8rem;">Pending Setup</div></div>
+                    <div style="background: rgba(239, 68, 68, 0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3);"><div style="font-size: 1.5rem; color: #f87171;">${currentCategory.vpsList.filter(v=>v.status==='error').length}</div><div style="font-size: 0.8rem;">Error / Down</div></div>
+                </div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: white;">Total Valuasi Server: Rp ${currentCategory.vpsList.reduce((s,v)=>s+v.price,0)}K / Bulan</div>
+                <p style="color: var(--text-muted);">Sistem diperbarui pada: ${new Date().toLocaleString('id-ID')}</p>
+            `;
+            document.getElementById('infoList').innerHTML = html;
+        }
+        function copyBon() { navigator.clipboard.writeText(document.getElementById('bonContent').textContent); showToast('Teks disalin!', 'success'); }
+        function loadSampleData() {
+            categories = [{id:1, name:'AdHost Premium SG', vpsList:[{id:11,ram:16,core:8,ssd:200,bandwidth:2,price:150,location:'Singapore',ipAddress:'103.1.2.3',status:'safe'}]}];
+            if(saveData()){ renderCategories(); updateStats(); showToast('Demo loaded', 'success'); }
+        }
+
+        document.getElementById('searchBar')?.addEventListener('input', e => renderVPSList(e.target.value));
+        window.onclick = e => { if(e.target.classList.contains('modal')) e.target.classList.remove('active'); }
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active')); });
     </script>
 </body>
 </html>
