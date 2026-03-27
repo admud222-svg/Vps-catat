@@ -67,7 +67,7 @@
         }
         .view-section.active { display: block; opacity: 1; transform: translateY(0) scale(1); }
 
-        /* Fake Router Loader (Bukan buat JSONBin lagi) */
+        /* Fake Router Loader */
         #pageLoader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-main); z-index: 9999;
@@ -81,15 +81,17 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 🔥 ROCKET ANIMATION 🔥 */
+        /* 🔥 ROCKET ANIMATION FIXED (Anti Hilang di HP) 🔥 */
         .rocket-icon {
             display: inline-block; font-size: 2.2rem;
+            transform-origin: bottom center; /* Biar goyangnya natural dari ekor */
             animation: flyRocket 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+            /* Filter drop-shadow dihapus, diganti text-shadow biar aman di Android/iOS */
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
         }
         @keyframes flyRocket {
             0%   { transform: translateY(0) rotate(0deg) scale(1); }
-            50%  { transform: translateY(-8px) rotate(15deg) scale(1.1); }
+            50%  { transform: translateY(-10px) rotate(15deg) scale(1.1); }
             100% { transform: translateY(0) rotate(0deg) scale(1); }
         }
 
@@ -394,13 +396,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             populateVPSTemplates();
-            
-            // 1. Tampilkan data dari LocalStorage INSTAN TANPA LOADING
             handleRouting();
-            
-            // 2. Diem-diem ngecek JSONBin di background
             autoLoadFromCloud(); 
-            
             window.addEventListener('hashchange', handleRouting);
         });
 
@@ -439,7 +436,6 @@
                     localStorage.setItem('adhostData', JSON.stringify({ categories })); 
                     updateSyncStatus('synced');
                     
-                    // Kalau modal lagi kebuka, biarin aja biar ga ganggu user
                     const isModalOpen = document.querySelector('.modal.active');
                     if(!isModalOpen) {
                         renderCategories();
@@ -471,21 +467,16 @@
         }
 
         function saveData() {
-            // 1. Simpan ke HP lokal (Instan)
             localStorage.setItem('adhostData', JSON.stringify({ categories }));
             updateStats();
             
-            // 2. Tunda kirim ke JSONBin selama 2 detik (Biar gak spam server)
             updateSyncStatus('waiting');
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(() => {
                 backgroundSync();
-            }, 2000); // Tunggu 2 detik, baru upload
+            }, 2000); 
         }
 
-        // ==========================================
-        // LAINNYA SAMA DENGAN SEBELUMNYA
-        // ==========================================
         function populateVPSTemplates() {
             const select = document.getElementById('vpsTemplate');
             vpsTemplates.forEach((template, index) => {
@@ -517,7 +508,7 @@
                 document.getElementById('pageLoader').style.opacity = '0'; 
                 document.getElementById('pageLoader').style.pointerEvents = 'none';
                 window.scrollTo(0,0);
-            }, 150); // Cuma 150ms buat efek "smooth transition" doang
+            }, 150);
         }
 
         function goHome() { window.location.hash = ''; } 
