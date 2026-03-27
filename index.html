@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VPS Purchase Tracker - Fix Modal Issue</title>
+    <title>VPS Purchase Tracker - Modal Fix</title>
     <style>
         * {
             margin: 0;
@@ -746,7 +746,7 @@
                 <div class="logo">🖥️</div>
                 VPS Purchase Tracker
             </h1>
-            <p class="subtitle">Kelola dan catat semua pembelian VPS Anda - Import/Export Per Kategori</p>
+            <p class="subtitle">Kelola dan catat semua pembelian VPS Anda</p>
             <div class="header-actions">
                 <div class="storage-status" id="storageStatus">
                     <span id="storageIcon">💾</span>
@@ -758,15 +758,18 @@
                 <button class="btn btn-success" onclick="loadSampleData()">
                     📦 Load Sample Data
                 </button>
+                <button class="btn btn-info" onclick="testModal()">
+                    🧪 Test Modal
+                </button>
             </div>
             
             <div class="data-info">
-                <h4>📁 Import/Export Per Kategori</h4>
+                <h4>🔧 Debug Modal Issue</h4>
                 <ul>
-                    <li><strong>Export Kategori:</strong> Simpan kategori beserta semua VPS di dalamnya</li>
-                    <li><strong>Import Kategori:</strong> Tambahkan kategori yang sudah dibuat sebelumnya</li>
-                    <li>File backup tersimpan di browser, bisa di-download dan diupload kembali</li>
-                    <li>Sangat cocok untuk backup data sebelum ganti browser atau clear cache</li>
+                    <li>Jika modal tidak muncul, lihat console (F12)</li>
+                    <li>Click tombol "🧪 Test Modal" untuk testing</li>
+                    <li>Refresh browser dan coba lagi</li>
+                    <li>Clear cache browser jika masih error</li>
                 </ul>
             </div>
         </header>
@@ -1074,6 +1077,20 @@
             });
             
             console.log('✅ All event listeners set up successfully');
+        }
+
+        // Test modal function
+        function testModal() {
+            console.log('🧪 Testing modal functionality...');
+            const modal = document.getElementById('categoryModal');
+            if (modal) {
+                modal.classList.add('active');
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                }, 2000);
+            } else {
+                console.error('❌ Modal not found!');
+            }
         }
 
         // Check if localStorage is available
