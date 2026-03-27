@@ -761,6 +761,39 @@
             font-family: monospace;
         }
 
+        .import-options {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .import-options h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .import-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .import-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .import-preview {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
         @media (max-width: 768px) {
             .vps-grid {
                 grid-template-columns: 1fr;
@@ -1005,6 +1038,47 @@
         </div>
     </div>
 
+    <!-- Modal Import Kategori -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Import Kategori</h3>
+                <button class="close-btn" onclick="closeModal('importModal')">&times;</button>
+            </div>
+            
+            <div class="import-options">
+                <h4>Pilih Mode Import:</h4>
+                <div class="import-option">
+                    <input type="radio" id="mergeMode" name="importMode" value="merge" checked>
+                    <label for="mergeMode"><strong>Merge</strong> - Tambahkan kategori baru (default)</label>
+                </div>
+                <div class="import-option">
+                    <input type="radio" id="replaceMode" name="importMode" value="replace">
+                    <label for="replaceMode"><strong>Replace</strong> - Hapus semua data dan ganti dengan yang diimport</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">File Kategori</label>
+                <input type="file" class="form-control" id="importFileInput" accept=".json" onchange="handleImportFileSelect(event)">
+            </div>
+            
+            <div id="importPreview" style="display: none;">
+                <h4>Preview Kategori yang Akan Diimport:</h4>
+                <div id="importPreviewContent" style="background: var(--light); padding: 15px; border-radius: 10px; margin-top: 10px;"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="confirmImport()" id="confirmImportBtn" disabled>
+                    ✅ Konfirmasi Import
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -1013,6 +1087,7 @@
         let currentCategory = null;
         let currentImageData = null;
         let editingVPS = null;
+        let importData = null;
         const STORAGE_KEY = 'vpsPurchaseTrackerData';
         let isLocalStorageAvailable = false;
 
@@ -1391,7 +1466,7 @@ Simpan bukti ini sebagai arsip.
             }
         }
 
-        // Import data from file
+        // Import category from file
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1406,22 +1481,11 @@ Simpan bukti ini sebagai arsip.
                         throw new Error('Format file tidak valid! File harus berisi data kategori.');
                     }
                     
-                    // Ask for confirmation
-                    if (categories.length > 0) {
-                        if (!confirm('Import data akan menggantikan semua data yang ada. Lanjutkan?')) {
-                            return;
-                        }
-                    }
+                    // Store imported data for confirmation
+                    importData = importedData;
                     
-                    // Import the data
-                    categories = [importedData.category];
-                    
-                    if (saveData()) {
-                        renderCategories();
-                        updateStats();
-                        showToast(`Berhasil import kategori "${importedData.category.name}"!`, 'success');
-                        console.log('✅ Data berhasil diimport');
-                    }
+                    // Show import modal
+                    showImportModal(importedData);
                 } catch (error) {
                     console.error('❌ Gagal import data:', error);
                     showToast('Gagal import data: ' + error.message, 'error');
@@ -1431,6 +1495,142 @@ Simpan bukti ini sebagai arsip.
             reader.readAsText(file);
             // Clear the file input
             event.target.value = '';
+        }
+
+        // Show import modal with preview
+        function showImportModal(data) {
+            const modal = document.getElementById('importModal');
+            const previewContent = document.getElementById('importPreviewContent');
+            
+            // Show category preview
+            const category = data.category;
+            previewContent.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Nama Kategori:</strong> ${category.name}<br>
+                    <strong>Jumlah VPS:</strong> ${category.vpsList ? category.vpsList.length : 0}
+                </div>
+                ${category.vpsList && category.vpsList.length > 0 ? `
+                    <div>
+                        <strong>Daftar VPS:</strong>
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                            ${category.vpsList.slice(0, 5).map(vps => 
+                                `<li>RAM ${vps.ram}GB | ${vps.core} Core | ${vps.location} | Rp ${vps.price}K</li>`
+                            ).join('')}
+                            ${category.vpsList.length > 5 ? `<li>... dan ${category.vpsList.length - 5} VPS lainnya</li>` : ''}
+                        </ul>
+                    </div>
+                ` : '<p><em>Kategori ini tidak memiliki VPS</em></p>'}
+            `;
+            
+            // Enable confirm button
+            document.getElementById('confirmImportBtn').disabled = false;
+            
+            // Show modal
+            modal.classList.add('active');
+            document.getElementById('importPreview').style.display = 'block';
+        }
+
+        // Handle file selection in import modal
+        function handleImportFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate imported data
+                    if (!importedData.category) {
+                        throw new Error('Format file tidak valid! File harus berisi data kategori.');
+                    }
+                    
+                    // Store imported data for confirmation
+                    importData = importedData;
+                    
+                    // Show preview
+                    const previewContent = document.getElementById('importPreviewContent');
+                    const category = importedData.category;
+                    previewContent.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Nama Kategori:</strong> ${category.name}<br>
+                            <strong>Jumlah VPS:</strong> ${category.vpsList ? category.vpsList.length : 0}
+                        </div>
+                        ${category.vpsList && category.vpsList.length > 0 ? `
+                            <div>
+                                <strong>Daftar VPS:</strong>
+                                <ul style="margin-top: 5px; padding-left: 20px;">
+                                    ${category.vpsList.slice(0, 5).map(vps => 
+                                        `<li>RAM ${vps.ram}GB | ${vps.core} Core | ${vps.location} | Rp ${vps.price}K</li>`
+                                    ).join('')}
+                                    ${category.vpsList.length > 5 ? `<li>... dan ${category.vpsList.length - 5} VPS lainnya</li>` : ''}
+                                </ul>
+                            </div>
+                        ` : '<p><em>Kategori ini tidak memiliki VPS</em></p>'}
+                    `;
+                    
+                    // Enable confirm button
+                    document.getElementById('confirmImportBtn').disabled = false;
+                } catch (error) {
+                    console.error('❌ Gagal membaca file:', error);
+                    showToast('Gagal membaca file: ' + error.message, 'error');
+                    document.getElementById('confirmImportBtn').disabled = true;
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Confirm import
+        function confirmImport() {
+            if (!importData || !importData.category) return;
+            
+            const importMode = document.querySelector('input[name="importMode"]:checked').value;
+            const importedCategory = importData.category;
+            
+            if (importMode === 'replace') {
+                // Replace all data
+                if (!confirm('Mode Replace akan menghapus SEMUA data yang ada dan menggantinya dengan kategori yang diimport. Lanjutkan?')) {
+                    return;
+                }
+                
+                categories = [importedCategory];
+                showToast('Semua data berhasil diganti dengan kategori yang diimport!', 'success');
+            } else {
+                // Merge mode
+                // Check if category with same name already exists
+                const existingCategory = categories.find(c => 
+                    c.name.toLowerCase() === importedCategory.name.toLowerCase()
+                );
+                
+                if (existingCategory) {
+                    if (!confirm(`Kategori dengan nama "${importedCategory.name}" sudah ada. Apakah Anda ingin menggantinya?`)) {
+                        return;
+                    }
+                    
+                    // Replace existing category
+                    const index = categories.findIndex(c => c.id === existingCategory.id);
+                    if (index !== -1) {
+                        // Generate new ID to avoid conflicts
+                        importedCategory.id = Date.now();
+                        categories[index] = importedCategory;
+                        showToast(`Kategori "${importedCategory.name}" berhasil diperbarui!`, 'success');
+                    }
+                } else {
+                    // Add new category with new ID
+                    importedCategory.id = Date.now();
+                    categories.push(importedCategory);
+                    showToast(`Kategori "${importedCategory.name}" berhasil ditambahkan!`, 'success');
+                }
+            }
+            
+            // Save data
+            if (saveData()) {
+                renderCategories();
+                updateStats();
+                closeModal('importModal');
+                importData = null;
+            }
         }
 
         // Populate VPS templates dropdown
@@ -1602,6 +1802,11 @@ Simpan bukti ini sebagai arsip.
                 editingVPS = null;
             } else if (modalId === 'categoryModal') {
                 document.getElementById('categoryForm').reset();
+            } else if (modalId === 'importModal') {
+                document.getElementById('importFileInput').value = '';
+                document.getElementById('importPreview').style.display = 'none';
+                document.getElementById('confirmImportBtn').disabled = true;
+                importData = null;
             }
         }
 
