@@ -81,13 +81,12 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 🔥 ROCKET ANIMATION FIXED (Anti Hilang & Anti Blur) 🔥 */
+        /* 🔥 ROCKET ANIMATION FIXED 🔥 */
         .rocket-icon {
             display: inline-block; 
             font-size: 2.2rem;
             animation: flyRocket 2.5s ease-in-out infinite;
         }
-        /* Hanya melayang ke atas dan ke bawah agar aman di engine HP */
         @keyframes flyRocket {
             0%   { transform: translateY(0); }
             50%  { transform: translateY(-12px); }
@@ -394,26 +393,33 @@
         let isSyncing = false;
 
         // ==========================================
-        // GUEST MODE (ACCESS CONTROL LOGIC)
+        // GUEST MODE (ACCESS CONTROL LOGIC) FIXED
         // ==========================================
         let isGuestMode = false;
         let initialGuestCategory = "";
+        let isAdmin = localStorage.getItem('adhostAdmin') === 'true'; // Cek badge admin di memori
 
         document.addEventListener('DOMContentLoaded', () => {
             populateVPSTemplates();
 
-            // Cek apakah user akses pakai link langsung ke kategori?
             const currentHash = window.location.hash;
-            if (currentHash.startsWith('#category-')) {
-                isGuestMode = true;
-                initialGuestCategory = currentHash; // Simpan id kategori tempat dia mendarat
+            
+            // JIKA BUKA BERANDA -> KASIH BADGE ADMIN PERMANEN
+            if (!currentHash || currentHash === '#' || currentHash === '') {
+                localStorage.setItem('adhostAdmin', 'true');
+                isAdmin = true;
+            } else {
+                // JIKA LANGSUNG BUKA LINK KATEGORI DAN GAK PUNYA BADGE ADMIN -> JADI GUEST
+                if (!isAdmin) {
+                    isGuestMode = true;
+                    initialGuestCategory = currentHash; 
+                }
             }
 
             handleRouting();
             autoLoadFromCloud(); 
             window.addEventListener('hashchange', handleRouting);
         });
-
 
         // ==========================================
         // SISTEM SILENT SYNC & DEBOUNCE
@@ -464,9 +470,6 @@
         }
 
         async function backgroundSync() {
-            // Tamu tidak diizinkan ngesave ke cloud (Opsional, tapi aman buat prevent bug)
-            if (isGuestMode) return; 
-
             if(isSyncing) return; 
             isSyncing = true;
             updateSyncStatus('syncing');
@@ -519,9 +522,8 @@
 
             // CEK AKSES GUEST MODE
             if (isGuestMode && hash !== initialGuestCategory) {
-                // Jika guest maksa ganti URL ke beranda, paksa balik ke kategori asalnya!
                 window.location.hash = initialGuestCategory;
-                showToast("Akses Terbatas: Anda hanya bisa melihat kategori ini.", "warning");
+                showToast("Akses Terbatas: Anda tidak bisa ke Beranda.", "warning");
                 return;
             }
 
@@ -541,7 +543,6 @@
         }
 
         function goHome() { 
-            // Cegah tombol back bagi guest (walau tombolnya udah diumpetin, ini lapis ke-2)
             if (isGuestMode) return; 
             window.location.hash = ''; 
         } 
@@ -560,16 +561,13 @@
             document.getElementById('view-category').classList.add('active');
             document.getElementById('categoryTitle').innerHTML = `🗂️ ${currentCategory.name}`;
             
-            // JIKA GUEST, UMPETIN TOMBOL BACK, HAPUS KATEGORI, DAN TAMBAH VPS
+            // LOGIKA GUEST MODE (GUEST BISA NGEDIT VPS, TAPI GAK BISA HAPUS KATEGORI ATAU KE BERANDA)
             if (isGuestMode) {
                 document.getElementById('btnBackToHome').style.display = 'none';
                 document.getElementById('btnHapusKategori').style.display = 'none';
-                document.getElementById('btnTambahVps').style.display = 'none';
-                document.getElementById('cloudSyncStatus').innerHTML = `☁️ Mode Lihat Data`;
             } else {
-                document.getElementById('btnBackToHome').style.display = 'inline-block';
-                document.getElementById('btnHapusKategori').style.display = 'inline-block';
-                document.getElementById('btnTambahVps').style.display = 'inline-block';
+                document.getElementById('btnBackToHome').style.display = 'inline-flex';
+                document.getElementById('btnHapusKategori').style.display = 'inline-flex';
             }
 
             const firstTabBtn = document.querySelector('.tab-nav .tab-btn');
@@ -646,7 +644,7 @@
                         <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;color:var(--info);font-family:monospace;margin-bottom:auto;word-break:break-all;">
                             🌍 ${vps.ipAddress || 'No IP Assigned'}
                         </div>
-                        <div style="display:${isGuestMode ? 'none' : 'flex'};gap:10px;margin-top:10px;">
+                        <div style="display:flex;gap:10px;margin-top:10px;">
                             <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="editVPS(${vps.id})">✏️ Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteVPS(${vps.id})">🗑️</button>
                         </div>
@@ -707,7 +705,7 @@
         function deleteCurrentCategory() {
             if(!confirm('Yakin hapus workspace ini dan semua servernya?')) return;
             categories = categories.filter(c => c.id !== currentCategory.id);
-            saveData(); showToast('Workspace Dihapus'); window.location.hash = ''; // Pakai hash clear instead of goHome() for safety
+            saveData(); showToast('Workspace Dihapus'); window.location.hash = ''; 
         }
 
         function openVPSModal() { editingVPS = null; document.getElementById('vpsModalTitle').textContent = 'Deploy Server Baru'; document.getElementById('vpsForm').reset(); document.getElementById('vpsTemplate').value = ""; openModal('vpsModal'); }
