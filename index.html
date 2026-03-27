@@ -361,10 +361,7 @@
         // KONFIGURASI CLOUD SYNC JSONBIN.IO
         // ==========================================
         const JSONBIN_MASTER_KEY = "$2a$10$1WzAEjKDOESCz17Q.8aduu6Bx.jkQ15lI5cjfeweV.7X8AnYG5LH.";
-        
-        // PENTING: Nanti setelah dapet BIN ID dari pop-up, ganti tanda kutip kosong di bawah ini jadi ID kamu!
-        // Contoh: let JSONBIN_ID = "66050a...xyz";
-        let JSONBIN_ID = ""; 
+        const JSONBIN_ID = "69c6ba09c3097a1dd5689eac"; 
 
         // ==========================================
         // DATA PRESET VPS ADHOST
@@ -399,26 +396,6 @@
         async function uploadToCloud() {
             showLoader("Menyimpan ke Cloud...");
             try {
-                if (!JSONBIN_ID) {
-                    // Kalau belum punya BIN_ID, kita buatin otomatis!
-                    const res = await fetch('https://api.jsonbin.io/v3/b', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': JSONBIN_MASTER_KEY,
-                            'X-Bin-Name': 'AdHost_Database'
-                        },
-                        body: JSON.stringify({ categories: categories })
-                    });
-                    const data = await res.json();
-                    hideLoader();
-                    
-                    const newBinId = data.metadata.id;
-                    prompt("🎉 BERHASIL BIKIN DATABASE!\n\nIni BIN ID kamu. COPY teks di bawah ini dan masukkan ke kode HTML di bagian let JSONBIN_ID = '...'", newBinId);
-                    return;
-                }
-
-                // Kalau sudah punya BIN_ID, tinggal Update (PUT)
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
                     method: 'PUT',
                     headers: {
@@ -431,7 +408,7 @@
                 if(res.ok) {
                     showToast('Data berhasil disimpan ke Cloud! ☁️', 'success');
                 } else {
-                    throw new Error('Gagal update ke Cloud. Cek BIN ID.');
+                    throw new Error('Gagal update ke Cloud. Cek koneksi.');
                 }
             } catch (error) {
                 showToast(error.message, 'error');
@@ -440,10 +417,6 @@
         }
 
         async function loadFromCloud() {
-            if (!JSONBIN_ID) {
-                showToast('BIN ID masih kosong! Upload dulu untuk buat Database.', 'warning');
-                return;
-            }
             showLoader("Menarik data dari Cloud...");
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
@@ -460,7 +433,7 @@
                     loadHomePage(); // Refresh tampilan
                     showToast('Data berhasil disinkronisasi! 🔄', 'success');
                 } else {
-                    throw new Error('Gagal tarik data dari Cloud. Cek BIN ID.');
+                    throw new Error('Gagal tarik data dari Cloud.');
                 }
             } catch (error) {
                 showToast(error.message, 'error');
