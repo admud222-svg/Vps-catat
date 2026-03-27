@@ -249,7 +249,7 @@
                     <p style="color: var(--text-muted);">Sistem Manajemen Inventaris Server</p>
                 </div>
                 <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
-                    <div id="cloudSyncStatus" class="sync-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <div class="cloud-sync-status sync-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
                         <span class="sync-dot" style="background: #34d399;"></span> ☁️ Local Mode
                     </div>
                 </div>
@@ -288,7 +288,10 @@
                     <button id="btnBackToHome" class="btn btn-secondary" onclick="goHome()" style="padding: 10px 15px; width: auto; flex: 0 0 auto;">⬅️ Kembali</button>
                     <h2 id="categoryTitle" style="color: white; font-size: 1.3rem; flex: 1; word-break: break-all;"></h2>
                 </div>
-                <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
+                <div class="header-actions-mobile" style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%; align-items: center;">
+                    <div class="cloud-sync-status sync-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); margin-right: auto;">
+                        <span class="sync-dot" style="background: #34d399;"></span> ☁️ Local Mode
+                    </div>
                     <button class="btn btn-info btn-sm" onclick="copyShareLink()" id="btnShareLink">🔗 Share Link Kolaborasi</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteCurrentCategory()" id="btnHapusKategori">🗑️ Hapus Kategori</button>
                 </div>
@@ -491,32 +494,29 @@
 
 
         // ==========================================
-        // SISTEM SILENT SYNC & DEBOUNCE
+        // SISTEM SILENT SYNC & DEBOUNCE (GUEST JUGA BISA SYNC)
         // ==========================================
         function updateSyncStatus(status) {
-            const badge = document.getElementById('cloudSyncStatus');
-            if(!badge) return;
-
-            if(status === 'syncing') {
-                badge.style.background = 'rgba(245, 158, 11, 0.2)'; badge.style.color = '#fbbf24'; badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
-                badge.innerHTML = `<span class="spinner-small"></span> ☁️ Menyimpan...`;
-            } else if (status === 'synced') {
-                badge.style.background = 'rgba(16, 185, 129, 0.2)'; badge.style.color = '#34d399'; badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-                badge.innerHTML = `<span class="sync-dot" style="background:#34d399; animation: pulseDot 2s infinite;"></span> ☁️ Tersinkronisasi`;
-            } else if (status === 'waiting') {
-                badge.style.background = 'rgba(0, 0, 0, 0.2)'; badge.style.color = 'var(--text-muted)'; badge.style.borderColor = 'transparent';
-                badge.innerHTML = `⏳ Menunggu Jeda...`;
-            } else if (status === 'error') {
-                badge.style.background = 'rgba(239, 68, 68, 0.2)'; badge.style.color = '#f87171'; badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                badge.innerHTML = `⚠️ Gagal Sync`;
-            } else if (status === 'guest') {
-                badge.style.background = 'rgba(14, 165, 233, 0.2)'; badge.style.color = '#0ea5e9'; badge.style.borderColor = 'rgba(14, 165, 233, 0.3)';
-                badge.innerHTML = `🤝 Mode Kolaborasi`;
-            }
+            const badges = document.querySelectorAll('.cloud-sync-status');
+            badges.forEach(badge => {
+                if(status === 'syncing') {
+                    badge.style.background = 'rgba(245, 158, 11, 0.2)'; badge.style.color = '#fbbf24'; badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                    badge.innerHTML = `<span class="spinner-small"></span> ☁️ Menyimpan...`;
+                } else if (status === 'synced') {
+                    badge.style.background = 'rgba(16, 185, 129, 0.2)'; badge.style.color = '#34d399'; badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                    badge.innerHTML = `<span class="sync-dot" style="background:#34d399; animation: pulseDot 2s infinite;"></span> ☁️ Tersinkronisasi`;
+                } else if (status === 'waiting') {
+                    badge.style.background = 'rgba(0, 0, 0, 0.2)'; badge.style.color = 'var(--text-muted)'; badge.style.borderColor = 'transparent';
+                    badge.innerHTML = `⏳ Menunggu Jeda...`;
+                } else if (status === 'error') {
+                    badge.style.background = 'rgba(239, 68, 68, 0.2)'; badge.style.color = '#f87171'; badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    badge.innerHTML = `⚠️ Gagal Sync`;
+                }
+            });
         }
 
         async function autoLoadFromCloud() {
-            updateSyncStatus(isGuestMode ? 'guest' : 'syncing');
+            updateSyncStatus('syncing');
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
                     method: 'GET', headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
@@ -524,11 +524,11 @@
                 if(res.ok) {
                     const data = await res.json();
                     categories = data.record.categories || [];
-                    globalAnnouncement = data.record.announcement || ""; // Tarik pengumuman
+                    globalAnnouncement = data.record.announcement || ""; 
                     
                     localStorage.setItem('adhostData', JSON.stringify({ categories, announcement: globalAnnouncement })); 
                     
-                    if(!isGuestMode) updateSyncStatus('synced');
+                    updateSyncStatus('synced');
                     
                     const isModalOpen = document.querySelector('.modal.active');
                     if(!isModalOpen) {
@@ -536,28 +536,28 @@
                         if(currentCategory) {
                             currentCategory = categories.find(c => c.id === currentCategory.id);
                             renderVPSList(document.getElementById('searchBar')?.value);
-                            renderAnnouncementBanner(); // Render banner realtime kalau admin lg ngedit
+                            renderAnnouncementBanner();
                         }
                         updateStats();
                     }
-                } else if (!isGuestMode) { updateSyncStatus('error'); }
-            } catch (error) { if(!isGuestMode) updateSyncStatus('error'); }
+                } else { updateSyncStatus('error'); }
+            } catch (error) { updateSyncStatus('error'); }
         }
 
         async function backgroundSync() {
             if(isSyncing) return; 
             isSyncing = true;
-            if(!isGuestMode) updateSyncStatus('syncing');
+            updateSyncStatus('syncing');
 
             try {
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_MASTER_KEY },
-                    body: JSON.stringify({ categories: categories, announcement: globalAnnouncement }) // Push juga announcement
+                    body: JSON.stringify({ categories: categories, announcement: globalAnnouncement }) 
                 });
-                if(res.ok && !isGuestMode) updateSyncStatus('synced');
-                else if(!isGuestMode) updateSyncStatus('error');
-            } catch (error) { if(!isGuestMode) updateSyncStatus('error'); }
+                if(res.ok) updateSyncStatus('synced');
+                else updateSyncStatus('error');
+            } catch (error) { updateSyncStatus('error'); }
             isSyncing = false;
         }
 
@@ -565,7 +565,7 @@
             localStorage.setItem('adhostData', JSON.stringify({ categories, announcement: globalAnnouncement }));
             updateStats();
             
-            if(!isGuestMode) updateSyncStatus('waiting');
+            updateSyncStatus('waiting');
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(() => { backgroundSync(); }, 2000); 
         }
@@ -644,7 +644,7 @@
                 document.getElementById('btnShareLink').style.display = 'inline-flex';
             }
 
-            renderAnnouncementBanner(); // Tampilkan banner pengumuman jika ada
+            renderAnnouncementBanner();
 
             const firstTabBtn = document.querySelector('.tab-nav .tab-btn');
             switchTab('tab-list', firstTabBtn);
