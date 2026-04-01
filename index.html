@@ -34,10 +34,7 @@
 
     <div id="customModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md relative transform transition-all">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">
-                ✖
-            </button>
-            
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">✖</button>
             <h3 class="text-lg font-bold text-gray-800 mb-1">⚙️ Setup Web Login</h3>
             <p class="text-xs text-gray-500 mb-4">Masukkan username untuk klien, lalu klik Copy.</p>
             
@@ -51,7 +48,6 @@
     </div>
 
     <script>
-        // Mapping bulan agar pembacaan tanggal lebih kuat
         const bulanMap = {
             "januari": 0, "jan": 0, "februari": 1, "feb": 1, "maret": 2, "mar": 2,
             "april": 3, "apr": 3, "mei": 4, "juni": 5, "jun": 5, "juli": 6, "jul": 6,
@@ -64,29 +60,32 @@
         document.addEventListener("DOMContentLoaded", renderCards);
 
         function processInvoice() {
-            const text = document.getElementById("invoiceInput").value;
-            if (!text.trim()) return alert("Teks invoice kosong!");
+            // 1. Ambil teks dan langsung bersihkan dari bintang/underscore bawaan WA
+            const rawText = document.getElementById("invoiceInput").value;
+            if (!rawText.trim()) return alert("Teks invoice kosong!");
+            const text = rawText.replace(/[*_]/g, ''); 
 
             const extract = (regex) => {
                 const match = text.match(regex);
                 return match ? match[1].trim() : "-";
             };
 
-            const orderId = extract(/\*🆔 Order ID\s*:\*\s*([^\n]+)/);
-            const tanggal = extract(/\*📅 Tanggal\s*:\*\s*([^\n]+)/);
-            const wa = extract(/\*📱 WhatsApp\s*:\*\s*([^\n]+)/);
-            const namaPaket = extract(/\*▪️ Nama\s*:\*\s*([^\n]+)/);
-            const harga = extract(/\*▪️ Harga\s*:\*\s*([^\n]+)/);
-            const spek = extract(/\*▪️ Spek\s*:\*\s*([^\n]+)/);
+            // 2. Ekstrak data tanpa perlu mikirin tanda bintang lagi
+            const orderId = extract(/🆔 Order ID\s*:\s*([^\n]+)/i);
+            const tanggal = extract(/📅 Tanggal\s*:\s*([^\n]+)/i);
+            const wa = extract(/📱 WhatsApp\s*:\s*([^\n]+)/i);
+            const namaPaket = extract(/▪️ Nama\s*:\s*([^\n]+)/i);
+            const harga = extract(/▪️ Harga\s*:\s*([^\n]+)/i);
+            const spek = extract(/▪️ Spek\s*:\s*([^\n]+)/i);
 
-            if (orderId === "-" || namaPaket === "-") {
-                return alert("Gagal mengambil data! Pastikan format invoice persis seperti contoh.");
+            if (orderId === "-" || tanggal === "-") {
+                return alert("Gagal mengambil data! Pastikan teks invoice sudah benar.");
             }
 
-            // Ekstrak Tanggal dengan Lebih Kuat
-            let purchaseDate = new Date();
-            // Cari pola "1 April 2026" di dalam string tanggal
+            // 3. Ekstrak Tanggal Pembelian Super Akurat
+            let purchaseDate = new Date(); // Nilai default kalau gagal
             const dateMatch = tanggal.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            
             if (dateMatch) {
                 const day = parseInt(dateMatch[1]);
                 const monthStr = dateMatch[2].toLowerCase();
@@ -94,15 +93,15 @@
                 const monthIndex = bulanMap[monthStr];
                 
                 if (monthIndex !== undefined) {
-                    purchaseDate = new Date(year, monthIndex, day);
+                    purchaseDate = new Date(year, monthIndex, day); // Set sesuai tanggal di invoice!
                 }
             }
 
-            // Tambah 1 Bulan untuk Expired
+            // 4. Tambah 1 Bulan untuk Expired
             const expiryDate = new Date(purchaseDate);
             expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-            // Teks Testimoni
+            // 5. Buat Teks Testimoni Done
             const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggal}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
 
             const newData = {
@@ -126,13 +125,11 @@
             container.innerHTML = "";
             let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
             
-            // Set waktu sekarang ke jam 00:00 hari ini biar hitungan harinya pas
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const now = today.getTime();
 
             db.forEach(data => {
-                // Set expiry date ke jam 00:00 untuk perbandingan akurat
                 const expDateObj = new Date(data.expiryDateMs);
                 expDateObj.setHours(0, 0, 0, 0);
                 const expiryMs = expDateObj.getTime();
@@ -182,14 +179,12 @@
             });
         }
 
-        // --- FUNGSI MODAL CUSTOM ---
+        // --- FUNGSI MODAL ---
         function openModal(id) {
             currentWebId = id; 
             const modal = document.getElementById('customModal');
             const input = document.getElementById('userPanelInput');
-            
             input.value = "user" + Math.floor(Math.random() * 1000); 
-            
             modal.classList.remove('hidden');
             setTimeout(() => input.focus(), 100); 
         }
@@ -201,7 +196,6 @@
 
         function confirmCopyWeb() {
             if (!currentWebId) return;
-
             const userPanel = document.getElementById('userPanelInput').value;
             if (!userPanel.trim()) {
                 alert("Nama User Panel tidak boleh kosong!");
@@ -214,14 +208,11 @@
             if (data) {
                 const textWeb = `*🆔 Order ID :* ${data.orderId}\n*👤User Panel :* ${userPanel}\n*🔑 Pw Panel :* 1212\n*🌐 Panel Web:* https://panel.admudsmp.my.id`;
                 
-                // Copy teksnya
                 navigator.clipboard.writeText(textWeb).then(() => {
-                    // Animasi sukses di tombol modal
                     const btnModal = document.getElementById('btn-modal-copy');
                     btnModal.innerText = "✅ Done!";
-                    btnModal.classList.add("bg-green-600");
+                    btnModal.classList.replace("bg-blue-600", "bg-green-600");
                     
-                    // Animasi sukses di tombol luar (card)
                     const btnLuar = document.getElementById(`btn-w-${currentWebId}`);
                     const originalLuar = btnLuar.innerText;
                     btnLuar.innerText = "✅ Web Login Copied!";
@@ -229,18 +220,16 @@
 
                     setTimeout(() => {
                         btnModal.innerText = "📋 Copy";
-                        btnModal.classList.remove("bg-green-600");
+                        btnModal.classList.replace("bg-green-600", "bg-blue-600");
                         
                         btnLuar.innerText = originalLuar;
                         btnLuar.classList.replace("bg-green-600", "bg-blue-600");
-                        
-                        closeModal(); // Tutup otomatis setelah 1 detik
+                        closeModal(); 
                     }, 1000);
                 });
             }
         }
 
-        // --- FUNGSI COPY TESTI & DELETE ---
         function copyTesti(id) {
             const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
             const data = db.find(d => d.id === id);
@@ -250,7 +239,6 @@
                     const originalText = btn.innerText;
                     btn.innerText = "✅ Copied!";
                     btn.classList.replace("bg-gray-800", "bg-green-600");
-                    
                     setTimeout(() => { 
                         btn.innerText = originalText; 
                         btn.classList.replace("bg-green-600", "bg-gray-800");
