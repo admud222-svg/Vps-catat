@@ -3,47 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdHost Testimoni Generator</title>
+    <title>AdHost Testimoni & Web Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f3f4f6; }
-        .card-online { border-left: 4px solid #10b981; } /* Emerald-500 */
-        .card-expired { border-left: 4px solid #ef4444; } /* Red-500 */
+        .card-online { border-left: 4px solid #10b981; }
+        .card-expired { border-left: 4px solid #ef4444; }
     </style>
 </head>
 <body class="p-6 md:p-10 font-sans text-gray-800">
 
     <div class="max-w-4xl mx-auto">
         <div class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-600 mb-2">🚀 AdHost Testimoni Manager</h1>
-            <p class="text-gray-500">Generate teks done & pantau status layanan</p>
+            <h1 class="text-3xl font-bold text-blue-600 mb-2">🚀 AdHost Admin System</h1>
+            <p class="text-gray-500">Generator Testimoni & Data Login Web</p>
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-            <h2 class="text-xl font-bold mb-4">Tambah Testimoni (Paste Invoice)</h2>
-            <textarea id="invoiceInput" rows="8" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4 font-mono text-sm" placeholder="Paste invoice dari WhatsApp di sini..."></textarea>
-            <button onclick="processInvoice()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
-                Buat Testimoni & Simpan
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+            <h2 class="text-xl font-bold mb-4 flex items-center">📝 Input Invoice</h2>
+            <textarea id="invoiceInput" rows="6" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4 font-mono text-sm" placeholder="Paste invoice WhatsApp di sini..."></textarea>
+            <button onclick="processInvoice()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg">
+                Simpan Transaksi
             </button>
         </div>
 
-        <h2 class="text-xl font-bold mb-4">Daftar Transaksi</h2>
+        <h2 class="text-xl font-bold mb-4">Daftar Transaksi & Layanan</h2>
         <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             </div>
     </div>
 
     <script>
-        // Array bulan untuk konversi tanggal
         const namaBulan = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
 
-        // Load data saat halaman dibuka
         document.addEventListener("DOMContentLoaded", renderCards);
 
         function processInvoice() {
             const text = document.getElementById("invoiceInput").value;
-            if (!text.trim()) return alert("Teks invoice tidak boleh kosong!");
+            if (!text.trim()) return alert("Teks invoice kosong!");
 
-            // Ekstrak data menggunakan Regex
             const extract = (regex) => {
                 const match = text.match(regex);
                 return match ? match[1].trim() : "-";
@@ -57,29 +54,25 @@
             const spek = extract(/\*▪️ Spek\s*:\*\s*([^\n]+)/);
 
             if (orderId === "-" || namaPaket === "-") {
-                return alert("Gagal mengekstrak data! Pastikan format invoice sesuai.");
+                return alert("Format invoice tidak dikenal!");
             }
 
-            // Hitung Tanggal Beli & Expired (1 bulan) dari teks
+            // Hitung Tanggal
             let purchaseDate = new Date();
             const dateMatch = tanggal.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
-            
             if (dateMatch) {
                 const day = parseInt(dateMatch[1]);
                 const monthIndex = namaBulan.indexOf(dateMatch[2].toLowerCase());
                 const year = parseInt(dateMatch[3]);
-                if (monthIndex !== -1) {
-                    purchaseDate = new Date(year, monthIndex, day);
-                }
+                if (monthIndex !== -1) purchaseDate = new Date(year, monthIndex, day);
             }
 
             const expiryDate = new Date(purchaseDate);
             expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-            // Teks Done (Siap Copy)
+            // Teks 1: Testimoni Done
             const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggal}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
 
-            // Buat Object Data
             const newData = {
                 id: Date.now().toString(),
                 orderId, tanggal, wa, namaPaket, harga, spek,
@@ -88,12 +81,10 @@
                 textDone
             };
 
-            // Simpan ke Local Storage
             let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            db.unshift(newData); // Tambah di awal
+            db.unshift(newData);
             localStorage.setItem("adhost_db", JSON.stringify(db));
 
-            // Reset input & render ulang
             document.getElementById("invoiceInput").value = "";
             renderCards();
         }
@@ -102,89 +93,79 @@
             const container = document.getElementById("cardsContainer");
             container.innerHTML = "";
             let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-
-            if (db.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 italic">Belum ada data transaksi.</p>`;
-                return;
-            }
-
             const now = new Date().getTime();
 
             db.forEach(data => {
                 const isExpired = now >= data.expiryDateMs;
-                const cardClass = isExpired ? 'card-expired' : 'card-online';
-                const statusBadge = isExpired 
-                    ? `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">🔴 EXPIRED</span>` 
-                    : `<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">🟢 ONLINE</span>`;
-
-                // Hitung sisa hari
-                let sisaHariText = "Layanan sudah habis";
-                if (!isExpired) {
-                    const diffTime = Math.abs(data.expiryDateMs - now);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    sisaHariText = `${diffDays} hari lagi`;
-                }
-
-                // Format nomor WA untuk link wa.me
+                const cardStatusClass = isExpired ? 'card-expired' : 'card-online';
+                
                 let waLink = data.wa.replace(/\D/g, '');
                 if (waLink.startsWith('0')) waLink = '62' + waLink.substring(1);
 
-                const cardHTML = `
-                    <div class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition ${cardClass} flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <h3 class="font-bold text-lg text-gray-800">${data.orderId}</h3>
-                                    <p class="text-sm font-semibold text-blue-600">${data.namaPaket}</p>
-                                </div>
-                                ${statusBadge}
-                            </div>
+                container.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col ${cardStatusClass}">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs font-bold text-gray-400">${data.orderId}</span>
+                            ${isExpired ? '<span class="text-[10px] text-red-500 font-bold">EXPIRED</span>' : '<span class="text-[10px] text-green-500 font-bold">ONLINE</span>'}
+                        </div>
+                        
+                        <h3 class="font-bold text-gray-800">${data.namaPaket}</h3>
+                        <p class="text-xs text-gray-500 mb-3">${data.spek}</p>
+
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button onclick="copyTesti('${data.id}')" id="btn-t-${data.id}" class="bg-blue-600 text-white text-xs py-2 rounded font-bold hover:bg-blue-700">📋 Copy Testi</button>
+                            <a href="https://wa.me/${waLink}" target="_blank" class="bg-green-500 text-white text-xs py-2 rounded font-bold hover:bg-green-600 text-center">💬 WA Client</a>
                             
-                            <div class="text-sm text-gray-600 space-y-1 mb-4 bg-gray-50 p-3 rounded-lg">
-                                <p><strong>💰 Harga:</strong> ${data.harga}</p>
-                                <p><strong>⚙️ Spek:</strong> ${data.spek}</p>
-                                <p><strong>📅 Beli:</strong> ${new Date(data.purchaseDateMs).toLocaleDateString('id-ID')}</p>
-                                <p><strong>⏳ Expired:</strong> ${new Date(data.expiryDateMs).toLocaleDateString('id-ID')} <span class="text-xs text-gray-400">(${sisaHariText})</span></p>
-                            </div>
+                            <button onclick="copyWeb('${data.id}')" id="btn-w-${data.id}" class="col-span-2 bg-gray-800 text-white text-xs py-2 rounded font-bold hover:bg-black transition">
+                                🌐 Copy Text Web Login
+                            </button>
                         </div>
 
-                        <div class="flex gap-2 mt-auto">
-                            <button onclick="copyToClipboard('${data.id}')" id="btn-copy-${data.id}" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold py-2 rounded transition">
-                                📋 Copy Text
-                            </button>
-                            <a href="https://wa.me/${waLink}" target="_blank" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm font-bold py-2 rounded transition text-center flex items-center justify-center">
-                                💬 WA Client
-                            </a>
-                            <button onclick="deleteData('${data.id}')" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded transition" title="Hapus Data">
-                                🗑️
-                            </button>
+                        <div class="mt-auto pt-2 border-t border-dashed flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400">Exp: ${new Date(data.expiryDateMs).toLocaleDateString('id-ID')}</span>
+                            <button onclick="deleteData('${data.id}')" class="text-gray-300 hover:text-red-500 text-xs">Hapus</button>
                         </div>
                     </div>
                 `;
-                container.innerHTML += cardHTML;
             });
         }
 
-        function copyToClipboard(id) {
+        // Fungsi Copy Testimoni Done
+        function copyTesti(id) {
+            const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
+            const data = db.find(d => d.id === id);
+            if (data) {
+                copyAction(data.textDone, `btn-t-${id}`, "📋 Copy Testi");
+            }
+        }
+
+        // Fungsi Copy Web Login (Dengan Popup User Panel)
+        function copyWeb(id) {
             const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
             const data = db.find(d => d.id === id);
             
             if (data) {
-                navigator.clipboard.writeText(data.textDone).then(() => {
-                    const btn = document.getElementById(`btn-copy-${id}`);
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = "✅ Copied!";
-                    btn.classList.add("bg-green-600");
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.classList.remove("bg-green-600");
-                    }, 2000);
-                });
+                const userPanel = prompt("Masukkan Nama User Panel:", "user" + Math.floor(Math.random() * 100));
+                
+                if (userPanel === null) return; // Batal jika tekan cancel
+                
+                const textWeb = `*🆔 Order ID :* ${data.orderId}\n*👤User Panel :* ${userPanel}\n*🔑 Pw Panel :* 1212\n*🌐 Panel Web:* https://panel.admudsmp.my.id`;
+                
+                copyAction(textWeb, `btn-w-${id}`, "🌐 Copy Text Web Login");
             }
         }
 
+        // Helper fungsi copy ke clipboard
+        function copyAction(text, btnId, originalText) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById(btnId);
+                btn.innerText = "✅ Copied!";
+                setTimeout(() => { btn.innerText = originalText; }, 2000);
+            });
+        }
+
         function deleteData(id) {
-            if (confirm("Yakin ingin menghapus data ini?")) {
+            if (confirm("Hapus data?")) {
                 let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
                 db = db.filter(d => d.id !== id);
                 localStorage.setItem("adhost_db", JSON.stringify(db));
