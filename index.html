@@ -123,20 +123,29 @@
             document.getElementById('dateModal').classList.remove('hidden');
         }
 
-        // FUNGSI KONFIRMASI TANGGAL (SUDAH FIX TIMEZONE)
+        // FUNGSI KONFIRMASI TANGGAL (SUDAH FIX OVERFLOW BULAN 31 -> 30)
         function confirmTransaction() {
             if (!pendingData) return;
 
             const dateValue = document.getElementById("transactionDateInput").value;
             if (!dateValue) return alert("Pilih tanggal terlebih dahulu!");
 
-            // Dipecah jadi tahun, bulan, hari supaya timezone browser tidak mengacaukan tanggal
-            const [year, month, day] = dateValue.split('-');
-            const purchaseDate = new Date(year, month - 1, day); 
+            const [yearStr, monthStr, dayStr] = dateValue.split('-');
+            const year = parseInt(yearStr);
+            const monthIndex = parseInt(monthStr) - 1;
+            const day = parseInt(dayStr);
+
+            const purchaseDate = new Date(year, monthIndex, day); 
             
-            // Tanggal Expired (Murni ditambah 1 bulan dari input)
-            const expiryDate = new Date(year, month - 1, day);
-            expiryDate.setMonth(expiryDate.getMonth() + 1);
+            // Logika 1 Bulan Expired yang Benar
+            const expiryDate = new Date(year, monthIndex, day);
+            const expectedTargetMonth = expiryDate.getMonth() + 1;
+            expiryDate.setMonth(expectedTargetMonth);
+            
+            // Pengecekan overlap: Kalau targetnya April tapi malah lompat ke Mei karena tanggal 31
+            if (expiryDate.getMonth() !== expectedTargetMonth % 12) {
+                expiryDate.setDate(0); // Tarik ke hari terakhir bulan sebelumnya (misal 30 April)
+            }
 
             const hari = namaHariIndo[purchaseDate.getDay()];
             const tgl = purchaseDate.getDate();
