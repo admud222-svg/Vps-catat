@@ -33,26 +33,33 @@
     </div>
 
     <div id="customModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm transform transition-all">
-            <h3 class="text-lg font-bold text-gray-800 mb-2">⚙️ Masukkan User Panel</h3>
-            <p class="text-sm text-gray-500 mb-4">Ketik username untuk login web panel klien.</p>
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md relative transform transition-all">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">
+                ✖
+            </button>
             
-            <input type="text" id="userPanelInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-5 font-mono" placeholder="Contoh: adhost_user1">
+            <h3 class="text-lg font-bold text-gray-800 mb-1">⚙️ Setup Web Login</h3>
+            <p class="text-xs text-gray-500 mb-4">Masukkan username untuk klien, lalu klik Copy.</p>
             
-            <div class="flex gap-3 justify-end">
-                <button onclick="closeModal()" class="px-5 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">
-                    Batal
-                </button>
-                <button onclick="confirmCopyWeb()" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md">
-                    Copy Text
+            <div class="flex gap-2 items-stretch">
+                <input type="text" id="userPanelInput" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm" placeholder="Masukkan User Panel...">
+                <button onclick="confirmCopyWeb()" id="btn-modal-copy" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg transition shadow-md whitespace-nowrap">
+                    📋 Copy
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        const namaBulan = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-        let currentWebId = null; // Menyimpan ID transaksi yang sedang diproses di modal
+        // Mapping bulan agar pembacaan tanggal lebih kuat
+        const bulanMap = {
+            "januari": 0, "jan": 0, "februari": 1, "feb": 1, "maret": 2, "mar": 2,
+            "april": 3, "apr": 3, "mei": 4, "juni": 5, "jun": 5, "juli": 6, "jul": 6,
+            "agustus": 7, "agu": 7, "september": 8, "sep": 8, "oktober": 9, "okt": 9,
+            "november": 10, "nov": 10, "desember": 11, "des": 11
+        };
+
+        let currentWebId = null;
 
         document.addEventListener("DOMContentLoaded", renderCards);
 
@@ -73,23 +80,29 @@
             const spek = extract(/\*▪️ Spek\s*:\*\s*([^\n]+)/);
 
             if (orderId === "-" || namaPaket === "-") {
-                return alert("Format invoice tidak dikenal!");
+                return alert("Gagal mengambil data! Pastikan format invoice persis seperti contoh.");
             }
 
-            // Hitung Tanggal
+            // Ekstrak Tanggal dengan Lebih Kuat
             let purchaseDate = new Date();
+            // Cari pola "1 April 2026" di dalam string tanggal
             const dateMatch = tanggal.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (dateMatch) {
                 const day = parseInt(dateMatch[1]);
-                const monthIndex = namaBulan.indexOf(dateMatch[2].toLowerCase());
+                const monthStr = dateMatch[2].toLowerCase();
                 const year = parseInt(dateMatch[3]);
-                if (monthIndex !== -1) purchaseDate = new Date(year, monthIndex, day);
+                const monthIndex = bulanMap[monthStr];
+                
+                if (monthIndex !== undefined) {
+                    purchaseDate = new Date(year, monthIndex, day);
+                }
             }
 
+            // Tambah 1 Bulan untuk Expired
             const expiryDate = new Date(purchaseDate);
             expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-            // Teks Testimoni Done
+            // Teks Testimoni
             const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggal}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
 
             const newData = {
@@ -112,11 +125,28 @@
             const container = document.getElementById("cardsContainer");
             container.innerHTML = "";
             let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            const now = new Date().getTime();
+            
+            // Set waktu sekarang ke jam 00:00 hari ini biar hitungan harinya pas
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const now = today.getTime();
 
             db.forEach(data => {
-                const isExpired = now >= data.expiryDateMs;
+                // Set expiry date ke jam 00:00 untuk perbandingan akurat
+                const expDateObj = new Date(data.expiryDateMs);
+                expDateObj.setHours(0, 0, 0, 0);
+                const expiryMs = expDateObj.getTime();
+
+                const isExpired = now >= expiryMs;
                 const cardStatusClass = isExpired ? 'card-expired' : 'card-online';
+                
+                // Hitung Mundur Sisa Hari
+                let sisaHariText = "Habis";
+                if (!isExpired) {
+                    const diffTime = expiryMs - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    sisaHariText = `${diffDays} hari lagi`;
+                }
                 
                 let waLink = data.wa.replace(/\D/g, '');
                 if (waLink.startsWith('0')) waLink = '62' + waLink.substring(1);
@@ -141,7 +171,10 @@
                         </div>
 
                         <div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
-                            <span class="text-[11px] text-gray-500 font-medium">Exp: ${new Date(data.expiryDateMs).toLocaleDateString('id-ID')}</span>
+                            <span class="text-[11px] text-gray-500 font-medium">
+                                Exp: <span class="text-gray-800 font-bold">${expDateObj.toLocaleDateString('id-ID')}</span> 
+                                <span class="${isExpired ? 'text-red-500' : 'text-orange-500'} ml-1 font-bold">(${sisaHariText})</span>
+                            </span>
                             <button onclick="deleteData('${data.id}')" class="text-gray-400 hover:text-red-500 text-lg" title="Hapus Data">🗑️</button>
                         </div>
                     </div>
@@ -151,15 +184,14 @@
 
         // --- FUNGSI MODAL CUSTOM ---
         function openModal(id) {
-            currentWebId = id; // Simpan ID transaksi yang mau di-copy
+            currentWebId = id; 
             const modal = document.getElementById('customModal');
             const input = document.getElementById('userPanelInput');
             
-            // Generate nama user random sbg saran
             input.value = "user" + Math.floor(Math.random() * 1000); 
             
             modal.classList.remove('hidden');
-            setTimeout(() => input.focus(), 100); // Auto fokus ke inputan
+            setTimeout(() => input.focus(), 100); 
         }
 
         function closeModal() {
@@ -182,36 +214,49 @@
             if (data) {
                 const textWeb = `*🆔 Order ID :* ${data.orderId}\n*👤User Panel :* ${userPanel}\n*🔑 Pw Panel :* 1212\n*🌐 Panel Web:* https://panel.admudsmp.my.id`;
                 
-                // Panggil fungsi copy
-                copyAction(textWeb, `btn-w-${currentWebId}`, "🌐 Copy Text Web Login");
-            }
+                // Copy teksnya
+                navigator.clipboard.writeText(textWeb).then(() => {
+                    // Animasi sukses di tombol modal
+                    const btnModal = document.getElementById('btn-modal-copy');
+                    btnModal.innerText = "✅ Done!";
+                    btnModal.classList.add("bg-green-600");
+                    
+                    // Animasi sukses di tombol luar (card)
+                    const btnLuar = document.getElementById(`btn-w-${currentWebId}`);
+                    const originalLuar = btnLuar.innerText;
+                    btnLuar.innerText = "✅ Web Login Copied!";
+                    btnLuar.classList.replace("bg-blue-600", "bg-green-600");
 
-            closeModal(); // Tutup modal setelah berhasil copy
+                    setTimeout(() => {
+                        btnModal.innerText = "📋 Copy";
+                        btnModal.classList.remove("bg-green-600");
+                        
+                        btnLuar.innerText = originalLuar;
+                        btnLuar.classList.replace("bg-green-600", "bg-blue-600");
+                        
+                        closeModal(); // Tutup otomatis setelah 1 detik
+                    }, 1000);
+                });
+            }
         }
 
-        // --- FUNGSI COPY & DELETE ---
+        // --- FUNGSI COPY TESTI & DELETE ---
         function copyTesti(id) {
             const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
             const data = db.find(d => d.id === id);
             if (data) {
-                copyAction(data.textDone, `btn-t-${id}`, "📋 Copy Testi");
+                navigator.clipboard.writeText(data.textDone).then(() => {
+                    const btn = document.getElementById(`btn-t-${id}`);
+                    const originalText = btn.innerText;
+                    btn.innerText = "✅ Copied!";
+                    btn.classList.replace("bg-gray-800", "bg-green-600");
+                    
+                    setTimeout(() => { 
+                        btn.innerText = originalText; 
+                        btn.classList.replace("bg-green-600", "bg-gray-800");
+                    }, 2000);
+                });
             }
-        }
-
-        function copyAction(text, btnId, originalText) {
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById(btnId);
-                btn.innerText = "✅ Copied!";
-                btn.classList.add("bg-green-600");
-                btn.classList.remove("bg-blue-600", "bg-gray-800"); // Sesuaikan warna tombol
-                
-                setTimeout(() => { 
-                    btn.innerText = originalText; 
-                    btn.classList.remove("bg-green-600");
-                    if (originalText.includes("Testi")) btn.classList.add("bg-gray-800");
-                    if (originalText.includes("Web")) btn.classList.add("bg-blue-600");
-                }, 2000);
-            }).catch(() => alert("Gagal menyalin. Browser kamu tidak mengizinkan akses Clipboard."));
         }
 
         function deleteData(id) {
