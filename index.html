@@ -9,6 +9,9 @@
         body { background-color: #f3f4f6; }
         .card-online { border-left: 4px solid #10b981; }
         .card-expired { border-left: 4px solid #ef4444; }
+        /* Supaya icon kalender bawaan browser lebih jelas */
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
     </style>
 </head>
 <body class="p-6 md:p-10 font-sans text-gray-800 relative">
@@ -30,6 +33,23 @@
         <h2 class="text-xl font-bold mb-4">Daftar Transaksi & Layanan</h2>
         <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             </div>
+    </div>
+
+    <div id="dateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] px-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm relative transform transition-all">
+            <button onclick="closeDateModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">✖</button>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">📅 Konfirmasi Tanggal</h3>
+            <p class="text-xs text-gray-500 mb-4">Pilih atau pastikan tanggal pembelian sudah benar.</p>
+            
+            <input type="date" id="transactionDateInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-5 text-gray-700 font-bold cursor-pointer">
+            
+            <div class="flex gap-2 justify-end">
+                <button onclick="closeDateModal()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Batal</button>
+                <button onclick="confirmTransaction()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md">
+                    Simpan Data
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="customModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
@@ -54,13 +74,15 @@
             "agustus": 7, "agu": 7, "september": 8, "sep": 8, "oktober": 9, "okt": 9,
             "november": 10, "nov": 10, "desember": 11, "des": 11
         };
+        const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const namaHariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
         let currentWebId = null;
+        let pendingData = null; // Menyimpan data sementara sebelum tanggal dikonfirmasi
 
         document.addEventListener("DOMContentLoaded", renderCards);
 
         function processInvoice() {
-            // 1. Ambil teks dan langsung bersihkan dari bintang/underscore bawaan WA
             const rawText = document.getElementById("invoiceInput").value;
             if (!rawText.trim()) return alert("Teks invoice kosong!");
             const text = rawText.replace(/[*_]/g, ''); 
@@ -70,43 +92,70 @@
                 return match ? match[1].trim() : "-";
             };
 
-            // 2. Ekstrak data tanpa perlu mikirin tanda bintang lagi
             const orderId = extract(/🆔 Order ID\s*:\s*([^\n]+)/i);
-            const tanggal = extract(/📅 Tanggal\s*:\s*([^\n]+)/i);
+            const tanggalOri = extract(/📅 Tanggal\s*:\s*([^\n]+)/i);
             const wa = extract(/📱 WhatsApp\s*:\s*([^\n]+)/i);
             const namaPaket = extract(/▪️ Nama\s*:\s*([^\n]+)/i);
             const harga = extract(/▪️ Harga\s*:\s*([^\n]+)/i);
             const spek = extract(/▪️ Spek\s*:\s*([^\n]+)/i);
 
-            if (orderId === "-" || tanggal === "-") {
+            if (orderId === "-" || namaPaket === "-") {
                 return alert("Gagal mengambil data! Pastikan teks invoice sudah benar.");
             }
 
-            // 3. Ekstrak Tanggal Pembelian Super Akurat
-            let purchaseDate = new Date(); // Nilai default kalau gagal
-            const dateMatch = tanggal.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
-            
+            // Tebak tanggal dari teks untuk jadi default di popup
+            let defaultDate = new Date();
+            const dateMatch = tanggalOri.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
             if (dateMatch) {
                 const day = parseInt(dateMatch[1]);
                 const monthStr = dateMatch[2].toLowerCase();
                 const year = parseInt(dateMatch[3]);
                 const monthIndex = bulanMap[monthStr];
-                
                 if (monthIndex !== undefined) {
-                    purchaseDate = new Date(year, monthIndex, day); // Set sesuai tanggal di invoice!
+                    defaultDate = new Date(year, monthIndex, day);
                 }
             }
 
-            // 4. Tambah 1 Bulan untuk Expired
+            // Set default value ke input type="date" (Format YYYY-MM-DD)
+            const yyyy = defaultDate.getFullYear();
+            const mm = String(defaultDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(defaultDate.getDate()).padStart(2, '0');
+            document.getElementById("transactionDateInput").value = `${yyyy}-${mm}-${dd}`;
+
+            // Simpan data ke memori sementara
+            pendingData = { orderId, wa, namaPaket, harga, spek };
+
+            // Tampilkan Popup Tanggal
+            document.getElementById('dateModal').classList.remove('hidden');
+        }
+
+        // FUNGSI SAAT KLIK "SIMPAN DATA" DI POPUP TANGGAL
+        function confirmTransaction() {
+            if (!pendingData) return;
+
+            const dateValue = document.getElementById("transactionDateInput").value;
+            if (!dateValue) return alert("Pilih tanggal terlebih dahulu!");
+
+            const purchaseDate = new Date(dateValue);
+            
+            // Tambah 1 Bulan untuk Expired
             const expiryDate = new Date(purchaseDate);
             expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-            // 5. Buat Teks Testimoni Done
-            const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggal}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
+            // Buat Teks Tanggal format Indonesia (Misal: Rabu, 1 April 2026)
+            const hari = namaHariIndo[purchaseDate.getDay()];
+            const tgl = purchaseDate.getDate();
+            const bln = namaBulanIndo[purchaseDate.getMonth()];
+            const thn = purchaseDate.getFullYear();
+            const tanggalFix = `${hari}, ${tgl} ${bln} ${thn}`;
+
+            const { orderId, wa, namaPaket, harga, spek } = pendingData;
+
+            const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggalFix}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
 
             const newData = {
                 id: Date.now().toString(),
-                orderId, tanggal, wa, namaPaket, harga, spek,
+                orderId, tanggal: tanggalFix, wa, namaPaket, harga, spek,
                 purchaseDateMs: purchaseDate.getTime(),
                 expiryDateMs: expiryDate.getTime(),
                 textDone
@@ -116,8 +165,15 @@
             db.unshift(newData);
             localStorage.setItem("adhost_db", JSON.stringify(db));
 
+            // Bersihkan form dan tutup modal
             document.getElementById("invoiceInput").value = "";
+            closeDateModal();
             renderCards();
+        }
+
+        function closeDateModal() {
+            document.getElementById('dateModal').classList.add('hidden');
+            pendingData = null;
         }
 
         function renderCards() {
@@ -137,7 +193,6 @@
                 const isExpired = now >= expiryMs;
                 const cardStatusClass = isExpired ? 'card-expired' : 'card-online';
                 
-                // Hitung Mundur Sisa Hari
                 let sisaHariText = "Habis";
                 if (!isExpired) {
                     const diffTime = expiryMs - now;
@@ -179,7 +234,7 @@
             });
         }
 
-        // --- FUNGSI MODAL ---
+        // --- FUNGSI MODAL WEB LOGIN ---
         function openModal(id) {
             currentWebId = id; 
             const modal = document.getElementById('customModal');
