@@ -3,282 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Glyph Studio v5 (Ultimate Edition)</title>
+    <title>Eldoria Glyph Studio v7</title>
     <style>
         :root {
-            --bg-main: #18191c; --bg-panel: #2b2d31; --primary: #5865F2;
+            --bg-main: #0f1012; --bg-panel: #1e1f22; --primary: #5865F2;
             --success: #23a559; --warning: #f0b232; --danger: #da373c;
-            --text-main: #dbdee1; --border: #1e1f22;
+            --text-main: #dbdee1; --border: #2b2d31; --gold: #faa61a;
         }
 
         body {
             background-color: var(--bg-main); color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
         }
 
-        h1 { color: #fff; margin-top: 0; text-align: center; font-size: 1.5rem; }
+        h1 { color: #fff; margin: 10px 0; text-align: center; font-size: 1.4rem; letter-spacing: 1px; }
 
+        /* Toolbar Utama */
         .toolbar {
-            background: var(--bg-panel); padding: 15px; border-radius: 8px;
-            display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px; width: 100%; max-width: 1200px;
-            box-sizing: border-box;
+            background: var(--bg-panel); padding: 15px; border-radius: 12px;
+            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 15px; width: 100%; max-width: 1000px;
+            box-sizing: border-box; border: 1px solid var(--border);
         }
 
-        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px; }
-        label { font-size: 11px; color: #aaa; font-weight: bold; }
+        .tool-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 100px; }
+        label { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; }
         
         input[type="file"], input[type="text"], input[type="number"], select {
-            background: var(--border); border: 1px solid #444; color: white;
-            padding: 10px; border-radius: 4px; font-family: monospace; width: 100%; box-sizing: border-box;
+            background: #111214; border: 1px solid #333; color: white;
+            padding: 10px; border-radius: 6px; font-family: monospace; width: 100%; box-sizing: border-box;
+            outline: none; font-size: 13px;
         }
         
         button {
             background: var(--primary); color: white; border: none; box-sizing: border-box;
-            padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        button:active { transform: scale(0.95); }
         .btn-success { background: var(--success); }
         .btn-warning { background: var(--warning); color: black; }
         .btn-danger { background: var(--danger); }
-        .btn-block { width: 100%; padding: 12px; font-size: 14px; }
+        .btn-full { width: 100%; }
 
-        .workspace {
-            display: grid; grid-template-columns: 1fr 2.5fr; gap: 20px;
-            width: 100%; max-width: 1200px; box-sizing: border-box;
-        }
+        /* Area Kerja */
+        .workspace { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 1000px; }
+        @media (min-width: 850px) { .workspace { display: grid; grid-template-columns: 350px 1fr; } }
 
         .master-viewer {
-            background: var(--bg-panel); padding: 15px; border-radius: 8px;
-            display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
+            background: var(--bg-panel); padding: 15px; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; border: 1px solid var(--border);
         }
         
         .canvas-wrapper {
-            width: 100%; max-width: 350px; aspect-ratio: 1/1; background: #000;
-            overflow: hidden; border: 2px solid var(--border); border-radius: 4px; position: relative;
-            background-image: linear-gradient(45deg, #222 25%, transparent 25%), linear-gradient(-45deg, #222 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222 75%), linear-gradient(-45deg, transparent 75%, #222 75%);
-            background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            width: 100%; max-width: 320px; aspect-ratio: 1/1; background: #000;
+            overflow: hidden; border: 1px solid #000; border-radius: 4px; position: relative;
+            background-image: linear-gradient(45deg, #161719 25%, transparent 25%), linear-gradient(-45deg, #161719 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #161719 75%), linear-gradient(-45deg, transparent 75%, #161719 75%);
+            background-size: 20px 20px;
         }
         
         #masterCanvas, #editCanvas { width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
 
         .glyph-gallery {
-            background: var(--bg-panel); padding: 15px; border-radius: 8px;
+            background: var(--bg-panel); padding: 15px; border-radius: 12px;
             display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 15px; max-height: 700px; overflow-y: auto; align-content: start; box-sizing: border-box;
+            gap: 12px; max-height: 80vh; overflow-y: auto; align-content: start; border: 1px solid var(--border);
         }
 
         .glyph-card {
-            background: var(--bg-main); border: 1px solid #444; border-radius: 6px;
-            padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+            background: #111214; border: 1px solid #222; border-radius: 8px;
+            padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
         
         .glyph-img {
-            width: 64px; height: 64px; background: #000; image-rendering: pixelated;
-            border: 1px dashed #555; background-image: linear-gradient(45deg, #222 25%, transparent 25%), linear-gradient(-45deg, #222 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222 75%), linear-gradient(-45deg, transparent 75%, #222 75%);
-            background-size: 10px 10px; background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            width: 70px; height: 70px; background: #000; image-rendering: pixelated;
+            border: 1px dashed #444; background-size: 10px 10px;
         }
 
-        .hex-code { font-family: monospace; font-size: 13px; font-weight: bold; color: var(--warning); }
+        .hex-code { font-family: monospace; font-size: 12px; color: var(--gold); }
         .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
-        .card-actions button { font-size: 10px; padding: 5px; }
 
-        /* MODAL EDITOR */
+        /* MODAL EDITOR MOBILE OPTIMIZED */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal {
-            background: var(--bg-panel); padding: 20px; border-radius: 8px;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border: 2px solid var(--primary);
-            max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; box-sizing: border-box;
+            background: var(--bg-panel); border-radius: 12px; width: 95%; max-width: 450px;
+            max-height: 95vh; overflow-y: auto; border: 2px solid var(--primary); display: flex; flex-direction: column;
         }
         
+        .modal-header { padding: 12px 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; }
+        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+
         .editor-canvas-wrap {
-            width: 100%; max-width: 300px; aspect-ratio: 1/1; border: 1px solid #555; margin: 0 auto;
-            background-image: linear-gradient(45deg, #222 25%, transparent 25%), linear-gradient(-45deg, #222 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222 75%), linear-gradient(-45deg, transparent 75%, #222 75%);
-            background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; cursor: crosshair;
+            width: 100%; max-width: 250px; aspect-ratio: 1/1; border: 2px solid #000; margin: 0 auto;
+            background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%);
+            background-size: 20px 20px; cursor: crosshair; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden;
         }
 
-        .editor-tools { display: flex; flex-direction: column; gap: 15px; }
+        .tool-box { background: #111214; padding: 12px; border-radius: 10px; border: 1px solid #333; }
+        .tool-box h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--gold); text-transform: uppercase; }
         
-        .tool-box { background: var(--bg-main); padding: 12px; border-radius: 6px; border: 1px solid #444; }
-        .tool-box h4 { margin: 0 0 10px 0; font-size: 13px; color: var(--gold-accent); }
-        
-        .flex-row { display: flex; gap: 10px; align-items: center; }
-        input[type="range"] { width: 100%; }
+        /* SLIDERS FOR TEXT */
+        .slider-group { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .slider-group label { width: 40px; color: #fff; font-size: 11px; }
+        input[type="range"] { flex: 1; accent-color: var(--success); }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-
-        @media (max-width: 850px) {
-            .workspace { grid-template-columns: 1fr; }
-            .modal { grid-template-columns: 1fr; }
-            .toolbar { flex-direction: column; align-items: stretch; }
-            .input-group { min-width: 100%; }
-        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>✨ Eldoria Glyph Studio v5</h1>
+    <h1>✨ ELDORIA STUDIO V7</h1>
 
     <div class="toolbar">
-        <div style="display: flex; gap: 10px; width: 100%;">
+        <div class="tool-row">
             <div class="input-group" style="flex: 2;">
-                <label>1. Upload Sprite (960x960 PNG):</label>
-                <input type="file" id="uploadFile" accept="image/png">
+                <label>File Spritesheet (PNG)</label>
+                <input type="file" id="uploadFile">
             </div>
-            <div class="input-group" style="flex: 1; justify-content: flex-end;">
-                <button class="btn-warning btn-block" onclick="createEmptyCanvas()">✨ BUAT KANVAS KOSONG</button>
-            </div>
+            <button class="btn-warning" onclick="createEmptyCanvas()" style="margin-top: 15px;">✨ BUAT KOSONG</button>
         </div>
-
-        <div style="display: flex; gap: 10px; width: 100%;">
-            <div class="input-group">
-                <label>Kolom (X):</label>
-                <input type="number" id="gridCols" value="16">
-            </div>
-            <div class="input-group">
-                <label>Baris (Y):</label>
-                <input type="number" id="gridRows" value="16">
-            </div>
-            <div class="input-group">
-                <label>Base Hex:</label>
-                <input type="text" id="baseHex" value="E100">
-            </div>
+        <div class="tool-row">
+            <div class="input-group"><label>X Grid</label><input type="number" id="gridCols" value="16"></div>
+            <div class="input-group"><label>Y Grid</label><input type="number" id="gridRows" value="16"></div>
+            <div class="input-group"><label>Hex</label><input type="text" id="baseHex" value="E100"></div>
+            <button class="btn-success" onclick="processGlyphs()" style="margin-top: 15px;">⚙️ PISAHKAN</button>
         </div>
-        <button class="btn-success btn-block" onclick="processGlyphs()">⚙️ PISAHKAN GLYPH</button>
     </div>
 
     <div class="workspace">
         <div class="master-viewer">
-            <h3 style="margin-top:0;">🗺️ Master Spritesheet</h3>
-            <div class="canvas-wrapper">
-                <canvas id="masterCanvas"></canvas>
-            </div>
-            <button class="btn-success btn-block" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT SEMUA (MASTER PNG)</button>
+            <div class="canvas-wrapper"><canvas id="masterCanvas"></canvas></div>
+            <button class="btn-success btn-full" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT MASTER PNG</button>
         </div>
-
-        <div class="glyph-gallery" id="galleryContainer">
-            <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px 0;">
-                Silakan upload gambar ATAU klik "Buat Kanvas Kosong", lalu klik "Pisahkan Glyph"
-            </div>
-        </div>
+        <div class="glyph-gallery" id="galleryContainer"></div>
     </div>
 
-    <!-- MODAL EDITOR PIXEL -->
+    <!-- EDITOR MODAL OPTIMIZED FOR MOBILE UX -->
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
-            <!-- Sisi Kiri: Canvas -->
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <h3 style="margin: 0; color: var(--warning); text-align: center;" id="editTitle">✏️ Edit Glyph</h3>
+            <div class="modal-header">
+                <span id="editTitle" style="font-weight:bold; color:var(--gold);">EDIT GLYPH</span>
+                <button class="btn-danger" onclick="closeEditor()" style="padding: 5px 10px; font-size: 11px;">TUTUP</button>
+            </div>
+            <div class="modal-body">
+                
+                <!-- 1. KANVAS DI ATAS BIAR JELAS -->
                 <div class="editor-canvas-wrap">
                     <canvas id="editCanvas"></canvas>
                 </div>
-                <div class="flex-row">
-                    <button style="flex: 1; background: #555;" onclick="closeEditor()">❌ Batal</button>
-                    <button class="btn-success" style="flex: 1;" onclick="saveEdit()">💾 Simpan & Tutup</button>
-                </div>
-            </div>
 
-            <!-- Sisi Kanan: Tools -->
-            <div class="editor-tools">
-                
-                <!-- Tool: Template Eldoria Mini (Kotak-kotak) -->
-                <div class="tool-box">
-                    <h4 style="color: #faa61a;">🛡️ Base Template</h4>
-                    <div class="input-group" style="margin-bottom: 5px;">
-                        <label>Warna Rank:</label>
-                        <select id="rankTemplate">
-                            <option value="#E74C3C">Admin (Merah)</option>
-                            <option value="#F1C40F">Owner (Emas)</option>
-                            <option value="#408ECA">Celestora (Biru)</option>
-                            <option value="#2E9C8A">Platinex (Tosca)</option>
-                            <option value="#9B5DA2">Crystalon (Ungu)</option>
-                            <option value="#D2D8D8">Silverlight (Perak)</option>
-                            <option value="#D34235">Mythoria (Merah YouTube)</option>
-                            <option value="#8E9E9B">Novaria (Hijau Pudar)</option>
-                            <option value="#A6B1B0">Ironveil (Besi/Abu)</option>
-                            <option value="#E0901A">Divinexus (Oranye Matahari)</option>
-                            <option value="#C65C10">Eternalis (Oranye Api)</option>
-                            <option value="#2ECC71">Emerald (Hijau Terang)</option>
-                            <option value="#9B59B6">Amethyst (Pink Keunguan)</option>
-                            <option value="#2980B9">Sapphire (Biru Tua)</option>
-                            <option value="#34495E">Obsidian (Hitam/Abu Tua)</option>
-                            <option value="#00FFFF">Diamond (Cyan)</option>
-                            <option value="#FF1493">Neon (Pink Terang)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Logo Icon (Kiri):</label>
-                        <select id="iconTemplate">
-                            <option value="none">❌ Kosong</option>
-                            <option value="crown">👑 Mahkota (Owner)</option>
-                            <option value="skull">💀 Tengkorak (Admin)</option>
-                            <option value="youtube">▶️ YouTube (Mythoria)</option>
-                            <option value="star">⭐ Bintang (Celestora)</option>
-                            <option value="gem">💎 Permata (Platinex)</option>
-                            <option value="coin">🪙 Koin (Goldhaven)</option>
-                            <option value="shield">🛡️ Perisai (Silverlight)</option>
-                            <option value="sword">⚔️ Pedang (Ironveil)</option>
-                            <option value="leaf">🍃 Daun (Novaria)</option>
-                            <option value="heart">❤️ Hati (Nyawa)</option>
-                            <option value="lightning">⚡ Petir (Speed)</option>
-                            <option value="check">✔️ Centang (Sukses)</option>
-                            <option value="cross">❌ Silang (Gagal)</option>
-                            <option value="key">🔑 Kunci (Crate)</option>
-                            <option value="pickaxe">⛏️ Beliung (Miner)</option>
-                            <option value="discord">💬 Discord</option>
-                        </select>
-                    </div>
-                    <button class="btn-warning btn-block" style="margin-top: 10px;" onclick="applyTemplate()">TERAPKAN TEPAT DI TENGAH</button>
-                </div>
-
-                <!-- Tool: Custom Text -->
-                <div class="tool-box">
-                    <h4 style="color: #23a559;">🔤 Teks 1-Px (Custom Engine)</h4>
-                    <input type="text" id="customText" placeholder="Ketik text (Misal: ADMIN)" oninput="previewEditor()">
+                <!-- 2. KONTROL TEKS & POSISI (Tepat di bawah Kanvas) -->
+                <div class="tool-box" style="border-color: var(--success);">
+                    <h4>🔤 Kontrol Teks (Cetak Langsung)</h4>
+                    <input type="text" id="customText" placeholder="Ketik teks (Cth: MOD)" oninput="previewEditor()" style="margin-bottom: 10px;">
                     
-                    <div class="input-group" style="margin-top: 5px;">
-                        <select id="fontStyle" onchange="previewEditor()">
-                            <option value="regular">Font: Minecraft Regular</option>
-                            <option value="bold">Font: Minecraft Ten (Tebal)</option>
+                    <div class="slider-group">
+                        <label>GESER X</label>
+                        <input type="range" id="textX" min="-5" max="60" value="23" oninput="previewEditor()">
+                    </div>
+                    <div class="slider-group">
+                        <label>GESER Y</label>
+                        <input type="range" id="textY" min="-5" max="60" value="23" oninput="previewEditor()">
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <select id="fontStyle" onchange="previewEditor()" style="flex:2;">
+                            <option value="smallcaps">Small Caps (Elegan)</option>
+                            <option value="regular">Regular Classic</option>
+                        </select>
+                        <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; padding:0; height: 35px; cursor: pointer;">
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+                        <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer;">
+                            <input type="checkbox" id="useShadow" checked onchange="previewEditor()"> Shadow Hitam
+                        </label>
+                        <button class="btn-success" style="flex:1;" onclick="stampText()">✅ BAKAR TEKS</button>
+                    </div>
+                </div>
+
+                <!-- 3. TEMPLATE WARNA & ICON -->
+                <div class="tool-box">
+                    <h4>🛡️ Bikin Template Border (Ala Gambar)</h4>
+                    <div class="tool-row" style="margin-bottom: 8px;">
+                        <select id="rankTemplate" style="flex:1;">
+                            <option value="">-- Pilih Warna --</option>
+                            <option value="#55FF55">Hijau Cerah (MOD)</option>
+                            <option value="#E74C3C">Merah (Admin)</option>
+                            <option value="#F1C40F">Emas (Owner)</option>
+                            <option value="#408ECA">Biru (Celestora)</option>
+                            <option value="#00FFFF">Cyan (Diamond)</option>
+                            <option value="#9B59B6">Ungu (Amethyst)</option>
+                            <option value="#D2D8D8">Abu-abu (Silver)</option>
                         </select>
                     </div>
-
-                    <div class="flex-row" style="margin-top: 5px; margin-bottom: 5px;">
-                        <label style="color: white; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                            <input type="checkbox" id="useShadow" checked onchange="previewEditor()" style="width: auto;"> Pakai Shadow Gelap
-                        </label>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Geser Kiri/Kanan (X):</label>
-                        <input type="range" id="textX" min="-10" max="60" value="26" oninput="previewEditor()">
-                    </div>
-                    <div class="input-group">
-                        <label>Geser Atas/Bawah (Y):</label>
-                        <input type="range" id="textY" min="-10" max="60" value="28" oninput="previewEditor()">
-                    </div>
-                    <div class="flex-row" style="margin-top: 10px;">
-                        <input type="color" id="textColor" value="#ffffff" style="height: 35px; cursor:pointer; width: 50px; padding: 0;" oninput="previewEditor()">
-                        <button class="btn-success" style="flex:1;" onclick="stampText()">✅ Bakar Teks!</button>
+                    <div class="tool-row">
+                        <select id="iconTemplate" style="flex:1;">
+                            <option value="none">Tanpa Icon</option>
+                            <option value="crown">👑 Crown</option>
+                            <option value="skull">💀 Skull</option>
+                            <option value="shield">🛡️ Shield</option>
+                            <option value="check">✔️ Check</option>
+                            <option value="lightning">⚡ Bolt</option>
+                        </select>
+                        <button class="btn-warning" onclick="applyTemplate()">TERAPKAN</button>
                     </div>
                 </div>
 
-                <!-- Tool: Draw/Hapus Manual -->
+                <!-- 4. MANUAL PIXEL BRUSH -->
                 <div class="tool-box">
-                    <h4 style="color: #fff;">🖌️ Koreksi Manual</h4>
-                    <div class="flex-row">
-                        <input type="color" id="brushColor" value="#ffffff" style="height: 35px; cursor:pointer; width: 50px; padding: 0;">
-                        <button id="btnBrush" style="flex:1;" onclick="setTool('brush')">Brush</button>
-                        <button id="btnEraser" style="flex:1; background: var(--border);" onclick="setTool('eraser')">Eraser</button>
+                    <h4>🖌️ Pixel Brush Manual</h4>
+                    <div class="tool-row">
+                        <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
+                        <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
+                        <button style="flex:1; background:#444;" onclick="setTool('eraser')" id="btnEraser">Eraser</button>
                     </div>
                 </div>
 
+                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px;" onclick="saveEdit()">💾 SIMPAN & KEMBALI</button>
             </div>
         </div>
     </div>
@@ -286,88 +234,59 @@
     <script>
         const masterCanvas = document.getElementById('masterCanvas');
         const mCtx = masterCanvas.getContext('2d', { willReadFrequently: true });
-        
         const editCanvas = document.getElementById('editCanvas');
         const eCtx = editCanvas.getContext('2d', { willReadFrequently: true });
-        eCtx.imageSmoothingEnabled = false;
-
         const gallery = document.getElementById('galleryContainer');
         
         let mainImage = new Image();
         let glyphDataList = []; 
         let isImageLoaded = false;
+        let baseEditorCanvas = document.createElement('canvas'); 
+        let baseCtx = baseEditorCanvas.getContext('2d', { willReadFrequently: true });
+        let isDrawing = false;
+        let activeTool = 'brush';
 
-        // Custom Font 1-Pixel 
-        const pixelFont = {
-            'A': ["010","101","111","101","101"], 'B': ["110","101","110","101","110"],
-            'C': ["011","100","100","100","011"], 'D': ["110","101","101","101","110"],
-            'E': ["111","100","111","100","111"], 'F': ["111","100","110","100","100"],
-            'G': ["011","100","101","101","011"], 'H': ["101","101","111","101","101"],
-            'I': ["111","010","010","010","111"], 'J': ["001","001","001","101","010"],
-            'K': ["101","101","110","101","101"], 'L': ["100","100","100","100","111"],
+        // 1. Font "Regular Classic" (Standar)
+        const regularFont = {
+            'A': ["010","101","111","101","101"], 'B': ["110","101","110","101","110"], 'C': ["011","100","100","100","011"], 'D': ["110","101","101","101","110"], 'E': ["111","100","111","100","111"], 'F': ["111","100","110","100","100"], 'G': ["011","100","101","101","011"], 'H': ["101","101","111","101","101"], 'I': ["111","010","010","010","111"], 'J': ["001","001","001","101","010"], 'K': ["101","101","110","101","101"], 'L': ["100","100","100","100","111"], 'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"], 'O': ["010","101","101","101","010"], 'P': ["110","101","110","100","100"], 'Q': ["010","101","101","011","001"], 'R': ["110","101","110","101","101"], 'S': ["011","100","010","001","110"], 'T': ["111","010","010","010","010"], 'U': ["101","101","101","101","011"], 'V': ["101","101","101","101","010"], 'W': ["10001","10001","10101","11011","10001"], 'X': ["101","101","010","101","101"], 'Y': ["101","101","010","010","010"], 'Z': ["111","001","010","100","111"], '1': ["010","110","010","010","111"], '2': ["010","101","001","010","111"], '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
+        };
+
+        // 2. Font "Small Caps Elegan" (Proporsional, Jelas, Renggang)
+        const smallCapsFont = {
+            'A': ["0110","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1110"],
+            'C': ["0111","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1110"],
+            'E': ["1111","1000","1110","1000","1111"], 'F': ["1111","1000","1110","1000","1000"],
+            'G': ["0111","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001"],
+            'I': ["111","010","010","010","111"],      'J': ["0001","0001","0001","1001","0110"],
+            'K': ["1001","1010","1100","1010","1001"], 'L': ["1000","1000","1000","1000","1111"],
             'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"],
-            'O': ["010","101","101","101","010"], 'P': ["110","101","110","100","100"],
-            'Q': ["010","101","101","011","001"], 'R': ["110","101","110","101","101"],
-            'S': ["011","100","010","001","110"], 'T': ["111","010","010","010","010"],
-            'U': ["101","101","101","101","011"], 'V': ["101","101","101","101","010"],
-            'W': ["10001","10001","10101","11011","10001"], 'X': ["101","101","010","101","101"],
-            'Y': ["101","101","010","010","010"], 'Z': ["111","001","010","100","111"],
-            '1': ["010","110","010","010","111"], '2': ["010","101","001","010","111"],
-            '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
+            'O': ["0110","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000"],
+            'Q': ["0110","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001"],
+            'S': ["0111","1000","0110","0001","1110"], 'T': ["111","010","010","010","010"],
+            'U': ["1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","0110","0110"],
+            'W': ["10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","01010","10001"],
+            'Y': ["1001","0110","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1111"]
         };
 
         const icons = {
-            crown: ["00000000","10000010","11000110","10101010","11111110","11111110"],
+            crown: ["00100100","01000010","11011011","11111111","11111111"],
             skull: ["011110","111111","101101","111111","010010"],
-            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
-            sword: ["00001","00011","01110","11100","01000"],
             shield: ["111111","100001","100001","010010","001100"],
-            gem: ["011110","111111","011110","001100"],
-            crystal: ["00100","01110","11111","01110","00100"],
-            flame: ["00100","01100","11110","11111","01110"],
-            star: ["00100","01110","11111","01110","10001"],
-            sun: ["10101","01110","11111","01110","10101"],
-            coin: ["01110","11111","11011","11111","01110"],
-            leaf: ["0010","0110","1111","0110","0010"],
             heart: ["01010","11111","11111","01110","00100"],
-            lightning: ["00110","01100","11111","00110","00100","01000"],
-            check: ["000001","000011","100110","111100","011000"],
-            cross: ["10001","01010","00100","01010","10001"],
-            key: ["01100","10100","01110","00011","00001"],
-            pickaxe: ["11111","00100","00100","01000","10000"],
-            discord: ["0110110","1111111","1011101","1111111","0100010"]
+            lightning: ["00110","01100","11111","00110","01000"],
+            check: ["000001","000011","100110","111100","011000"]
         };
 
-        // Shade Color
         function shadeColor(color, percent) {
             let R = parseInt(color.substring(1,3),16); let G = parseInt(color.substring(3,5),16); let B = parseInt(color.substring(5,7),16);
             R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
-            R = (R<255)?R:255; G = (G<255)?G:255; B = (B<255)?B:255; R = (R>0)?R:0; G = (G>0)?G:0; B = (B>0)?B:0;
-            return "#"+((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16))+((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16))+((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+            R = Math.min(255, Math.max(0, R)); G = Math.min(255, Math.max(0, G)); B = Math.min(255, Math.max(0, B));
+            return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
         }
 
-        // TOUCH/MOUSE COORDINATES
-        function getCoords(e, canvasElem) {
-            const rect = canvasElem.getBoundingClientRect();
-            const scaleX = canvasElem.width / rect.width;
-            const scaleY = canvasElem.height / rect.height;
-            let clientX = e.clientX; let clientY = e.clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
-            }
-            return { x: Math.floor((clientX - rect.left) * scaleX), y: Math.floor((clientY - rect.top) * scaleY) };
-        }
-
-        // --- SISTEM BUAT KANVAS KOSONG DARI AWAL ---
         function createEmptyCanvas() {
-            masterCanvas.width = 960;
-            masterCanvas.height = 960;
-            mCtx.clearRect(0, 0, 960, 960);
-            isImageLoaded = true;
-            
-            // Otomatis jalankan pemisahan glyph
-            document.getElementById('gridCols').value = 16;
-            document.getElementById('gridRows').value = 16;
+            masterCanvas.width = 960; masterCanvas.height = 960;
+            mCtx.clearRect(0,0,960,960); isImageLoaded = true;
             processGlyphs();
         }
 
@@ -378,9 +297,8 @@
             reader.onload = (ev) => {
                 mainImage.onload = () => {
                     masterCanvas.width = mainImage.width; masterCanvas.height = mainImage.height;
-                    mCtx.clearRect(0,0, masterCanvas.width, masterCanvas.height);
-                    mCtx.drawImage(mainImage, 0, 0);
-                    isImageLoaded = true;
+                    mCtx.drawImage(mainImage, 0, 0); isImageLoaded = true;
+                    processGlyphs();
                 }
                 mainImage.src = ev.target.result;
             }
@@ -388,14 +306,13 @@
         });
 
         function processGlyphs() {
-            if(!isImageLoaded) return alert("Upload gambar atau klik Buat Kanvas Kosong dulu!");
+            if(!isImageLoaded) return alert("Load image/buat kosong dulu!");
             const cols = parseInt(document.getElementById('gridCols').value);
             const rows = parseInt(document.getElementById('gridRows').value);
             const baseHexNum = parseInt(document.getElementById('baseHex').value, 16);
             const cellW = masterCanvas.width / cols; const cellH = masterCanvas.height / rows;
 
             glyphDataList = []; gallery.innerHTML = ''; 
-
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = cellW; tempCanvas.height = cellH;
             const tCtx = tempCanvas.getContext('2d');
@@ -404,237 +321,176 @@
                 for (let c = 0; c < cols; c++) {
                     const currentHex = (baseHexNum + (r * cols) + c).toString(16).toUpperCase();
                     const x = c * cellW; const y = r * cellH;
-
                     tCtx.clearRect(0, 0, cellW, cellH);
                     tCtx.drawImage(masterCanvas, x, y, cellW, cellH, 0, 0, cellW, cellH);
-                    
-                    const glyphObj = {
-                        id: `glyph_${c}_${r}`, col: c, row: r, x: x, y: y, w: cellW, h: cellH,
-                        hex: currentHex, imgData: tempCanvas.toDataURL()
-                    };
+                    const glyphObj = { id: `gl_${c}_${r}`, x, y, w: cellW, h: cellH, hex: currentHex, imgData: tempCanvas.toDataURL() };
                     glyphDataList.push(glyphObj);
-                    createGlyphCard(glyphObj);
+                    
+                    const card = document.createElement('div'); card.className = 'glyph-card';
+                    card.innerHTML = `<img src="${glyphObj.imgData}" class="glyph-img" id="img_${glyphObj.id}">
+                                      <div class="hex-code">\\u${glyphObj.hex}</div>
+                                      <div class="card-actions">
+                                        <button class="btn-warning" onclick="openEditor('${glyphObj.id}')">✏️ EDIT</button>
+                                        <button class="btn-success" onclick="downloadSingle('${glyphObj.id}')">⬇️ DL</button>
+                                      </div>`;
+                    gallery.appendChild(card);
                 }
             }
-        }
-
-        function createGlyphCard(glyph) {
-            const card = document.createElement('div');
-            card.className = 'glyph-card';
-            card.innerHTML = `
-                <img src="${glyph.imgData}" class="glyph-img" id="img_${glyph.id}">
-                <div class="hex-code">\\u${glyph.hex}</div>
-                <div class="card-actions">
-                    <button onclick="copyHex('${glyph.hex}', this)">📋 Copy</button>
-                    <button class="btn-warning" onclick="openEditor('${glyph.id}')">✏️ Edit</button>
-                    <button style="grid-column: span 2;" class="btn-success" onclick="downloadSingle('${glyph.id}')">⬇️ DL 1 Gambar</button>
-                </div>
-            `;
-            gallery.appendChild(card);
-        }
-
-        function copyHex(hex, btn) {
-            navigator.clipboard.writeText(`\\u${hex}`).then(() => {
-                const ori = btn.innerHTML; btn.innerHTML = "✅"; btn.style.background = "var(--success)";
-                setTimeout(() => { btn.innerHTML = ori; btn.style.background = ""; }, 1000);
-            });
         }
 
         function downloadSingle(id) {
             const glyph = glyphDataList.find(g => g.id === id);
-            const link = document.createElement('a');
-            link.download = `glyph_${glyph.hex}.png`;
-            link.href = document.getElementById(`img_${id}`).src;
-            link.click();
+            const link = document.createElement('a'); link.download = `glyph_${glyph.hex}.png`;
+            link.href = document.getElementById(`img_${id}`).src; link.click();
         }
 
-        // --- EDITOR SYSTEM ---
-        let currentEditGlyph = null;
-        let isDrawing = false;
-        let activeTool = 'brush'; 
-        let baseEditorCanvas = document.createElement('canvas'); 
-        let baseCtx = baseEditorCanvas.getContext('2d', { willReadFrequently: true });
-
-        function openEditor(glyphId) {
-            currentEditGlyph = glyphDataList.find(g => g.id === glyphId);
-            if(!currentEditGlyph) return;
-
-            document.getElementById('editTitle').innerText = `✏️ Edit \\u${currentEditGlyph.hex}`;
+        function openEditor(id) {
+            currentEditGlyph = glyphDataList.find(g => g.id === id);
             editCanvas.width = currentEditGlyph.w; editCanvas.height = currentEditGlyph.h;
             baseEditorCanvas.width = currentEditGlyph.w; baseEditorCanvas.height = currentEditGlyph.h;
             
-            document.getElementById('textX').max = currentEditGlyph.w + 10;
-            document.getElementById('textY').max = currentEditGlyph.h + 10;
+            document.getElementById('textX').max = currentEditGlyph.w;
+            document.getElementById('textY').max = currentEditGlyph.h;
             
-            document.getElementById('textX').value = Math.floor(currentEditGlyph.w / 2) - 4;
-            document.getElementById('textY').value = Math.floor(currentEditGlyph.h / 2) - 2;
-
-            document.getElementById('customText').value = ""; 
-
-            baseCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
+            baseCtx.clearRect(0,0, currentEditGlyph.w, currentEditGlyph.h);
             baseCtx.drawImage(masterCanvas, currentEditGlyph.x, currentEditGlyph.y, currentEditGlyph.w, currentEditGlyph.h, 0, 0, currentEditGlyph.w, currentEditGlyph.h);
-
-            previewEditor(); 
+            previewEditor();
             document.getElementById('editorModal').style.display = 'flex';
-            setTool('brush');
         }
 
-        function closeEditor() { document.getElementById('editorModal').style.display = 'none'; currentEditGlyph = null; }
+        function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
 
-        function setTool(tool) {
-            activeTool = tool;
-            document.getElementById('btnBrush').style.background = tool === 'brush' ? 'var(--primary)' : 'var(--border)';
-            document.getElementById('btnEraser').style.background = tool === 'eraser' ? 'var(--danger)' : 'var(--border)';
-        }
-
-        function hexToRgba(hex) {
-            return `rgba(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)}, 1)`;
-        }
-
-        // --- SISTEM FONT TERBARU (Shadow & Tebal) ---
+        // ENGINE TEXT PREVIEW
         function previewEditor() {
             eCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
-            eCtx.drawImage(baseEditorCanvas, 0, 0); 
-
-            const txt = document.getElementById('customText').value;
-            if(txt.length > 0) {
+            eCtx.drawImage(baseEditorCanvas, 0, 0);
+            
+            const txt = document.getElementById('customText').value.toUpperCase();
+            if(txt) {
                 const tx = parseInt(document.getElementById('textX').value);
                 const ty = parseInt(document.getElementById('textY').value);
                 const tCol = document.getElementById('textColor').value;
-                const fontStyle = document.getElementById('fontStyle').value;
-                const useShadow = document.getElementById('useShadow').checked;
+                const fontSelect = document.getElementById('fontStyle').value;
+                const hasShadow = document.getElementById('useShadow').checked;
+                
+                const activeFont = fontSelect === 'smallcaps' ? smallCapsFont : regularFont;
 
-                // Fungsi cetak layer text
-                const drawTextLayer = (offsetX, offsetY, color) => {
-                    let cursorX = tx + offsetX;
-                    for(let i=0; i<txt.length; i++) {
-                        let char = txt[i].toUpperCase();
-                        let charMap = pixelFont[char];
-                        if(charMap) {
-                            for(let row=0; row<charMap.length; row++) {
-                                for(let col=0; col<charMap[row].length; col++) {
-                                    if(charMap[row][col] === '1') {
-                                        eCtx.fillStyle = color;
-                                        eCtx.fillRect(cursorX + col, ty + offsetY + row, 1, 1);
-                                        // Kalau Minceraft Ten (Bold), tambahin pixel ke samping
-                                        if(fontStyle === 'bold') {
-                                            eCtx.fillRect(cursorX + col + 1, ty + offsetY + row, 1, 1);
-                                        }
-                                    }
-                                }
+                const drawChar = (char, ox, oy, col) => {
+                    const map = activeFont[char] || activeFont['?'] || ["111","101","111"]; 
+                    for(let r=0; r<map.length; r++) {
+                        for(let c=0; c<map[r].length; c++) {
+                            if(map[r][c]==='1') {
+                                eCtx.fillStyle = col; 
+                                eCtx.fillRect(ox+c, oy+r, 1, 1);
                             }
-                            // Spasi antar huruf beda kalau bold
-                            cursorX += charMap[0].length + (fontStyle === 'bold' ? 2 : 1);
-                        } else if (char === ' ') {
-                            cursorX += (fontStyle === 'bold' ? 4 : 3);
                         }
                     }
+                    return map[0].length + 1; // Spasi statis 1px
                 };
 
-                // Gambar Shadow Dulu (Kalau Dicentang)
-                if (useShadow) {
-                    drawTextLayer(1, 1, '#222222'); // Warna hitam gelap buat shadow
+                // Gambar Shadow Dulu
+                if(hasShadow) {
+                    let curX = tx;
+                    for(let char of txt) {
+                        if(char === ' ') { curX += 3; continue; }
+                        curX += drawChar(char, curX+1, ty+1, '#111111');
+                    }
                 }
                 
-                // Baru gambar Text Utama
-                drawTextLayer(0, 0, tCol);
+                // Gambar Teks Utama
+                let curX = tx;
+                for(let char of txt) {
+                    if(char === ' ') { curX += 3; continue; }
+                    curX += drawChar(char, curX, ty, tCol);
+                }
             }
         }
 
         function stampText() {
-            baseCtx.clearRect(0,0, baseEditorCanvas.width, baseEditorCanvas.height);
             baseCtx.drawImage(editCanvas, 0, 0); 
-            document.getElementById('customText').value = ""; 
-            previewEditor();
+            document.getElementById('customText').value = ""; previewEditor();
         }
 
-        function handleDrawStart(e) { if(!currentEditGlyph) return; isDrawing = true; processDrawing(e); }
-        function handleDrawMove(e) { if (!isDrawing) return; e.preventDefault(); processDrawing(e); }
-        function handleDrawEnd() { isDrawing = false; }
-
-        function processDrawing(e) {
-            const pos = getCoords(e, editCanvas);
-            if (activeTool === 'eraser') {
-                baseCtx.clearRect(pos.x, pos.y, 1, 1);
-            } else {
-                baseCtx.fillStyle = hexToRgba(document.getElementById('brushColor').value);
-                baseCtx.clearRect(pos.x, pos.y, 1, 1); baseCtx.fillRect(pos.x, pos.y, 1, 1);
-            }
-            previewEditor();
-        }
-
-        editCanvas.addEventListener('mousedown', handleDrawStart);
-        editCanvas.addEventListener('mousemove', handleDrawMove);
-        editCanvas.addEventListener('mouseup', handleDrawEnd);
-        editCanvas.addEventListener('mouseleave', handleDrawEnd);
-        
-        editCanvas.addEventListener('touchstart', handleDrawStart, {passive: false});
-        editCanvas.addEventListener('touchmove', handleDrawMove, {passive: false});
-        editCanvas.addEventListener('touchend', handleDrawEnd);
-
-        // BORDER & TEMPLATE ENGINE
+        // ENGINE TEMPLATE KOTAK DENGAN BORDER HITAM OUTLINE
         function applyTemplate() {
             const baseColor = document.getElementById('rankTemplate').value;
-            const w = editCanvas.width;
-            const h = editCanvas.height;
+            if(!baseColor) return;
+            const w = editCanvas.width; const h = editCanvas.height;
+            
+            // Konfigurasi Warna Presisi ala Gambar
+            const cTop = shadeColor(baseColor, 20);     // Gradient Atas Terang
+            const cBot = shadeColor(baseColor, -20);    // Gradient Bawah Gelap
+            const cBorderLight = shadeColor(baseColor, 60); // Highlight Kiri Atas
+            const cBorderDark = shadeColor(baseColor, -50); // Shadow Kanan Bawah
+            
+            baseCtx.clearRect(0,0,w,h);
+            const bh=14, iw=14, tw=40, gap=1;
+            const sx = Math.floor((w-(iw+gap+tw))/2), sy = Math.floor((h-bh)/2);
+            
+            const drawBox = (x, y, bw) => {
+                // 1. Outline Hitam Luar
+                baseCtx.fillStyle = '#000000';
+                baseCtx.fillRect(x, y, bw, bh);
 
-            const cTop = shadeColor(baseColor, 5); const cMid = shadeColor(baseColor, -20); const cBot = shadeColor(baseColor, -40);
-            const cBorderLight = shadeColor(baseColor, 70); const cBorderDark = shadeColor(baseColor, -15);
+                // 2. Inner Highlight (Atas & Kiri)
+                baseCtx.fillStyle = cBorderLight;
+                baseCtx.fillRect(x+1, y+1, bw-2, 1); // Top
+                baseCtx.fillRect(x+1, y+1, 1, bh-2); // Left
 
-            baseCtx.clearRect(0, 0, w, h);
+                // 3. Inner Shadow (Bawah & Kanan)
+                baseCtx.fillStyle = cBorderDark;
+                baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); // Bottom
+                baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); // Right
 
-            const badgeH = 14; const iconW = 14; const gap = 1; const textW = 42; 
-            const badgeW = iconW + gap + textW; 
+                // 4. Center Smooth Gradient
+                const grad = baseCtx.createLinearGradient(0, y+2, 0, y+bh-2);
+                grad.addColorStop(0, cTop);
+                grad.addColorStop(1, cBot);
+                baseCtx.fillStyle = grad;
+                baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+            };
 
-            const startX = Math.floor((w - badgeW) / 2);
-            const startY = Math.floor((h - badgeH) / 2);
-
-            function drawSmallBox(bx, by, bw, bh) {
-                const segment = Math.floor((bh - 2) / 3);
-                baseCtx.fillStyle = cTop; baseCtx.fillRect(bx + 1, by + 1, bw - 2, segment);
-                baseCtx.fillStyle = cMid; baseCtx.fillRect(bx + 1, by + 1 + segment, bw - 2, bh - 2 - (segment * 2));
-                baseCtx.fillStyle = cBot; baseCtx.fillRect(bx + 1, by + bh - 1 - segment, bw - 2, segment);
-
-                baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(bx, by, bw - 1, 1); baseCtx.fillRect(bx, by, 1, bh - 1);
-                baseCtx.fillStyle = cBorderDark; baseCtx.fillRect(bx, by + bh - 1, bw, 1); baseCtx.fillRect(bx + bw - 1, by, 1, bh);
-            }
-
-            drawSmallBox(startX, startY, iconW, badgeH);
-            drawSmallBox(startX + iconW + gap, startY, textW, badgeH);
-
-            const iconName = document.getElementById('iconTemplate').value;
-            if (iconName !== 'none' && icons[iconName]) {
-                const iconMatrix = icons[iconName];
-                const iH = iconMatrix.length; const iW = iconMatrix[0].length;
-                const ix = startX + Math.floor((iconW - iW) / 2); const iy = startY + Math.floor((badgeH - iH) / 2);
-
-                for (let r = 0; r < iH; r++) {
-                    for (let c = 0; c < iW; c++) {
-                        if (iconMatrix[r][c] === '1') {
-                            baseCtx.fillStyle = '#ffffff'; baseCtx.fillRect(ix + c, iy + r, 1, 1);
-                        }
-                    }
+            // Gambar kotak
+            drawBox(sx, sy, iw); 
+            drawBox(sx+iw+gap, sy, tw);
+            
+            // Gambar Logo Icon
+            const icon = icons[document.getElementById('iconTemplate').value];
+            if(icon) {
+                const ix = sx + Math.floor((iw-icon[0].length)/2), iy = sy + Math.floor((bh-icon.length)/2);
+                for(let r=0; r<icon.length; r++) for(let c=0; c<icon[r].length; c++) if(icon[r][c]==='1') { 
+                    baseCtx.fillStyle='#fff'; baseCtx.fillRect(ix+c, iy+r, 1, 1); 
                 }
             }
             previewEditor();
         }
 
+        // TOUCH/MOUSE DRAWING MANUAL
+        function setTool(t) { activeTool = t; document.getElementById('btnBrush').style.border = t==='brush'?'2px solid white':'none'; document.getElementById('btnEraser').style.border = t==='eraser'?'2px solid white':'none'; }
+        function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = editCanvas.width/r.width; const clientX = e.touches?e.touches[0].clientX : e.clientX; const clientY = e.touches?e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX-r.left)*s), y: Math.floor((clientY-r.top)*s) }; }
+        
+        const startDraw = (e) => { isDrawing = true; draw(e); };
+        const moveDraw = (e) => { if(isDrawing) { e.preventDefault(); draw(e); } };
+        const stopDraw = () => { isDrawing = false; };
+        
+        function draw(e) {
+            const p = getEventPos(e);
+            if(activeTool==='eraser') baseCtx.clearRect(p.x, p.y, 1, 1);
+            else { baseCtx.fillStyle = document.getElementById('brushColor').value; baseCtx.clearRect(p.x, p.y, 1, 1); baseCtx.fillRect(p.x, p.y, 1, 1); }
+            previewEditor();
+        }
+
+        editCanvas.addEventListener('mousedown', startDraw); editCanvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', stopDraw);
+        editCanvas.addEventListener('touchstart', startDraw, {passive:false}); editCanvas.addEventListener('touchmove', moveDraw, {passive:false}); editCanvas.addEventListener('touchend', stopDraw);
+
         function saveEdit() {
-            if(!currentEditGlyph) return;
             mCtx.clearRect(currentEditGlyph.x, currentEditGlyph.y, currentEditGlyph.w, currentEditGlyph.h);
             mCtx.drawImage(editCanvas, currentEditGlyph.x, currentEditGlyph.y);
-
-            const newDataUrl = editCanvas.toDataURL();
-            currentEditGlyph.imgData = newDataUrl;
-            document.getElementById(`img_${currentEditGlyph.id}`).src = newDataUrl;
+            document.getElementById(`img_${currentEditGlyph.id}`).src = editCanvas.toDataURL();
             closeEditor();
         }
 
-        function downloadMaster() {
-            if(!isImageLoaded) return alert("Belum ada gambar!");
-            const link = document.createElement('a'); link.download = 'master_glyph_edited.png';
-            link.href = masterCanvas.toDataURL('image/png'); link.click();
-        }
+        function downloadMaster() { const link = document.createElement('a'); link.download='master_glyph.png'; link.href=masterCanvas.toDataURL(); link.click(); }
     </script>
 </body>
 </html>
