@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eldoria Rank Glyph Generator</title>
+    <title>Eldoria Rank Pixel Generator</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -15,7 +15,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
@@ -47,8 +47,6 @@
             grid-column: 1 / -1;
             text-align: center;
             margin-top: 0;
-            font-weight: 600;
-            letter-spacing: 1px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 1rem;
         }
@@ -70,15 +68,12 @@
             gap: 1rem;
         }
 
-        .input-row .input-group {
-            flex: 1;
-        }
+        .input-row .input-group { flex: 1; }
 
         label {
             font-size: 0.85rem;
             color: var(--text-muted);
             font-weight: 500;
-            text-transform: uppercase;
         }
 
         input, select {
@@ -87,38 +82,47 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-main);
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
         }
 
         input[type="color"] {
             padding: 0;
             height: 40px;
             cursor: pointer;
+            width: 100%;
         }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            background: #2a2a2a;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-group input { width: auto; }
 
         .preview-section {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             align-items: center;
-            justify-content: flex-start;
         }
 
+        /* Container preview dibuat relatif untuk menumpuk Grid */
         .canvas-container {
+            position: relative;
             width: 100%;
-            min-height: 200px;
-            background-color: #2a2a2a;
+            min-height: 250px;
+            background-color: #111;
+            /* Pola transparan catur */
             background-image: 
-                linear-gradient(45deg, #333 25%, transparent 25%), 
-                linear-gradient(-45deg, #333 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #333 75%), 
-                linear-gradient(-45deg, transparent 75%, #333 75%);
+                linear-gradient(45deg, #222 25%, transparent 25%), 
+                linear-gradient(-45deg, #222 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #222 75%), 
+                linear-gradient(-45deg, transparent 75%, #222 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             border: 1px solid var(--border-color);
@@ -126,46 +130,52 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
-            overflow: auto;
+            overflow: hidden;
         }
 
+        /* Canvas utama dibuat pixelated dan diperbesar (Zoom) */
         canvas {
-            background-color: transparent;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            image-rendering: pixelated; /* Memastikan tidak ada efek blur saat di zoom */
+            image-rendering: crisp-edges;
+            transform: scale(4); /* Zoom 4x lipat di web agar terlihat jelas */
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* Overlay Grid 16x16 */
+        .grid-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(4);
+            pointer-events: none;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 16px 16px; /* Kotak grid Minecraft (16x16) */
+            display: none; /* Sembunyikan default */
         }
 
         .btn {
             width: 100%;
-            padding: 0.8rem;
+            padding: 1rem;
             background-color: var(--accent);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
-        .btn:hover {
-            background-color: #005bb5;
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
+        .btn:hover { background-color: #005bb5; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Eldoria Rank Glyph Generator</h2>
+    <h2>Eldoria Rank Pixel Glyph</h2>
 
     <div class="controls">
         <div class="input-group">
-            <label>Template Rank (Preset)</label>
+            <label>Template Rank</label>
             <select id="rankPreset">
                 <option value="none">-- Pilih Rank Eldoria --</option>
                 <option value="NOVARIA" data-color="#B0BEC5" data-bg="#263238">NOVARIA</option>
@@ -184,7 +194,7 @@
         </div>
 
         <div class="input-group">
-            <label>Teks Glyph</label>
+            <label>Teks Rank</label>
             <input type="text" id="glyphText" value="NOVARIA">
         </div>
 
@@ -201,35 +211,41 @@
 
         <div class="input-row">
             <div class="input-group">
-                <label>Lebar File (px)</label>
-                <input type="number" id="canvasWidth" value="256">
+                <label>Ukuran Piksel (Lebar)</label>
+                <input type="number" id="canvasWidth" value="83">
             </div>
             <div class="input-group">
-                <label>Tinggi File (px)</label>
-                <input type="number" id="canvasHeight" value="64">
+                <label>Ukuran Piksel (Tinggi)</label>
+                <input type="number" id="canvasHeight" value="16">
             </div>
         </div>
 
         <div class="input-group">
-            <label>Upload Icon (Opsional, format PNG transparan)</label>
+            <label>Upload Icon/Logo (Opsional)</label>
             <input type="file" id="iconUpload" accept="image/png, image/jpeg">
         </div>
     </div>
 
     <div class="preview-section">
-        <div class="input-group" style="width: 100%; text-align: center;">
-            <label>Preview Transparansi</label>
+        <div class="checkbox-group" style="width: 100%;">
+            <input type="checkbox" id="showGrid">
+            <label for="showGrid" style="margin:0; cursor:pointer;">Tampilkan Kotak Grid (16x16)</label>
         </div>
+
         <div class="canvas-container">
             <canvas id="glyphCanvas"></canvas>
+            <div class="grid-overlay" id="gridOverlay"></div>
         </div>
-        <button class="btn" onclick="downloadGlyph()">Download Glyph PNG</button>
+        <p style="font-size: 12px; color: gray; text-align: center;">*Gambar di atas di-zoom 4x lipat. File asli berukuran persis sesuai piksel yang kamu atur agar tidak berat di Minecraft.</p>
+        
+        <button class="btn" onclick="downloadGlyph()">Download Glyph Asli (.png)</button>
     </div>
 </div>
 
 <script>
     const canvas = document.getElementById('glyphCanvas');
     const ctx = canvas.getContext('2d');
+    const gridOverlay = document.getElementById('gridOverlay');
 
     const inputs = {
         preset: document.getElementById('rankPreset'),
@@ -238,89 +254,74 @@
         bgColor: document.getElementById('bgColor'),
         width: document.getElementById('canvasWidth'),
         height: document.getElementById('canvasHeight'),
-        iconUpload: document.getElementById('iconUpload')
+        iconUpload: document.getElementById('iconUpload'),
+        showGrid: document.getElementById('showGrid')
     };
 
     let uploadedIcon = null;
 
-    function drawRoundRect(ctx, x, y, width, height, radius, fill, stroke) {
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-        if (stroke) { ctx.lineWidth = 2; ctx.strokeStyle = stroke; ctx.stroke(); }
-    }
-
     function renderGlyph() {
-        const width = parseInt(inputs.width.value) || 256;
-        const height = parseInt(inputs.height.value) || 64;
+        const width = parseInt(inputs.width.value) || 83;
+        const height = parseInt(inputs.height.value) || 16;
         
+        // 1. Atur Ukuran ASLI (Bukan HD)
         canvas.width = width;
         canvas.height = height;
 
+        // 2. Matikan Penghalus Gambar (Biar Pixelated/Minecraft Style)
+        ctx.imageSmoothingEnabled = false;
+
+        // Atur ukuran grid overlay sama dengan canvas
+        gridOverlay.style.width = width + 'px';
+        gridOverlay.style.height = height + 'px';
+
         ctx.clearRect(0, 0, width, height);
 
-        // Styling
         const text = inputs.text.value;
         const bgColor = inputs.bgColor.value;
         const textColor = inputs.textColor.value;
         
-        // Setup font to measure text
-        const fontSize = height * 0.5;
-        ctx.font = `bold ${fontSize}px 'Minecraft', 'Segoe UI', sans-serif`;
-        ctx.textBaseline = 'middle';
-        
-        let textWidth = ctx.measureText(text).width;
-        let iconSize = 0;
-        let gap = 0;
-
-        if (uploadedIcon) {
-            iconSize = height * 0.6;
-            gap = 8;
-        }
-
-        const totalContentWidth = textWidth + iconSize + gap;
-        const paddingX = 16;
-        const bgWidth = totalContentWidth + (paddingX * 2);
-        const bgHeight = height * 0.8;
-        
-        const startX = (width - bgWidth) / 2;
-        const startY = (height - bgHeight) / 2;
-
-        // Draw Background (Opacity 80% for modern game UI look)
+        // Gambar Background Kotak Crisp (Pixelated Border)
         ctx.globalAlpha = 0.85;
-        drawRoundRect(ctx, startX, startY, bgWidth, bgHeight, 8, bgColor, textColor);
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Border
         ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
 
-        // Draw Icon if exists
-        let currentX = startX + paddingX;
+        // Setup text (Menggunakan font dasar yang tajam)
+        const fontSize = Math.floor(height * 0.6); 
+        ctx.font = `bold ${fontSize}px monospace`;
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = textColor;
+        
+        // Menentukan posisi icon
+        let currentX = Math.floor(width * 0.05); // Padding kiri
+        let iconSize = 0;
+
         if (uploadedIcon) {
-            const iconY = (height - iconSize) / 2;
+            iconSize = Math.floor(height * 0.7);
+            const iconY = Math.floor((height - iconSize) / 2);
             ctx.drawImage(uploadedIcon, currentX, iconY, iconSize, iconSize);
-            currentX += iconSize + gap;
+            currentX += iconSize + 4; // Gap antara icon dan text
         }
 
-        // Draw Text
+        // Drop shadow untuk teks ala Minecraft
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillText(text, currentX + 1, (height / 2) + 1);
+        
+        // Teks utama
         ctx.fillStyle = textColor;
-        // Simple drop shadow for Minecraft style
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-        ctx.shadowBlur = 0;
-        
         ctx.fillText(text, currentX, height / 2);
-        
-        // Reset shadow
-        ctx.shadowColor = 'transparent';
     }
+
+    // Toggle Grid Kotak-Kotak 16x16
+    inputs.showGrid.addEventListener('change', (e) => {
+        gridOverlay.style.display = e.target.checked ? 'block' : 'none';
+    });
 
     // Event Listeners
     inputs.preset.addEventListener('change', (e) => {
