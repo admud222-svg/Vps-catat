@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eldoria | UI Master Generator</title>
+    <title>Eldoria | UI Master Generator Responsive</title>
     <style>
         :root {
             --dark-bg: #1a1c1e;
@@ -20,36 +20,45 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
             margin: 0;
         }
 
         .container {
-            width: 95%;
-            max-width: 1200px;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
+        }
+
+        /* Responsive Grid: Desktop sampingan, HP tumpuk */
+        @media (min-width: 850px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 350px;
+                gap: 20px;
+                align-items: start;
+            }
         }
 
         .panel {
             background: var(--panel-bg);
             border-radius: 12px;
             border: 2px solid var(--primary-blue);
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
         }
 
-        .full-width { grid-column: span 2; }
+        h2, h3 { margin-top: 0; color: var(--gold-accent); text-align: center; font-size: 1.2rem; }
 
-        h2, h3 { margin-top: 0; color: var(--gold-accent); text-align: center; }
-
-        /* --- GLYPH PICKER STYLES --- */
+        /* Viewer Gambar */
         .viewer-container {
             width: 100%;
-            height: 500px;
+            height: 450px;
             background: #000;
-            overflow: auto;
+            overflow: auto; /* Biar bisa di scroll di HP */
             border: 1px solid #444;
             border-radius: 8px;
             position: relative;
@@ -57,235 +66,197 @@
 
         #glyphCanvas { cursor: crosshair; image-rendering: pixelated; }
 
-        /* --- RANK BADGE CSS STYLES --- */
+        /* Preview Area */
         .preview-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            background: #111;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        /* --- THE CORE BADGE CSS (Tinggal Copy Ini ke Web Kamu) --- */
-        .eldoria-badge {
-            display: inline-flex;
-            align-items: center;
-            background: #ffffff; /* Border putih */
-            padding: 1.5px;
-            height: 20px;
-            image-rendering: pixelated;
-            box-sizing: content-box;
-        }
-
-        .eb-icon-box {
-            width: 20px;
-            height: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 1.5px;
+            background: #111;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 60px;
         }
 
-        .eb-text-box {
-            height: 20px;
-            padding: 0 10px;
-            display: flex;
+        /* THE CORE BADGE CSS */
+        .eldoria-badge {
+            display: inline-flex;
             align-items: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 11px;
-            text-shadow: 1.5px 1.5px #000;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            background: #ffffff;
+            padding: 1.5px;
+            height: 20px;
+            image-rendering: pixelated;
         }
 
-        /* --- INPUTS --- */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .eb-icon-box { width: 20px; height: 20px; margin-right: 1.5px; }
+        .eb-text-box {
+            height: 20px; padding: 0 10px; color: #fff;
+            font-weight: bold; font-size: 11px;
+            text-shadow: 1.5px 1.5px #000;
+            display: flex; align-items: center; text-transform: uppercase;
+        }
+
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        
         input[type="file"], select, input[type="number"], textarea {
             width: 100%;
             padding: 10px;
             background: #2c2f33;
             border: 1px solid #444;
             color: white;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 14px;
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            margin-bottom: 10px;
+            margin-top: 5px;
+            font-size: 14px;
         }
 
         .btn-green { background: var(--success-green); color: white; }
         .btn-green:hover { background: #3ca374; }
 
         .code-output {
-            font-family: monospace;
-            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
             color: #43b581;
             background: #000;
-            height: 200px;
+            height: 180px;
+            margin-top: 10px;
         }
+
+        .helper-text { font-size: 11px; color: #777; text-align: center; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <h2>✨ ELDORIA MASTER UI GENERATOR</h2>
-
     <div class="container">
-        
-        <!-- BAGIAN 1: PICKER (UPLOAD GLYPH) -->
         <div class="panel">
-            <h3>🔍 1. Glyph Inspector</h3>
+            <h2>🛡️ ELDORIA UI MASTER</h2>
             <div class="input-group">
-                <label>Upload Gambar Glyph (960x960 PNG):</label>
+                <label>1. Upload Gambar Glyph (PNG):</label>
                 <input type="file" id="uploadImg" accept="image/png">
             </div>
-            <div class="viewer-container">
-                <canvas id="glyphCanvas"></canvas>
-            </div>
-            <p style="font-size: 11px; color: #777;">*Klik pada gambar untuk menentukan koordinat X dan Y.</p>
         </div>
 
-        <!-- BAGIAN 2: RANK CREATOR (PREVIEW & CODE) -->
-        <div class="panel">
-            <h3>🛡️ 2. Badge Preview</h3>
-            
-            <div class="preview-area" id="badgeContainer">
-                <!-- Badge Rendered Here -->
-                <div class="eldoria-badge" id="liveBadge">
-                    <div class="eb-icon-box" id="liveIconBox">
-                        <div id="liveIcon"></div>
-                    </div>
-                    <div class="eb-text-box" id="liveTextBox">RANK</div>
+        <div class="main-content">
+            <div class="panel">
+                <h3>🔍 Glyph Inspector</h3>
+                <div class="viewer-container">
+                    <canvas id="glyphCanvas"></canvas>
                 </div>
+                <p class="helper-text">Geser dan Klik area rank di atas untuk set posisi X & Y.</p>
             </div>
 
-            <div class="input-group">
-                <label>Pilih Rank Server:</label>
-                <select id="rankSelector" onchange="updateRankUI()">
-                    <option value="OWNER">OWNER</option>
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="MYTHORIA">MYTHORIA</option>
-                    <option value="PLATINEX">PLATINEX</option>
-                    <option value="GOLDHAVEN">GOLDHAVEN</option>
-                    <option value="CELESTORA">CELESTORA</option>
-                </select>
+            <div class="panel">
+                <h3>💎 Preview & Code</h3>
+                
+                <div class="preview-area">
+                    <div class="eldoria-badge" id="liveBadge">
+                        <div class="eb-icon-box" id="liveIconBox"></div>
+                        <div class="eb-text-box" id="liveTextBox">RANK</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Pilih Rank Eldoria:</label>
+                    <select id="rankSelector" onchange="updateRankUI()">
+                        <option value="OWNER">OWNER</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="MYTHORIA">MYTHORIA</option>
+                        <option value="PLATINEX">PLATINEX</option>
+                        <option value="GOLDHAVEN">GOLDHAVEN</option>
+                        <option value="CELESTORA">CELESTORA</option>
+                    </select>
+                </div>
+
+                <button class="btn-green" onclick="generateCode()">⚡ AMBIL KODE DASHBOARD</button>
+                
+                <label>Script Dashboard (HTML/CSS):</label>
+                <textarea id="finalCode" class="code-output" readonly placeholder="Kode akan muncul di sini..."></textarea>
             </div>
-
-            <button class="btn-green" onclick="generateCode()">⚡ AMBIL KODE DASHBOARD</button>
-
-            <label>Copy Kode Ini ke Web Adhost:</label>
-            <textarea id="finalCode" class="code-output" readonly></textarea>
         </div>
-
     </div>
 
     <script>
         const uploadImg = document.getElementById('uploadImg');
         const canvas = document.getElementById('glyphCanvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const ctx = canvas.getContext('2d');
         
         let originalImg = new Image();
         let selectedX = 0;
         let selectedY = 0;
 
-        // Data Warna & Icon Rank
         const rankSettings = {
-            "OWNER": { c1: "#F7DC6F", c2: "#17202A", icon: "crown" },
-            "ADMIN": { c1: "#E74C3C", c2: "#7B241C", icon: "skull" },
-            "MYTHORIA": { c1: "#F1948A", c2: "#C0392B", icon: "youtube" },
-            "PLATINEX": { c1: "#48C9B0", c2: "#117A65", icon: "gem" },
-            "GOLDHAVEN": { c1: "#F1C40F", c2: "#B9770E", icon: "coin" },
-            "CELESTORA": { c1: "#85C1E9", c2: "#2874A6", icon: "star" }
+            "OWNER": { c1: "#F7DC6F", c2: "#17202A" },
+            "ADMIN": { c1: "#E74C3C", c2: "#7B241C" },
+            "MYTHORIA": { c1: "#F1948A", c2: "#C0392B" },
+            "PLATINEX": { c1: "#48C9B0", c2: "#117A65" },
+            "GOLDHAVEN": { c1: "#F1C40F", c2: "#B9770E" },
+            "CELESTORA": { c1: "#85C1E9", c2: "#2874A6" }
         };
 
-        // Handle Upload
         uploadImg.addEventListener('change', (e) => {
             const reader = new FileReader();
             reader.onload = (f) => {
                 originalImg.onload = () => {
                     canvas.width = originalImg.width;
                     canvas.height = originalImg.height;
-                    ctx.drawImage(originalImg, 0, 0);
+                    refreshCanvas();
                 }
                 originalImg.src = f.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Handle Click Koordinat
         canvas.addEventListener('mousedown', (e) => {
             if(!originalImg.src) return;
             const rect = canvas.getBoundingClientRect();
-            selectedX = Math.floor((e.clientX - rect.left) * (canvas.width / rect.width));
-            selectedY = Math.floor((e.clientY - rect.top) * (canvas.height / rect.height));
+            // Kalkulasi posisi klik yang akurat di HP/Desktop
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            selectedX = Math.floor((e.clientX - rect.left) * scaleX);
+            selectedY = Math.floor((e.clientY - rect.top) * scaleY);
             
-            // Redraw overlay
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.drawImage(originalImg, 0, 0);
-            ctx.strokeStyle = "red";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(selectedX, selectedY, 83, 83);
+            refreshCanvas();
         });
 
-        // Update UI Preview
+        function refreshCanvas() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.drawImage(originalImg, 0, 0);
+            ctx.strokeStyle = "#faa61a";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(selectedX, selectedY, 83, 83); // Box Selector
+        }
+
         function updateRankUI() {
             const rank = document.getElementById('rankSelector').value;
             const config = rankSettings[rank];
-            
-            const badge = document.getElementById('liveBadge');
             const iconBox = document.getElementById('liveIconBox');
             const textBox = document.getElementById('liveTextBox');
 
-            // Apply Gradient
             const grad = `linear-gradient(to bottom, ${config.c1} 50%, ${config.c2} 50%)`;
             iconBox.style.background = grad;
             textBox.style.background = grad;
             textBox.innerText = rank;
         }
 
-        // Generate Code Final
         function generateCode() {
             const rank = document.getElementById('rankSelector').value;
             const config = rankSettings[rank];
-            const code = `
-<!-- Rank ${rank} Eldoria -->
-<style>
-.badge-${rank.toLowerCase()} {
-    display: inline-flex; align-items: center;
-    background: #ffffff; padding: 1.5px; height: 20px;
-    image-rendering: pixelated;
-}
-.icon-box-${rank.toLowerCase()} {
-    width: 20px; height: 20px; margin-right: 1.5px;
-    background: linear-gradient(to bottom, ${config.c1} 50%, ${config.c2} 50%);
-}
-.text-box-${rank.toLowerCase()} {
-    height: 20px; padding: 0 10px; color: #fff;
-    font-weight: bold; font-size: 11px;
-    text-shadow: 1.5px 1.5px #000;
-    background: linear-gradient(to bottom, ${config.c1} 50%, ${config.c2} 50%);
-    display: flex; align-items: center; text-transform: uppercase;
-}
-</style>
-
-<div class="badge-${rank.toLowerCase()}">
-    <div class="icon-box-${rank.toLowerCase()}"></div>
-    <div class="text-box-${rank.toLowerCase()}">${rank}</div>
-</div>`;
-
-            document.getElementById('finalCode').value = code.trim();
+            const code = `\n<div style="display:inline-flex;align-items:center;background:#fff;padding:1.5px;height:20px;image-rendering:pixelated;">\n  <div style="width:20px;height:20px;margin-right:1.5px;background:linear-gradient(to bottom, ${config.c1} 50%, ${config.c2} 50%);"></div>\n  <div style="height:20px;padding:0 10px;color:#fff;font-weight:bold;font-size:11px;text-shadow:1.5px 1.5px #000;background:linear-gradient(to bottom, ${config.c1} 50%, ${config.c2} 50%);display:flex;align-items:center;text-transform:uppercase;">${rank}</div>\n</div>`;
+            
+            document.getElementById('finalCode').value = code;
+            alert("Kode berhasil disalin! Tinggal tempel di website kamu.");
         }
 
         window.onload = updateRankUI;
