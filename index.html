@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Supreme Studio v27 Final</title>
+    <title>Eldoria Supreme Studio v30 Final</title>
     <style>
         :root {
             --bg-main: #070809; --bg-panel: #111214; --primary: #5865F2;
             --success: #23a559; --warning: #f0b232; --danger: #da373c;
-            --text-main: #dbdee1; --border: #222428; --gold: #faa61a;
+            --text-main: #dbdee1; --border: #222428; --gold: #FFD700;
         }
 
         body { background-color: var(--bg-main); color: var(--text-main); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        h1 { color: #fff; margin: 10px 0; text-align: center; font-size: 1.4rem; letter-spacing: 1px; text-shadow: 0 0 10px rgba(250,166,26,0.5); }
+        h1 { color: #fff; margin: 10px 0; text-align: center; font-size: 1.4rem; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
 
+        /* TOOLBAR & WORKSPACE */
         .toolbar { background: var(--bg-panel); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); margin-bottom: 15px; width: 100%; max-width: 1000px; box-sizing: border-box; border: 1px solid var(--border); }
         .tool-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; align-items: center; }
         .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 90px; }
@@ -37,7 +38,7 @@
         .hex-code { font-family: monospace; font-size: 12px; color: var(--gold); }
         .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
 
-        /* Modal Editor: Solid & Clean */
+        /* MODAL EDITOR PROFESSIONAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: flex-start; z-index: 1000; overflow-y: auto; }
         .modal { background: #0a0b0c; width: 100%; max-width: 500px; min-height: 100vh; display: flex; flex-direction: column; border-left: 1px solid #333; border-right: 1px solid #333; position: relative;}
         .modal-header { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #0a0b0c; z-index: 40; }
@@ -45,7 +46,7 @@
         .sticky-canvas-area { position: sticky; top: 52px; z-index: 30; background: #0f1012; padding: 15px; border-bottom: 2px solid #222; box-shadow: 0 5px 15px rgba(0,0,0,0.9); }
         .editor-canvas-wrap { width: 220px; height: 220px; border: 2px solid #000; margin: 0 auto; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; cursor: crosshair; image-rendering: pixelated; border-radius: 4px;}
 
-        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 100px; }
+        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 120px; }
         details { background: #111214; border-radius: 8px; border: 1px solid #222; overflow: hidden; margin-bottom: 5px; }
         summary { padding: 12px 15px; font-size: 11px; color: var(--gold); font-weight: bold; cursor: pointer; background: #161719; list-style: none; display: flex; justify-content: space-between; align-items: center;}
         summary::after { content: "▼"; font-size: 9px; color: #888; }
@@ -54,6 +55,8 @@
         .visual-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 8px; }
         .color-box { width: 100%; aspect-ratio: 1/1; border-radius: 6px; cursor: pointer; border: 2px solid #333; transition: 0.1s; }
         .color-box.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 10px var(--gold); }
+        
+        .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 8px; }
         .icon-box { width: 100%; aspect-ratio: 1/1; border-radius: 6px; cursor: pointer; background: #000; border: 1px solid #333; display: flex; justify-content: center; align-items: center; font-size: 16px; transition: 0.1s; color: #fff; }
         .icon-box.active { border-color: #fff; background: #222; transform: scale(1.1); }
         
@@ -65,7 +68,8 @@
         .slider-group label { width: 65px; color: #aaa; font-size: 10px; font-weight: bold; }
         input[type="range"] { flex: 1; accent-color: var(--success); cursor: pointer; }
 
-        .floating-actions { position: sticky; bottom: 0; left: 0; right: 0; background: #0a0b0c; padding: 15px; border-top: 1px solid #333; display: flex; gap: 10px; z-index: 50; }
+        /* FLOATING ACTION BUTTON - ANTI NUMPUK */
+        .floating-actions { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: rgba(10, 11, 12, 0.95); padding: 15px; border-top: 1px solid #333; display: flex; gap: 10px; z-index: 50; backdrop-filter: blur(5px); box-sizing: border-box; }
         
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
         .empty-state { text-align: center; color: #666; padding: 50px 20px; grid-column: 1 / -1; font-size: 14px;}
@@ -73,7 +77,7 @@
 </head>
 <body>
 
-    <h1>💎 ELDORIA PIXEL STUDIO SUPREME</h1>
+    <h1>💎 ELDORIA PIXEL STUDIO V30</h1>
 
     <div class="toolbar">
         <div class="tool-row">
@@ -105,8 +109,8 @@
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
             <div class="modal-header">
-                <span id="editTitle" style="font-weight:bold; color:var(--gold);">DESIGN EDITOR V27</span>
-                <button class="btn-danger" onclick="closeEditor()" style="padding: 6px 12px;">X</button>
+                <span id="editTitle" style="font-weight:bold; color:var(--gold);">DESIGN EDITOR V30</span>
+                <button class="btn-danger" onclick="closeEditor()" style="padding: 6px 12px;">TUTUP</button>
             </div>
             
             <div class="sticky-canvas-area">
@@ -122,21 +126,23 @@
             <div class="modal-body">
                 
                 <details open>
-                    <summary>🛡️ 1. WARNA & STYLE (20 PILIHAN TRUE PIXEL)</summary>
+                    <summary>🛡️ 1. 30 WARNA & 20 STYLES</summary>
                     <div class="details-content">
+                        <label>30 Warna (Cerah & Gelap) + Gold:</label>
                         <div class="visual-picker" id="colorPicker"></div>
-                        <div class="style-grid" id="stylePicker" style="margin-top:10px;"></div>
+                        <label style="margin-top: 10px;">20 Styles (Border 3D Tebal):</label>
+                        <div class="style-grid" id="stylePicker"></div>
                     </div>
                 </details>
 
                 <details open>
-                    <summary>🔤 2. TEKS & 4 FONT ENGINE</summary>
+                    <summary>🔤 2. TEKS & 4 FONT ENGINE FULL</summary>
                     <div class="details-content">
                         <input type="text" id="customText" placeholder="SILVERLIGHT / MOD / ADMIN..." oninput="previewEditor()">
                         <div class="tool-row">
                             <select id="fontStyle" onchange="previewEditor()" style="flex:2.5;">
+                                <option value="mcten">Minecraft Ten (Ori Berlubang)</option>
                                 <option value="capsbold">Caps Small Bold (Super Tebal)</option>
-                                <option value="mcten">Minecraft Ten (Ori)</option>
                                 <option value="smallcaps">Small Caps (Tipis)</option>
                                 <option value="regular">Regular Classic (1px)</option>
                             </select>
@@ -160,10 +166,10 @@
                 </details>
 
                 <details>
-                    <summary>✨ 3. LOGO ICON & SHADOW (20 PILIHAN)</summary>
+                    <summary>✨ 3. 20 LOGO ICON & SHADOW</summary>
                     <div class="details-content">
-                        <div class="visual-picker" id="iconPicker" style="grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));"></div>
-                        <div class="tool-row" style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
+                        <div class="icon-picker-grid" id="iconPicker"></div>
+                        <div class="tool-row" style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #333;">
                             <div class="input-group"><label>Warna Icon</label><input type="color" id="iconColor" value="#ffffff" style="height:35px; padding:0;"></div>
                             <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; margin-top:15px;">
                                 <input type="checkbox" id="iconGradient" checked> Gradasi
@@ -197,7 +203,7 @@
             </div>
 
             <div class="floating-actions">
-                <button class="btn-warning btn-full" style="padding:15px;" onclick="applyTemplate()">⚡ TERAPKAN BASE & ICON</button>
+                <button class="btn-warning btn-full" style="padding:15px; font-size: 14px;" onclick="applyTemplate()">⚡ TERAPKAN BASE & ICON</button>
             </div>
         </div>
     </div>
@@ -216,12 +222,23 @@
         let currentEditGlyph = null; let isDrawing = false; let activeTool = 'brush';
         let mainImage = new Image();
 
+        // 30 COLORS (15 BRIGHT + 15 DARK) + GOLD
         const rankColors = [
-            { color: "#55FF55", name: "Lime" }, { color: "#c0392b", name: "Admin" }, { color: "#f1c40f", name: "Owner" },
-            { color: "#3498db", name: "Blue" }, { color: "#00FFFF", name: "Cyan" }, { color: "#9b59b6", name: "Purple" },
-            { color: "#ecf0f1", name: "Silver" }, { color: "#e74c3c", name: "Red" }, { color: "#e67e22", name: "Orange" },
-            { color: "#bdc3c7", name: "Iron" }, { color: "#8e44ad", name: "Void" }, { color: "#1abc9c", name: "Plat" },
-            { color: "#d35400", name: "Bronze" }, { color: "#2ecc71", name: "Green" }, { color: "#ff69b4", name: "Pink" }
+            { color: "#FFD700", name: "Gold" }, { color: "#b8860b", name: "Dark Gold" },
+            { color: "#55FF55", name: "Lime" }, { color: "#228b22", name: "Dark Green" },
+            { color: "#e74c3c", name: "Red" }, { color: "#8b0000", name: "Dark Red" },
+            { color: "#3498db", name: "Blue" }, { color: "#00008b", name: "Dark Blue" },
+            { color: "#00FFFF", name: "Cyan" }, { color: "#008b8b", name: "Dark Cyan" },
+            { color: "#9b59b6", name: "Purple" }, { color: "#4b0082", name: "Dark Purple" },
+            { color: "#f1c40f", name: "Yellow" }, { color: "#b8860b", name: "Dark Yellow" },
+            { color: "#e67e22", name: "Orange" }, { color: "#d35400", name: "Dark Orange" },
+            { color: "#ecf0f1", name: "Silver" }, { color: "#7f8c8d", name: "Gray" },
+            { color: "#ff69b4", name: "Pink" }, { color: "#c71585", name: "Dark Pink" },
+            { color: "#1abc9c", name: "Turquoise"}, { color: "#16a085", name: "Dark Turq" },
+            { color: "#8e44ad", name: "Void" }, { color: "#2c3e50", name: "Midnight" },
+            { color: "#ffffff", name: "White" }, { color: "#a9a9a9", name: "Dark White" },
+            { color: "#f39c12", name: "Amber" }, { color: "#a67c00", name: "Dark Amber" },
+            { color: "#2ecc71", name: "Emerald" }, { color: "#27ae60", name: "Dark Emerald" }
         ];
 
         const bgStyles = [
@@ -244,7 +261,7 @@
             { id: "fire", label: "🔥" }, { id: "youtube", label: "▶️" }
         ];
 
-        let selectedColor = rankColors[1].color; 
+        let selectedColor = rankColors[0].color; 
         let selectedStyle = bgStyles[0].id; 
         let selectedIcon = iconList[1].id;
 
@@ -252,7 +269,8 @@
             const cp = document.getElementById('colorPicker'); cp.innerHTML = '';
             rankColors.forEach(c => {
                 let div = document.createElement('div'); div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
-                div.style.background = c.color; div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
+                div.style.background = c.color; div.title = c.name;
+                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
                 cp.appendChild(div);
             });
             const sp = document.getElementById('stylePicker'); sp.innerHTML = '';
@@ -264,21 +282,30 @@
             const ip = document.getElementById('iconPicker'); ip.innerHTML = '';
             iconList.forEach(ic => {
                 let div = document.createElement('div'); div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
-                div.innerText = ic.label; div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
+                div.innerText = ic.label; div.title = ic.id;
+                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
                 ip.appendChild(div);
             });
         }
 
-        // --- THE 4 FONT ENGINES (FULL AND CORRECTED) ---
+        // --- FULL FONT ENGINES (A-Z, 0-9) ---
+        
+        // 1. CAPS BOLD (Super Thick & Blocky)
         const capsBoldFont = {
-            'A':["1111","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"], 'D':["1111","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1111"], 'F':["1111","1000","1111","1000","1000"], 'G':["1111","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001"], 'I':["1111","0110","0110","0110","1111"], 'J':["0011","0011","0011","1011","0111"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["1111","1001","1001","1001","1111"], 'P':["1111","1001","1111","1000","1000"], 'Q':["1111","1001","1001","1111","0011"], 'R':["1111","1001","1111","1010","1001"], 'S':["1111","1000","1111","0001","1111"], 'T':["1111","0110","0110","0110","0110"], 'U':["1001","1001","1001","1001","1111"], 'V':["1001","1001","1001","0110","0110"], 'W':["10001","10001","10101","11011","11111"], 'X':["1001","1001","0110","1001","1001"], 'Y':["1001","1001","0110","0110","0110"], 'Z':["1111","0011","0110","1100","1111"]
+            'A':["1111","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"], 'D':["1111","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1111"], 'F':["1111","1000","1111","1000","1000"], 'G':["1111","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001"], 'I':["1111","0110","0110","0110","1111"], 'J':["0011","0011","0011","1011","0111"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["1111","1001","1001","1001","1111"], 'P':["1111","1001","1111","1000","1000"], 'Q':["1111","1001","1001","1111","0011"], 'R':["1111","1001","1111","1010","1001"], 'S':["1111","1000","1111","0001","1111"], 'T':["1111","0110","0110","0110","0110"], 'U':["1001","1001","1001","1001","1111"], 'V':["1001","1001","1001","0110","0110"], 'W':["10001","10001","10101","11011","11111"], 'X':["1001","1001","0110","1001","1001"], 'Y':["1001","1001","0110","0110","0110"], 'Z':["1111","0011","0110","1100","1111"], '0':["1111","1001","1001","1001","1111"], '1':["0110","1110","0110","0110","1111"], '2':["1111","0001","1111","1000","1111"], '3':["1111","0001","1111","0001","1111"], '4':["1001","1001","1111","0001","0001"], '5':["1111","1000","1111","0001","1111"], '6':["1111","1000","1111","1001","1111"], '7':["1111","0001","0010","0100","0100"], '8':["1111","1001","1111","1001","1111"], '9':["1111","1001","1111","0001","1111"]
         };
+
+        // 2. MINECRAFT TEN (Original with hollow curves for O, D, R, C)
         const mcTenFont = {
-            'A':["0110","1001","1111","1001","1001"], 'B':["1110","1001","1110","1001","1110"], 'C':["0111","1000","1000","1000","0111"], 'D':["1110","1001","1001","1001","1110"], 'E':["1111","1000","1110","1000","1111"], 'F':["1111","1000","1110","1000","1000"], 'G':["0111","1000","1011","1001","0111"], 'H':["1001","1001","1111","1001","1001"], 'I':["111","010","010","010","111"], 'O':["0110","1001","1001","1001","0110"], 'R':["1110","1001","1110","1010","1001"], 'S':["0111","1000","0110","0001","1110"], 'T':["111","010","010","010","010"], 'U':["1001","1001","1001","1001","0110"], 'V':["10001","10001","01010","01010","00100"], 'W':["10001","10001","10101","11011","10001"], 'X':["10001","01010","00100","01010","10001"], 'Y':["10001","01010","00100","00100","00100"], 'Z':["11111","00010","00100","01000","11111"], '1':["0110","0010","0010","0010","0111"], '2':["0110","1001","0010","0100","1111"], '3':["0110","1001","0011","1001","0110"], '0':["0110","1001","1001","1001","0110"]
+            'A':["0110","1001","1111","1001","1001"], 'B':["1110","1001","1110","1001","1110"], 'C':["0111","1000","1000","1000","0111"], 'D':["1110","1001","1001","1001","1110"], 'E':["1111","1000","1110","1000","1111"], 'F':["1111","1000","1110","1000","1000"], 'G':["0111","1000","1011","1001","0111"], 'H':["1001","1001","1111","1001","1001"], 'I':["111","010","010","010","111"], 'J':["0001","0001","0001","1001","0110"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["0110","1001","1001","1001","0110"], 'P':["1110","1001","1110","1000","1000"], 'Q':["0110","1001","1001","0110","0001"], 'R':["1110","1001","1110","1010","1001"], 'S':["0111","1000","0110","0001","1110"], 'T':["111","010","010","010","010"], 'U':["1001","1001","1001","1001","0110"], 'V':["10001","10001","01010","01010","00100"], 'W':["10001","10001","10101","11011","10001"], 'X':["10001","01010","00100","01010","10001"], 'Y':["10001","01010","00100","00100","00100"], 'Z':["11111","00010","00100","01000","11111"], '1':["0110","0010","0010","0010","0111"], '2':["0110","1001","0010","0100","1111"], '3':["0110","1001","0011","1001","0110"], '4':["1001","1001","1111","0001","0001"], '5':["1111","1000","1110","0001","1110"], '6':["0111","1000","1110","1001","0110"], '7':["1111","0001","0010","0100","0100"], '8':["0110","1001","0110","1001","0110"], '9':["0110","1001","0111","0001","1110"], '0':["0110","1001","1001","1001","0110"]
         };
+
+        // 3. SMALL CAPS (Thin & Elegant)
         const smallCapsFont = { 
-            'A':["010","101","111","101","101"], 'B':["110","101","110","101","110"], 'C':["011","100","100","100","011"], 'D':["110","101","101","101","110"], 'E':["111","100","111","100","111"], 'F':["111","100","110","100","100"], 'G':["011","100","101","101","011"], 'H':["101","101","111","101","101"], 'I':["111","010","010","010","111"], 'J':["001","001","001","101","010"], 'K':["101","110","110","101","101"], 'L':["100","100","100","100","111"], 'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["010","101","101","101","010"], 'P':["110","101","110","100","100"], 'Q':["010","101","101","011","001"], 'R':["110","101","110","101","101"], 'S':["011","100","010","001","110"], 'T':["111","010","010","010","010"], 'U':["101","101","101","101","011"], 'V':["101","101","101","101","010"], 'W':["10001","10001","10101","11011","10001"], 'X':["101","101","010","101","101"], 'Y':["101","101","010","010","010"], 'Z':["111","001","010","100","111"], '1':["010","110","010","010","111"], '2':["010","101","001","010","111"], '3':["110","001","010","001","110"], '0':["010","101","101","101","010"]
+            'A':["010","101","111","101","101"], 'B':["110","101","110","101","110"], 'C':["011","100","100","100","011"], 'D':["110","101","101","101","110"], 'E':["111","100","111","100","111"], 'F':["111","100","110","100","100"], 'G':["011","100","101","101","011"], 'H':["101","101","111","101","101"], 'I':["111","010","010","010","111"], 'J':["001","001","001","101","010"], 'K':["101","110","110","101","101"], 'L':["100","100","100","100","111"], 'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["010","101","101","101","010"], 'P':["110","101","110","100","100"], 'Q':["010","101","101","011","001"], 'R':["110","101","110","101","101"], 'S':["011","100","010","001","110"], 'T':["111","010","010","010","010"], 'U':["101","101","101","101","011"], 'V':["101","101","101","101","010"], 'W':["10001","10001","10101","11011","10001"], 'X':["101","101","010","101","101"], 'Y':["101","101","010","010","010"], 'Z':["111","001","010","100","111"], '0':["010","101","101","101","010"], '1':["010","110","010","010","111"], '2':["010","101","001","010","111"], '3':["110","001","010","001","110"], '4':["101","101","111","001","001"], '5':["111","100","110","001","110"], '6':["011","100","110","101","010"], '7':["111","001","010","010","010"], '8':["010","101","010","101","010"], '9':["010","101","011","001","110"]
         };
+
+        // 4. REGULAR (Classic 1px)
         const regularFont = smallCapsFont;
 
         const iconsMatrix = { 
@@ -312,7 +339,7 @@
         });
 
         function processGlyphs() {
-            if(!isImageLoaded) return;
+            if(!isImageLoaded) return alert("Upload dulu, baru klik PISAHKAN!");
             const cell = 64; glyphDataList = []; gallery.innerHTML = ''; 
             const temp = document.createElement('canvas'); temp.width = cell; temp.height = cell; const tCtx = temp.getContext('2d');
             const baseHex = parseInt(document.getElementById('baseHex').value, 16);
@@ -363,11 +390,17 @@
 
         function stampText() { baseCtx.drawImage(editCanvas, 0, 0); document.getElementById('customText').value = ""; previewEditor(); }
 
-        // --- THE FULL 20 STYLES BACKGROUND ENGINE ---
+        // --- FULL STYLES ENGINE WITH THICK 3D BORDERS & THICK SHINY ---
         function applyTemplate() {
             const baseColor = selectedColor, style = selectedStyle;
             const textWidth = parseInt(document.getElementById('boxWidth').value);
-            const cOutline = shadeColor(baseColor, -80), cBorderLight = shadeColor(baseColor, 40), cBorderDark = shadeColor(baseColor, -40); 
+            
+            // Outer outline (1px super dark)
+            const cOutline = shadeColor(baseColor, -80); 
+            // Thick borders: Bright Top/Left, Dark Bottom/Right
+            const cBorderTop = shadeColor(baseColor, 40); 
+            const cBorderBot = shadeColor(baseColor, -50); 
+            
             baseCtx.clearRect(0,0,64,64);
             const bh=14, iw=14, tw=textWidth, gap=1;
             const sx = Math.floor((64-(iw+gap+tw))/2), sy = Math.floor((64-bh)/2);
@@ -375,26 +408,49 @@
             const drawBox = (x, y, bw) => {
                 if(style === 'hollow') {
                     baseCtx.fillStyle = 'rgba(0,0,0,0)'; baseCtx.clearRect(x,y,bw,bh);
-                    baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
+                    // Hollow has thick border too
+                    baseCtx.fillStyle = cBorderTop; baseCtx.fillRect(x,y,bw,2); baseCtx.fillRect(x,y,2,bh);
+                    baseCtx.fillStyle = cBorderBot; baseCtx.fillRect(x,y+bh-2,bw,2); baseCtx.fillRect(x+bw-2,y,2,bh);
                     return;
                 }
                 
-                let out = cOutline;
-                if(style === 'encased') out = '#000000';
-                baseCtx.fillStyle = out; baseCtx.fillRect(x, y, bw, bh);
+                // Outer Black/Darkest outline
+                let outColor = cOutline;
+                if(style === 'encased') outColor = '#000000';
+                baseCtx.fillStyle = outColor; baseCtx.fillRect(x, y, bw, bh);
                 
-                const inX = x+1, inY = y+1, inW = bw-2, inH = bh-2;
+                // Thick 3D Borders (2 pixels thick)
+                if(style !== 'flat') {
+                    let bTop = cBorderTop; let bBot = cBorderBot;
+                    if(style === 'inset') { bTop = cBorderBot; bBot = cBorderTop; } // Reverse for inset
+                    // Top & Left
+                    baseCtx.fillStyle = bTop; 
+                    baseCtx.fillRect(x+1, y+1, bw-2, 2); 
+                    baseCtx.fillRect(x+1, y+1, 2, bh-2);
+                    // Bottom & Right
+                    baseCtx.fillStyle = bBot; 
+                    baseCtx.fillRect(x+1, y+bh-3, bw-2, 2); 
+                    baseCtx.fillRect(x+bw-3, y+1, 2, bh-2);
+                }
+
+                // Inner Background Area (Account for 1px outline + 2px thick border = 3px from each edge)
+                const inX = x+3, inY = y+3, inW = bw-6, inH = bh-6;
                 baseCtx.fillStyle = baseColor; baseCtx.fillRect(inX, inY, inW, inH);
                 
-                // Specific 20 Styles Logic
-                if(['classic', 'ultimate', 'shiny'].includes(style)) {
+                // Specific 20 Styles Logic (Drawn inside the inner area)
+                if(['classic', 'ultimate'].includes(style)) {
                     const grad = baseCtx.createLinearGradient(0, inY, 0, inY+inH); grad.addColorStop(0, shadeColor(baseColor, 15)); grad.addColorStop(1, shadeColor(baseColor, -25));
                     baseCtx.fillStyle = grad; baseCtx.fillRect(inX, inY, inW, inH);
-                }
-                
+                } 
                 if(style === 'shiny') {
-                    baseCtx.fillStyle = shadeColor(baseColor, 45);
-                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) if(i+j === 7 || i+j === 8) baseCtx.fillRect(inX+i, inY+j, 1, 1);
+                    baseCtx.fillStyle = shadeColor(baseColor, 50);
+                    // THICK SHINY LINES (2px and 3px width diagonal)
+                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) {
+                        let diag = i+j;
+                        if(diag === 3 || diag === 4 || diag === 8) {
+                            baseCtx.fillRect(inX+i, inY+j, 1, 1);
+                        }
+                    }
                 }
                 else if(style === 'glass') {
                     baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(inX, inY, inW, Math.floor(inH/2));
@@ -406,7 +462,7 @@
                 else if(style === 'bolt') {
                     baseCtx.fillStyle = shadeColor(baseColor, -25); baseCtx.fillRect(inX, inY, inW, inH);
                     baseCtx.fillStyle = shadeColor(baseColor, 60); let lx = Math.floor(inW/2);
-                    for(let j=0; j<inH; j++) { baseCtx.fillRect(inX+lx, inY+j, 1, 1); if(j%3===0) lx--; else lx++; }
+                    for(let j=0; j<inH; j++) { baseCtx.fillRect(inX+lx, inY+j, 1, 1); if(j%2===0) lx--; else lx++; }
                 }
                 else if(style === 'chaos') {
                     for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) {
@@ -419,7 +475,7 @@
                 }
                 else if(style === 'magma') {
                     baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH);
-                    for(let i=0; i<inW; i++) { let hL = 2+((i*2)%3); baseCtx.fillStyle = shadeColor(baseColor, 30); baseCtx.fillRect(inX+i, inY+inH-hL, 1, hL); }
+                    for(let i=0; i<inW; i++) { let hL = 1+((i*2)%3); baseCtx.fillStyle = shadeColor(baseColor, 30); baseCtx.fillRect(inX+i, inY+inH-hL, 1, hL); }
                 }
                 else if(style === 'scan') {
                     for(let j=0; j<inH; j+=2) { baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY+j, inW, 1); }
@@ -445,32 +501,22 @@
                 }
                 else if(style === 'ice') {
                     baseCtx.fillStyle = shadeColor(baseColor, -10); baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.4)'; baseCtx.fillRect(inX, inY, inW, 2);
-                    for(let i=2; i<inW; i+=4) baseCtx.fillRect(inX+i, inY, 1, Math.floor(inH/2));
+                    baseCtx.fillStyle = 'rgba(255,255,255,0.4)'; baseCtx.fillRect(inX, inY, inW, 1);
+                    for(let i=1; i<inW; i+=3) baseCtx.fillRect(inX+i, inY, 1, Math.floor(inH/2));
                 }
                 else if(style === 'vines') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH); 
-                    baseCtx.fillStyle = shadeColor(baseColor, 10);
-                    for(let i=0; i<inW; i+=3) { baseCtx.fillRect(inX+i, inY, 1, 2+(i%3)); baseCtx.fillRect(inX+i+1, inY+inH-2-(i%2), 1, 3); }
+                    baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH); baseCtx.fillStyle = shadeColor(baseColor, 20);
+                    for(let i=0; i<inW; i+=3) { baseCtx.fillRect(inX+i, inY, 1, 1+(i%2)); baseCtx.fillRect(inX+i+1, inY+inH-1, 1, 1); }
                 }
                 else if(style === 'cyber') {
                     baseCtx.fillStyle = shadeColor(baseColor, -60); baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = shadeColor(baseColor, 50); baseCtx.fillRect(inX, inY+2, inW, 1); baseCtx.fillRect(inX, inY+inH-3, inW, 1);
+                    baseCtx.fillStyle = shadeColor(baseColor, 50); baseCtx.fillRect(inX, inY+1, inW, 1); baseCtx.fillRect(inX, inY+inH-2, inW, 1);
                 }
                 else if(style === 'ultimate') {
                     baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(inX, inY, inW, Math.floor(inH/2));
-                    baseCtx.fillStyle = shadeColor(baseColor, 50); baseCtx.fillRect(inX+1, inY+1, 2, 2); baseCtx.fillRect(inX+inW-3, inY+inH-3, 2, 2);
-                }
-
-                // Inner Borders 3D Highlight & Shadow
-                if(!['hollow', 'flat'].includes(style)) {
-                    let bLight = cBorderLight; let bDark = cBorderDark;
-                    if(style === 'inset') { bLight = cBorderDark; bDark = cBorderLight; } 
-                    baseCtx.fillStyle = bLight; baseCtx.fillRect(inX, inY, inW, 1); baseCtx.fillRect(inX, inY, 1, inH); 
-                    baseCtx.fillStyle = bDark; baseCtx.fillRect(inX, inY+inH-1, inW, 1); baseCtx.fillRect(inX+inW-1, inY, 1, inH); 
+                    baseCtx.fillStyle = shadeColor(baseColor, 50); baseCtx.fillRect(inX, inY, 2, 2); baseCtx.fillRect(inX+inW-2, inY+inH-2, 2, 2);
                 }
             };
-
             drawBox(sx, sy, iw); drawBox(sx+iw+gap, sy, tw);
             
             const icon = iconsMatrix[selectedIcon];
