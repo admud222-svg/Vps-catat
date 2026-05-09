@@ -74,7 +74,7 @@
         canvas {
             width: 100%;
             height: 100%;
-            /* Ini trik CSS supaya gambarnya kotak tajam (pixelated) */
+            /* Trik CSS supaya pixelnya tajam */
             image-rendering: -moz-crisp-edges;
             image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
@@ -112,7 +112,7 @@
     </div>
 
     <div class="controls">
-        <button class="btn-template" onclick="loadTemplate()">Load Template Shine Lurus Gradak</button>
+        <button class="btn-template" onclick="loadTemplate()">Load Template Shine (Lebih Tebal)</button>
         <button class="btn-template" onclick="clearCanvas()" style="background:#f04747;">Bersihkan Kanvas</button>
         <button class="btn-download" onclick="downloadImage()">⬇️ Download PNG</button>
     </div>
@@ -186,18 +186,17 @@
         document.getElementById('colorInput').addEventListener('change', () => isEraser = false);
         document.getElementById('opacityInput').addEventListener('change', () => isEraser = false);
 
-        // --- FUNGSI UTAMA: TEMPLATE SHINE LURUS GRADAK ---
+        // --- FUNGSI UTAMA: TEMPLATE SHINE DIPERTEBAL 1 PIXEL ---
         function loadTemplate() {
             clearCanvas();
             const w = canvas.width;
             const h = canvas.height;
             const centerX = Math.floor(w / 2);
             
-            // Loop untuk menggambar garis LURUS dari atas ke bawah
+            // Loop menggambar garis LURUS dari atas ke bawah
             for (let y = 0; y < h; y++) {
                 
-                // Ini yang bikin "Gradak/Zigzag": pixelnya goyang kiri-kanan
-                // Pola goyangan: Tengah -> Kanan -> Tengah -> Kiri -> (Ulang)
+                // Pola goyangan (Zigzag)
                 let offset = 0;
                 if (y % 4 === 1) offset = 1;       // Geser kanan 1 pixel
                 else if (y % 4 === 3) offset = -1; // Geser kiri 1 pixel
@@ -205,30 +204,30 @@
                 let x = centerX + offset;
 
                 if (x >= 0 && x < w) {
-                    // 1. Core / Inti garis putih (Tebal 1 pixel saja)
+                    // 1. Core / Inti garis putih (Tebal sekarang 2 pixel!)
                     ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-                    ctx.fillRect(x, y, 1, 1);
+                    ctx.fillRect(x, y, 2, 1); // Lebar ditambah jadi 2
                     
-                    // 2. Shadow tipis di kanannya (Transparan 40%)
-                    if(x + 1 < w) {
+                    // 2. Shadow tipis di kanannya (Digeser posisinya ke x + 2)
+                    if(x + 2 < w) {
                         ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-                        ctx.fillRect(x + 1, y, 1, 1);
+                        ctx.fillRect(x + 2, y, 1, 1);
                     }
                     
-                    // 3. Shadow sangat tipis di kirinya (Transparan 15%)
+                    // 3. Shadow sangat tipis di kirinya
                     if(x - 1 >= 0) {
                         ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
                         ctx.fillRect(x - 1, y, 1, 1);
                     }
                 }
             }
-            alert("Template Shine LURUS ZIGZAG berhasil dimuat! Garisnya lurus vertikal tapi bertekstur gradak.");
+            alert("Template Shine ZIGZAG LEBIH TEBAL berhasil dimuat! Coba perhatikan core-nya sekarang 2 pixel.");
         }
 
         // --- FUNGSI DOWNLOAD ---
         function downloadImage() {
             const link = document.createElement('a');
-            link.download = 'gradak_shine.png';
+            link.download = 'gradak_shine_tebal.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
