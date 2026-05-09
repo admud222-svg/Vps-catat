@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Glyph Studio v3 (Mobile Responsive)</title>
+    <title>Eldoria Glyph Studio (Ultimate Badge Edition)</title>
     <style>
         :root {
             --bg-main: #18191c; --bg-panel: #2b2d31; --primary: #5865F2;
@@ -58,7 +58,6 @@
             overflow: hidden; border: 2px solid var(--border); border-radius: 4px; position: relative;
         }
         
-        /* Disable touch action untuk mencegah scroll layar pas gambar di canvas pakai jari */
         #masterCanvas, #editCanvas { width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
 
         .glyph-gallery {
@@ -107,12 +106,10 @@
         .flex-row { display: flex; gap: 10px; align-items: center; }
         input[type="range"] { width: 100%; }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
-        /* RESPONSIVE UNTUK HP */
         @media (max-width: 850px) {
             .workspace { grid-template-columns: 1fr; }
             .modal { grid-template-columns: 1fr; }
@@ -123,11 +120,11 @@
 </head>
 <body>
 
-    <h1>✨ Eldoria Glyph Studio (Mobile)</h1>
+    <h1>✨ Eldoria Glyph Studio v3</h1>
 
     <div class="toolbar">
         <div class="input-group">
-            <label>1. Upload Sprite (PNG):</label>
+            <label>1. Upload Sprite (960x960 PNG):</label>
             <input type="file" id="uploadFile" accept="image/png">
         </div>
         <div style="display: flex; gap: 10px; width: 100%;">
@@ -144,11 +141,10 @@
                 <input type="text" id="baseHex" value="E100">
             </div>
         </div>
-        <button class="btn-success btn-block" onclick="processGlyphs()">⚙️ PISAHKAN</button>
+        <button class="btn-success btn-block" onclick="processGlyphs()">⚙️ PISAHKAN GLYPH</button>
     </div>
 
     <div class="workspace">
-        <!-- Master Panel -->
         <div class="master-viewer">
             <h3 style="margin-top:0;">🗺️ Master Spritesheet</h3>
             <div class="canvas-wrapper">
@@ -157,7 +153,6 @@
             <button class="btn-success btn-block" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT SEMUA (MASTER PNG)</button>
         </div>
 
-        <!-- Gallery Panel -->
         <div class="glyph-gallery" id="galleryContainer">
             <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px 0;">
                 Silakan upload gambar dan klik "Pisahkan"
@@ -176,53 +171,72 @@
                 </div>
                 <div class="flex-row">
                     <button style="flex: 1; background: #555;" onclick="closeEditor()">❌ Batal</button>
-                    <button class="btn-success" style="flex: 1;" onclick="saveEdit()">💾 Simpan</button>
+                    <button class="btn-success" style="flex: 1;" onclick="saveEdit()">💾 Simpan & Tutup</button>
                 </div>
             </div>
 
             <!-- Sisi Kanan: Tools -->
             <div class="editor-tools">
                 
-                <!-- Tool: Draw -->
+                <!-- Tool: Template Eldoria Mini (Kotak-kotak) -->
                 <div class="tool-box">
-                    <h4 style="color: #fff;">🖌️ Gambar / Hapus</h4>
-                    <div class="flex-row">
-                        <input type="color" id="brushColor" value="#ffffff" style="height: 35px; cursor:pointer; width: 50px; padding: 0;">
-                        <button id="btnBrush" style="flex:1;" onclick="setTool('brush')">Brush</button>
-                        <button id="btnEraser" style="flex:1; background: var(--border);" onclick="setTool('eraser')">Eraser</button>
-                    </div>
-                </div>
-
-                <!-- Tool: Template Eldoria -->
-                <div class="tool-box">
-                    <h4 style="color: #faa61a;">🛡️ Base Template Eldoria</h4>
-                    <div class="flex-row">
-                        <select id="rankTemplate" style="flex:1;">
+                    <h4 style="color: #faa61a;">🛡️ Bikin Template Badge (Format: [Logo][Text])</h4>
+                    <div class="input-group" style="margin-bottom: 5px;">
+                        <label>Warna Rank:</label>
+                        <select id="rankTemplate">
                             <option value="#E74C3C">Admin (Merah)</option>
                             <option value="#F1C40F">Owner (Emas)</option>
                             <option value="#408ECA">Celestora (Biru)</option>
                             <option value="#2E9C8A">Platinex (Tosca)</option>
+                            <option value="#9B5DA2">Crystalon (Ungu)</option>
+                            <option value="#D2D8D8">Silverlight (Perak)</option>
+                            <option value="#D34235">Mythoria (Merah YouTube)</option>
                         </select>
-                        <button class="btn-warning" onclick="applyTemplate()">Terapkan</button>
                     </div>
+                    <div class="input-group">
+                        <label>Logo Icon (Kiri):</label>
+                        <select id="iconTemplate">
+                            <option value="crown">👑 Mahkota (Owner)</option>
+                            <option value="skull">💀 Tengkorak (Admin)</option>
+                            <option value="youtube">▶️ YouTube (Mythoria)</option>
+                            <option value="star">⭐ Bintang (Celestora)</option>
+                            <option value="gem">💎 Permata (Platinex)</option>
+                            <option value="coin">🪙 Koin (Goldhaven)</option>
+                            <option value="shield">🛡️ Perisai (Silverlight)</option>
+                            <option value="sword">⚔️ Pedang (Ironveil)</option>
+                            <option value="leaf">🍃 Daun (Novaria)</option>
+                            <option value="none">❌ Kosong</option>
+                        </select>
+                    </div>
+                    <button class="btn-warning btn-block" style="margin-top: 10px;" onclick="applyTemplate()">TERAPKAN KE TENGAH CANVAS</button>
                 </div>
 
                 <!-- Tool: Custom Text -->
                 <div class="tool-box">
-                    <h4 style="color: #23a559;">🔤 Tambah Teks 1-Px</h4>
-                    <input type="text" id="customText" placeholder="Ketik text..." oninput="previewEditor()">
+                    <h4 style="color: #23a559;">🔤 Tambah Teks 1-Px (Tanpa Shadow)</h4>
+                    <input type="text" id="customText" placeholder="Ketik text (Misal: ADMIN)" oninput="previewEditor()">
                     
                     <div class="input-group" style="margin-top: 5px;">
-                        <label>Geser X (Kiri/Kanan):</label>
-                        <input type="range" id="textX" min="-20" max="60" value="2" oninput="previewEditor()">
+                        <label>Geser Kiri/Kanan (X):</label>
+                        <input type="range" id="textX" min="-10" max="60" value="26" oninput="previewEditor()">
                     </div>
                     <div class="input-group">
-                        <label>Geser Y (Atas/Bawah):</label>
-                        <input type="range" id="textY" min="-20" max="60" value="5" oninput="previewEditor()">
+                        <label>Geser Atas/Bawah (Y):</label>
+                        <input type="range" id="textY" min="-10" max="60" value="28" oninput="previewEditor()">
                     </div>
                     <div class="flex-row" style="margin-top: 10px;">
                         <input type="color" id="textColor" value="#ffffff" style="height: 35px; cursor:pointer; width: 50px; padding: 0;" oninput="previewEditor()">
                         <button class="btn-success" style="flex:1;" onclick="stampText()">✅ Bakar Teks!</button>
+                    </div>
+                </div>
+
+                <!-- Tool: Draw/Hapus Manual -->
+                <div class="tool-box">
+                    <h4 style="color: #fff;">🖌️ Koreksi Manual Pixel</h4>
+                    <div class="flex-row">
+                        <input type="color" id="brushColor" value="#ffffff" style="height: 35px; cursor:pointer; width: 50px; padding: 0;">
+                        <button id="btnBrush" style="flex:1;" onclick="setTool('brush')">Brush</button>
+                        <button id="btnEraser" style="flex:1; background: var(--border);" onclick="setTool('eraser')">Eraser</button>
                     </div>
                 </div>
 
@@ -244,7 +258,7 @@
         let glyphDataList = []; 
         let isImageLoaded = false;
 
-        // Custom Font Pixel
+        // Custom Font 1-Pixel (No Shadow)
         const pixelFont = {
             'A': ["010","101","111","101","101"], 'B': ["110","101","110","101","110"],
             'C': ["011","100","100","100","011"], 'D': ["110","101","101","101","110"],
@@ -263,7 +277,22 @@
             '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
         };
 
-        // Shade Color Generator
+        const icons = {
+            crown: ["00000000","10000010","11000110","10101010","11111110","11111110"],
+            skull: ["011110","111111","101101","111111","010010"],
+            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
+            sword: ["00001","00011","01110","11100","01000"],
+            shield: ["111111","100001","100001","010010","001100"],
+            gem: ["011110","111111","011110","001100"],
+            crystal: ["00100","01110","11111","01110","00100"],
+            flame: ["00100","01100","11110","11111","01110"],
+            star: ["00100","01110","11111","01110","10001"],
+            sun: ["10101","01110","11111","01110","10101"],
+            coin: ["01110","11111","11011","11111","01110"],
+            leaf: ["0010","0110","1111","0110","0010"]
+        };
+
+        // Shade Color Generator (Hitung border terang/gelap)
         function shadeColor(color, percent) {
             let R = parseInt(color.substring(1,3),16); let G = parseInt(color.substring(3,5),16); let B = parseInt(color.substring(5,7),16);
             R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
@@ -278,15 +307,11 @@
             const rect = canvasElem.getBoundingClientRect();
             const scaleX = canvasElem.width / rect.width;
             const scaleY = canvasElem.height / rect.height;
-            
-            let clientX = e.clientX;
-            let clientY = e.clientY;
+            let clientX = e.clientX; let clientY = e.clientY;
             
             if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
+                clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
             }
-            
             return {
                 x: Math.floor((clientX - rect.left) * scaleX),
                 y: Math.floor((clientY - rect.top) * scaleY)
@@ -311,16 +336,12 @@
 
         function processGlyphs() {
             if(!isImageLoaded) return alert("Upload gambar Glyph dulu!");
-            
             const cols = parseInt(document.getElementById('gridCols').value);
             const rows = parseInt(document.getElementById('gridRows').value);
             const baseHexNum = parseInt(document.getElementById('baseHex').value, 16);
+            const cellW = masterCanvas.width / cols; const cellH = masterCanvas.height / rows;
 
-            const cellW = masterCanvas.width / cols;
-            const cellH = masterCanvas.height / rows;
-
-            glyphDataList = [];
-            gallery.innerHTML = ''; 
+            glyphDataList = []; gallery.innerHTML = ''; 
 
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = cellW; tempCanvas.height = cellH;
@@ -389,8 +410,14 @@
             editCanvas.width = currentEditGlyph.w; editCanvas.height = currentEditGlyph.h;
             baseEditorCanvas.width = currentEditGlyph.w; baseEditorCanvas.height = currentEditGlyph.h;
             
-            document.getElementById('textX').max = currentEditGlyph.w;
-            document.getElementById('textY').max = currentEditGlyph.h;
+            // Set Slider text max +20 biar leluasa geser
+            document.getElementById('textX').max = currentEditGlyph.w + 10;
+            document.getElementById('textY').max = currentEditGlyph.h + 10;
+            
+            // Set X dan Y slider otomatis agak ke tengah kanan (posisi kotak teks)
+            document.getElementById('textX').value = Math.floor(currentEditGlyph.w / 2) - 4;
+            document.getElementById('textY').value = Math.floor(currentEditGlyph.h / 2) - 2;
+
             document.getElementById('customText').value = ""; 
 
             baseCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
@@ -413,7 +440,6 @@
             return `rgba(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)}, 1)`;
         }
 
-        // Render Editor
         function previewEditor() {
             eCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
             eCtx.drawImage(baseEditorCanvas, 0, 0); 
@@ -451,21 +477,9 @@
         }
 
         // Draw Manual Support Mouse & Touch
-        function handleDrawStart(e) {
-            if(!currentEditGlyph) return;
-            isDrawing = true;
-            processDrawing(e);
-        }
-
-        function handleDrawMove(e) {
-            if (!isDrawing) return;
-            e.preventDefault(); // Biar layar ga scroll pas nggambar pakai jari
-            processDrawing(e);
-        }
-
-        function handleDrawEnd() {
-            isDrawing = false;
-        }
+        function handleDrawStart(e) { if(!currentEditGlyph) return; isDrawing = true; processDrawing(e); }
+        function handleDrawMove(e) { if (!isDrawing) return; e.preventDefault(); processDrawing(e); }
+        function handleDrawEnd() { isDrawing = false; }
 
         function processDrawing(e) {
             const pos = getCoords(e, editCanvas);
@@ -473,23 +487,21 @@
                 baseCtx.clearRect(pos.x, pos.y, 1, 1);
             } else {
                 baseCtx.fillStyle = hexToRgba(document.getElementById('brushColor').value);
-                baseCtx.clearRect(pos.x, pos.y, 1, 1); 
-                baseCtx.fillRect(pos.x, pos.y, 1, 1);
+                baseCtx.clearRect(pos.x, pos.y, 1, 1); baseCtx.fillRect(pos.x, pos.y, 1, 1);
             }
             previewEditor();
         }
 
-        // Mouse Events
         editCanvas.addEventListener('mousedown', handleDrawStart);
         editCanvas.addEventListener('mousemove', handleDrawMove);
         editCanvas.addEventListener('mouseup', handleDrawEnd);
         editCanvas.addEventListener('mouseleave', handleDrawEnd);
         
-        // Touch Events
         editCanvas.addEventListener('touchstart', handleDrawStart, {passive: false});
         editCanvas.addEventListener('touchmove', handleDrawMove, {passive: false});
         editCanvas.addEventListener('touchend', handleDrawEnd);
 
+        // --- CORE MAGIC: APPLY TEMPLATE [BOX LOGO] [BOX TEXT] TEPAT DI TENGAH ---
         function applyTemplate() {
             const baseColor = document.getElementById('rankTemplate').value;
             const w = editCanvas.width;
@@ -498,17 +510,60 @@
             const cTop = shadeColor(baseColor, 15); const cMid = baseColor; const cBot = shadeColor(baseColor, -20);
             const cBorderLight = shadeColor(baseColor, 50); const cBorderDark = shadeColor(baseColor, -40);
 
+            // Bersihkan BaseCanvas
             baseCtx.clearRect(0, 0, w, h);
-            const segment = Math.floor((h - 2) / 3);
-            
-            baseCtx.fillStyle = cTop; baseCtx.fillRect(1, 1, w - 2, segment);
-            baseCtx.fillStyle = cMid; baseCtx.fillRect(1, 1 + segment, w - 2, h - 2 - (segment * 2));
-            baseCtx.fillStyle = cBot; baseCtx.fillRect(1, h - 1 - segment, w - 2, segment);
 
-            baseCtx.fillStyle = cBorderLight;
-            baseCtx.fillRect(0, 0, w - 1, 1); baseCtx.fillRect(0, 0, 1, h - 1);
-            baseCtx.fillStyle = cBorderDark;
-            baseCtx.fillRect(0, h - 1, w, 1); baseCtx.fillRect(w - 1, 0, 1, h);
+            // Setting Ukuran Rank 
+            const badgeH = 14; 
+            const iconW = 14; 
+            const gap = 1; 
+            const textW = 42; 
+            const badgeW = iconW + gap + textW; // 57 pixel
+
+            // Kalkulasi biar persis di tengah Canvas (contoh 60x60)
+            const startX = Math.floor((w - badgeW) / 2);
+            const startY = Math.floor((h - badgeH) / 2);
+
+            // Fungsi cetak box 3D
+            function drawSmallBox(bx, by, bw, bh) {
+                const segment = Math.floor((bh - 2) / 3);
+                
+                // BG 3 Warna
+                baseCtx.fillStyle = cTop; baseCtx.fillRect(bx + 1, by + 1, bw - 2, segment);
+                baseCtx.fillStyle = cMid; baseCtx.fillRect(bx + 1, by + 1 + segment, bw - 2, bh - 2 - (segment * 2));
+                baseCtx.fillStyle = cBot; baseCtx.fillRect(bx + 1, by + bh - 1 - segment, bw - 2, segment);
+
+                // Border 3D
+                baseCtx.fillStyle = cBorderLight;
+                baseCtx.fillRect(bx, by, bw - 1, 1); baseCtx.fillRect(bx, by, 1, bh - 1);
+                
+                baseCtx.fillStyle = cBorderDark;
+                baseCtx.fillRect(bx, by + bh - 1, bw, 1); baseCtx.fillRect(bx + bw - 1, by, 1, bh);
+            }
+
+            // Cetak Kotak Kiri (Logo)
+            drawSmallBox(startX, startY, iconW, badgeH);
+
+            // Cetak Kotak Kanan (Teks)
+            drawSmallBox(startX + iconW + gap, startY, textW, badgeH);
+
+            // Gambar Icon kalau dipilih
+            const iconName = document.getElementById('iconTemplate').value;
+            if (iconName !== 'none' && icons[iconName]) {
+                const iconMatrix = icons[iconName];
+                const iH = iconMatrix.length; const iW = iconMatrix[0].length;
+                const ix = startX + Math.floor((iconW - iW) / 2);
+                const iy = startY + Math.floor((badgeH - iH) / 2);
+
+                for (let r = 0; r < iH; r++) {
+                    for (let c = 0; c < iW; c++) {
+                        if (iconMatrix[r][c] === '1') {
+                            baseCtx.fillStyle = '#ffffff'; // Warna icon solid putih
+                            baseCtx.fillRect(ix + c, iy + r, 1, 1);
+                        }
+                    }
+                }
+            }
 
             previewEditor();
         }
