@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Shine Generator</title>
+    <title>Minecraft UI Generator - Eldoria Server</title>
     <style>
         body {
             background-color: #2c2f33;
@@ -15,29 +15,31 @@
             padding: 20px;
             margin: 0;
         }
-        h1 { margin-top: 0; }
-        .controls {
+        h1, h3 { margin-top: 0; margin-bottom: 10px; text-align: center; }
+        .panel {
             background: #23272a;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .controls {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        input[type="number"], input[type="color"], input[type="range"] {
-            padding: 5px;
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        input[type="number"], input[type="color"], input[type="range"], select {
+            padding: 7px;
             border: 1px solid #7289da;
             border-radius: 4px;
             background: #2c2f33;
             color: white;
+            font-weight: bold;
         }
         button {
             background-color: #7289da;
@@ -52,10 +54,10 @@
         button:hover { background-color: #5b6eae; }
         .btn-template { background-color: #43b581; }
         .btn-template:hover { background-color: #3ca374; }
-        .btn-download { background-color: #faa61a; }
+        .btn-download { background-color: #faa61a; font-size: 16px; padding: 10px 20px; }
         .btn-download:hover { background-color: #e09619; }
 
-        /* Container Canvas dengan background checkerboard transparan */
+        /* Canvas dengan background checkerboard */
         .canvas-container {
             background-image: 
                 linear-gradient(45deg, #808080 25%, transparent 25%), 
@@ -69,12 +71,12 @@
             width: 320px; 
             height: 320px;
             cursor: crosshair;
+            margin: 0 auto 20px auto;
         }
 
         canvas {
             width: 100%;
             height: 100%;
-            /* Trik CSS supaya pixelnya tajam seperti di Minecraft */
             image-rendering: -moz-crisp-edges;
             image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
@@ -84,45 +86,71 @@
 </head>
 <body>
 
-    <h1>✨ Pixel Shine Generator</h1>
+    <h1>✨ UI Generator Eldoria</h1>
 
-    <div class="controls">
-        <div class="control-group">
-            <label>Lebar (px)</label>
-            <!-- Diubah default jadi 64 -->
-            <input type="number" id="widthInput" value="64" min="8" max="256">
+    <!-- PANEL 1: SETTING KANVAS & SHINE -->
+    <div class="panel">
+        <h3>🛠️ Alat Manual & Efek Shine</h3>
+        <div class="controls">
+            <div class="control-group">
+                <label>Lebar (px)</label>
+                <input type="number" id="widthInput" value="83">
+            </div>
+            <div class="control-group">
+                <label>Tinggi (px)</label>
+                <input type="number" id="heightInput" value="83">
+            </div>
+            <div class="control-group" style="justify-content: flex-end;">
+                <button onclick="resizeCanvas()">Ubah Ukuran</button>
+            </div>
+            <div class="control-group">
+                <label>Warna Brush</label>
+                <input type="color" id="colorInput" value="#ffffff">
+            </div>
+            <div class="control-group" style="justify-content: flex-end;">
+                <button onclick="setEraser()" style="background:#f04747;">Penghapus</button>
+            </div>
         </div>
-        <div class="control-group">
-            <label>Tinggi (px)</label>
-            <!-- Diubah default jadi 64 -->
-            <input type="number" id="heightInput" value="64" min="8" max="256">
-        </div>
-        <div class="control-group" style="justify-content: flex-end;">
-            <button onclick="resizeCanvas()">Ubah Ukuran</button>
-        </div>
-        <div class="control-group">
-            <label>Warna Brush</label>
-            <input type="color" id="colorInput" value="#ffffff">
-        </div>
-        <div class="control-group">
-            <label>Transparansi (Opacity)</label>
-            <input type="range" id="opacityInput" min="0.1" max="1" step="0.1" value="1">
-        </div>
-        <div class="control-group" style="justify-content: flex-end;">
-            <button onclick="setEraser()" style="background:#f04747;">Penghapus</button>
+        <div class="controls">
+            <button class="btn-template" onclick="loadShine(false)">Shine Lurus</button>
+            <button class="btn-template" onclick="loadShine(true)">Shine Diagonal</button>
+            <button onclick="clearCanvas()" style="background:#f04747;">Bersihkan</button>
         </div>
     </div>
 
-    <div class="controls">
-        <button class="btn-template" onclick="loadTemplate()">Load Template MIRING (Diagonal)</button>
-        <button class="btn-template" onclick="clearCanvas()" style="background:#f04747;">Bersihkan Kanvas</button>
-        <button class="btn-download" onclick="downloadImage()">⬇️ Download PNG</button>
+    <!-- PANEL 2: RANK BADGE GENERATOR -->
+    <div class="panel" style="border: 2px solid #faa61a;">
+        <h3 style="color: #faa61a;">🛡️ Pembuat Rank Badge Otomatis</h3>
+        <div class="controls">
+            <div class="control-group" style="width: 200px;">
+                <label>Pilih Rank Eldoria:</label>
+                <select id="rankSelect">
+                    <option value="NOVARIA">NOVARIA</option>
+                    <option value="IRONVEIL">IRONVEIL</option>
+                    <option value="SILVERLIGHT">SILVERLIGHT</option>
+                    <option value="GOLDHAVEN">GOLDHAVEN</option>
+                    <option value="PLATINEX">PLATINEX</option>
+                    <option value="CRYSTALON">CRYSTALON</option>
+                    <option value="MYTHORIA">MYTHORIA</option>
+                    <option value="ETERNALIS">ETERNALIS</option>
+                    <option value="CELESTORA">CELESTORA</option>
+                    <option value="DIVINEXUS">DIVINEXUS</option>
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="OWNER">OWNER</option>
+                </select>
+            </div>
+            <div class="control-group" style="justify-content: flex-end;">
+                <button class="btn-template" onclick="generateRankBadge()">Buat Badge (83x83)</button>
+            </div>
+        </div>
     </div>
 
+    <!-- CANVAS PREVIEW -->
     <div class="canvas-container">
-        <!-- Default dikanvas HTML juga diubah ke 64 -->
-        <canvas id="pixelCanvas" width="64" height="64"></canvas>
+        <canvas id="pixelCanvas" width="83" height="83"></canvas>
     </div>
+
+    <button class="btn-download" onclick="downloadImage()">⬇️ Download Hasil PNG</button>
 
     <script>
         const canvas = document.getElementById('pixelCanvas');
@@ -130,21 +158,46 @@
         let isDrawing = false;
         let isEraser = false;
 
+        // DATA RANK ELDORIA (Warna & Icon)
+        const rankData = {
+            "NOVARIA":     { c1: "#A6ACAF", c2: "#626567", icon: "leaf" },
+            "IRONVEIL":    { c1: "#D5DBDB", c2: "#7F8C8D", icon: "sword" },
+            "SILVERLIGHT": { c1: "#FFFFFF", c2: "#BDC3C7", icon: "shield" },
+            "GOLDHAVEN":   { c1: "#F1C40F", c2: "#D35400", icon: "coin" },
+            "PLATINEX":    { c1: "#1ABC9C", c2: "#117A65", icon: "gem" },
+            "CRYSTALON":   { c1: "#AF7AC5", c2: "#76448A", icon: "crystal" },
+            "MYTHORIA":    { c1: "#E74C3C", c2: "#900C3F", icon: "youtube" },
+            "ETERNALIS":   { c1: "#E67E22", c2: "#A04000", icon: "flame" },
+            "CELESTORA":   { c1: "#5DADE2", c2: "#21618C", icon: "star" },
+            "DIVINEXUS":   { c1: "#F39C12", c2: "#B9770E", icon: "sun" },
+            "ADMIN":       { c1: "#C0392B", c2: "#641E16", icon: "skull" },
+            "OWNER":       { c1: "#F4D03F", c2: "#000000", icon: "crown" }
+        };
+
+        // PIXEL ART ICONS (1 = Putih)
+        const icons = {
+            crown: ["1000001","1100011","1010101","1111111","1111111"],
+            skull: ["011110","111111","101101","111111","010010"],
+            youtube: ["0111110","1111111","1110111","1111011","1110111","1111111","0111110"],
+            sword: ["00001","00011","01110","11100","01000"],
+            shield: ["111111","100001","100001","010010","001100"],
+            gem: ["011110","111111","011110","001100"],
+            crystal: ["00100","01110","11111","01110","00100"],
+            flame: ["00100","01100","11110","11111","01110"],
+            star: ["00100","01110","11111","01110","10001"],
+            sun: ["10101","01110","11111","01110","10101"],
+            coin: ["01110","11111","11011","11111","01110"],
+            leaf: ["0010","0110","1111","0110","0010"]
+        };
+
         function resizeCanvas() {
-            const w = document.getElementById('widthInput').value;
-            const h = document.getElementById('heightInput').value;
-            canvas.width = w;
-            canvas.height = h;
+            canvas.width = document.getElementById('widthInput').value;
+            canvas.height = document.getElementById('heightInput').value;
             clearCanvas();
         }
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function setEraser() {
-            isEraser = true;
-        }
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function setEraser() { isEraser = true; }
 
         function hexToRgba(hex, opacity) {
             let r = parseInt(hex.slice(1, 3), 16);
@@ -153,88 +206,123 @@
             return `rgba(${r}, ${g}, ${b}, ${opacity})`;
         }
 
+        // FUNGSI MENGGAMBAR MANUAL
         function drawPixel(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const x = Math.floor((e.clientX - rect.left) * scaleX);
-            const y = Math.floor((e.clientY - rect.top) * scaleY);
+            const x = Math.floor((e.clientX - rect.left) * (canvas.width / rect.width));
+            const y = Math.floor((e.clientY - rect.top) * (canvas.height / rect.height));
 
             if (isEraser) {
                 ctx.clearRect(x, y, 1, 1);
             } else {
-                const hexColor = document.getElementById('colorInput').value;
-                const opacity = document.getElementById('opacityInput').value;
-                ctx.fillStyle = hexToRgba(hexColor, opacity);
+                ctx.fillStyle = hexToRgba(document.getElementById('colorInput').value, 1);
                 ctx.clearRect(x, y, 1, 1); 
                 ctx.fillRect(x, y, 1, 1);
             }
         }
 
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            if(e.button === 0 && !isEraser && document.getElementById('colorInput').value) {
-                isEraser = false; 
-            }
-            drawPixel(e);
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) drawPixel(e);
-        });
-
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; isEraser = false; drawPixel(e); });
+        canvas.addEventListener('mousemove', (e) => { if (isDrawing) drawPixel(e); });
         canvas.addEventListener('mouseup', () => { isDrawing = false; });
         canvas.addEventListener('mouseleave', () => { isDrawing = false; });
 
-        document.getElementById('colorInput').addEventListener('change', () => isEraser = false);
-        document.getElementById('opacityInput').addEventListener('change', () => isEraser = false);
+        // GENERATOR BADGE RANK 
+        function generateRankBadge() {
+            // Wajib 83x83 sesuai request
+            document.getElementById('widthInput').value = 83;
+            document.getElementById('heightInput').value = 83;
+            resizeCanvas();
 
-        // --- FUNGSI UTAMA: TEMPLATE SHINE DIAGONAL ---
-        function loadTemplate() {
-            clearCanvas();
-            const w = canvas.width;
-            const h = canvas.height;
-            
-            // Loop menggambar garis MIRING dari Pojok Kiri Atas ke Kanan Bawah
-            // Karena menggunakan Pixel Art, garis diagonal otomatis membentuk TANGGA/ZIGZAG!
-            for (let y = 0; y < h; y++) {
-                
-                let x = y; // x = y menghasilkan garis miring diagonal 45 derajat
+            const rankName = document.getElementById('rankSelect').value;
+            const data = rankData[rankName];
 
-                if (x >= 0 && x < w) {
-                    // 1. Core / Inti garis putih (Tebal 2 pixel agar mantap)
-                    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-                    ctx.fillRect(x, y, 2, 1); 
-                    
-                    // 2. Shadow tipis pertama (Opacity 40%)
-                    if(x + 2 < w) {
-                        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-                        ctx.fillRect(x + 2, y, 1, 1);
-                    }
+            // Posisi tengah di kanvas 83x83 (badge ukurannya 83x18)
+            const by = Math.floor((83 - 18) / 2);
 
-                    // 3. Shadow pudar kedua untuk efek soft cahaya (Opacity 20%)
-                    if(x + 3 < w) {
-                        ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-                        ctx.fillRect(x + 3, y, 1, 1);
-                    }
-                    
-                    // 4. Shadow sangat tipis di kiri
-                    if(x - 1 >= 0) {
-                        ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-                        ctx.fillRect(x - 1, y, 1, 1);
+            // 1. Gambar BORDER PUTIH (Background dasar)
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, by, 18, 18); // Kotak kiri (Icon)
+            ctx.fillRect(19, by, 64, 18); // Kotak kanan (Teks)
+
+            // 2. Gambar GRADASI KOTAK KIRI (Dalam border)
+            let gradL = ctx.createLinearGradient(0, by+1, 0, by+17);
+            gradL.addColorStop(0, data.c1);
+            gradL.addColorStop(1, data.c2);
+            ctx.fillStyle = gradL;
+            ctx.fillRect(1, by+1, 16, 16);
+
+            // 3. Gambar GRADASI KOTAK KANAN (Dalam border)
+            let gradR = ctx.createLinearGradient(0, by+1, 0, by+17);
+            gradR.addColorStop(0, data.c1);
+            gradR.addColorStop(1, data.c2);
+            ctx.fillStyle = gradR;
+            ctx.fillRect(20, by+1, 62, 16);
+
+            // 4. GAMBAR ICON PIXEL ART
+            const iconMatrix = icons[data.icon];
+            if(iconMatrix) {
+                const iW = iconMatrix[0].length;
+                const iH = iconMatrix.length;
+                const oX = Math.floor((18 - iW) / 2); // Center di kotak kiri
+                const oY = by + Math.floor((18 - iH) / 2);
+
+                for(let r = 0; r < iH; r++) {
+                    for(let c = 0; c < iW; c++) {
+                        if(iconMatrix[r][c] === '1') {
+                            // Efek Shadow Icon
+                            ctx.fillStyle = "rgba(0,0,0,0.5)";
+                            ctx.fillRect(oX + c + 1, oY + r + 1, 1, 1);
+                            // Warna Utama Icon
+                            ctx.fillStyle = "#ffffff";
+                            ctx.fillRect(oX + c, oY + r, 1, 1);
+                        }
                     }
                 }
             }
-            alert("Template Shine DIAGONAL berhasil dimuat! Ukuran 64x64 pixel siap dipakai!");
+
+            // 5. GAMBAR TEKS RANK
+            ctx.font = "bold 9px Arial, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            const textX = 20 + Math.floor(62 / 2);
+            const textY = by + 9;
+
+            // Shadow Teks
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillText(rankName, textX + 1, textY + 1);
+            // Warna Utama Teks
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(rankName, textX, textY);
         }
 
-        // --- FUNGSI DOWNLOAD ---
+        // TEMPLATE SHINE (Bonus kalau masih butuh)
+        function loadShine(isDiagonal) {
+            clearCanvas();
+            const w = canvas.width; const h = canvas.height;
+            const centerX = Math.floor(w / 2);
+            for (let y = 0; y < h; y++) {
+                let x = isDiagonal ? y : centerX;
+                if (!isDiagonal) {
+                    if (y % 4 === 1) x += 1; else if (y % 4 === 3) x -= 1;
+                }
+                if (x >= 0 && x < w) {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.95)"; ctx.fillRect(x, y, 2, 1); 
+                    if(x+2 < w) { ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillRect(x+2, y, 1, 1); }
+                    if(x-1 >= 0) { ctx.fillStyle = "rgba(255,255,255,0.15)"; ctx.fillRect(x-1, y, 1, 1); }
+                }
+            }
+        }
+
         function downloadImage() {
             const link = document.createElement('a');
-            link.download = 'diagonal_shine.png';
+            link.download = 'eldoria_ui.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
+
+        // Otomatis bikin rank pertama saat web dibuka
+        window.onload = () => { generateRankBadge(); };
     </script>
 </body>
 </html>
