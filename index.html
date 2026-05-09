@@ -3,303 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eldoria Rank Master | Pure Pixel Art</title>
+    <title>Eldoria Rank Glyph Generator</title>
     <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --accent: #007aff;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+        }
+
         body {
-            background-color: #2c2f33;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .panel {
-            background: #23272a;
-            border-radius: 12px;
-            border: 2px solid #faa61a;
-            padding: 25px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h2 { margin-top: 0; color: #faa61a; }
-
-        .canvas-wrapper {
-            background-image: 
-                linear-gradient(45deg, #808080 25%, transparent 25%), 
-                linear-gradient(-45deg, #808080 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #808080 75%), 
-                linear-gradient(-45deg, transparent 75%, #808080 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border: 2px solid #7289da;
-            border-radius: 8px;
-            width: 250px; 
-            height: 250px;
-            margin: 20px auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
+            padding: 2rem 1rem;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        h2 {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            padding: 0.75rem;
+            background-color: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        input[type="color"] {
+            padding: 0;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
             align-items: center;
+            justify-content: flex-start;
         }
 
-        /* Tampilan di web diperbesar, aslinya tetap 83x83 */
-        #glyphCanvas {
+        .canvas-container {
             width: 100%;
-            height: 100%;
-            image-rendering: pixelated;
+            min-height: 200px;
+            background-color: #2a2a2a;
+            background-image: 
+                linear-gradient(45deg, #333 25%, transparent 25%), 
+                linear-gradient(-45deg, #333 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #333 75%), 
+                linear-gradient(-45deg, transparent 75%, #333 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow: auto;
         }
 
-        select {
-            width: 100%;
-            padding: 12px;
-            background: #1e2124;
-            border: 1px solid #7289da;
-            color: white;
-            font-weight: bold;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 15px;
+        canvas {
+            background-color: transparent;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
-        button {
+        .btn {
             width: 100%;
-            padding: 15px;
-            background: #43b581;
+            padding: 0.8rem;
+            background-color: var(--accent);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
 
-        button:hover { background: #3ca374; transform: scale(1.02); }
-        
-        .info { font-size: 12px; color: #aaa; margin-top: 15px; line-height: 1.5; }
+        .btn:hover {
+            background-color: #005bb5;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <h2>💎 Eldoria Pixel Rank Generator</h2>
-        <p style="font-size: 13px; color: #ccc;">Sistem ini murni menggambar pixel 1:1. Hasil akhir adalah gambar transparan berukuran mutlak 83x83.</p>
-        
-        <select id="rankSelect" onchange="drawRank()">
-            <option value="NOVARIA">NOVARIA</option>
-            <option value="IRONVEIL">IRONVEIL</option>
-            <option value="SILVERLIGHT">SILVERLIGHT</option>
-            <option value="GOLDHAVEN">GOLDHAVEN</option>
-            <option value="PLATINEX">PLATINEX</option>
-            <option value="CRYSTALON">CRYSTALON</option>
-            <option value="MYTHORIA">MYTHORIA</option>
-            <option value="ETERNALIS">ETERNALIS</option>
-            <option value="CELESTORA">CELESTORA</option>
-            <option value="DIVINEXUS">DIVINEXUS</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="OWNER">OWNER</option>
-        </select>
+<div class="container">
+    <h2>Eldoria Rank Glyph Generator</h2>
 
-        <div class="canvas-wrapper">
-            <canvas id="glyphCanvas" width="83" height="83"></canvas>
+    <div class="controls">
+        <div class="input-group">
+            <label>Template Rank (Preset)</label>
+            <select id="rankPreset">
+                <option value="none">-- Pilih Rank Eldoria --</option>
+                <option value="NOVARIA" data-color="#B0BEC5" data-bg="#263238">NOVARIA</option>
+                <option value="IRONVEIL" data-color="#FFFFFF" data-bg="#607D8B">IRONVEIL</option>
+                <option value="SILVERLIGHT" data-color="#E0E0E0" data-bg="#78909C">SILVERLIGHT</option>
+                <option value="GOLDHAVEN" data-color="#FFD700" data-bg="#F57F17">GOLDHAVEN</option>
+                <option value="PLATINEX" data-color="#81D4FA" data-bg="#0277BD">PLATINEX</option>
+                <option value="CRYSTALON" data-color="#CE93D8" data-bg="#6A1B9A">CRYSTALON</option>
+                <option value="MYTHORIA" data-color="#FF8A80" data-bg="#AD1457">MYTHORIA</option>
+                <option value="ETERNALIS" data-color="#8C9EFF" data-bg="#1565C0">ETERNALIS</option>
+                <option value="CELESTORA" data-color="#A7FFEB" data-bg="#00695C">CELESTORA</option>
+                <option value="DIVINEXUS" data-color="#FF5252" data-bg="#B71C1C">DIVINEXUS</option>
+                <option value="ADMIN" data-color="#FF0000" data-bg="#4A0000">ADMIN</option>
+                <option value="OWNER" data-color="#AA0000" data-bg="#2B0000">OWNER</option>
+            </select>
         </div>
 
-        <button onclick="downloadPNG()">⬇️ DOWNLOAD GLYPH (83x83 PNG)</button>
-        
-        <div class="info">
-            • <b>Background:</b> 3 layer solid (Terang, Normal, Gelap).<br>
-            • <b>Border:</b> Warna senada, atas cerah, bawah gelap ala 3D.<br>
-            • <b>Font:</b> Custom Engine 1-Pixel, no shadow.
+        <div class="input-group">
+            <label>Teks Glyph</label>
+            <input type="text" id="glyphText" value="NOVARIA">
+        </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>Warna Teks</label>
+                <input type="color" id="textColor" value="#B0BEC5">
+            </div>
+            <div class="input-group">
+                <label>Warna Background</label>
+                <input type="color" id="bgColor" value="#263238">
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>Lebar File (px)</label>
+                <input type="number" id="canvasWidth" value="256">
+            </div>
+            <div class="input-group">
+                <label>Tinggi File (px)</label>
+                <input type="number" id="canvasHeight" value="64">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Upload Icon (Opsional, format PNG transparan)</label>
+            <input type="file" id="iconUpload" accept="image/png, image/jpeg">
         </div>
     </div>
 
-    <script>
-        const canvas = document.getElementById('glyphCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
+    <div class="preview-section">
+        <div class="input-group" style="width: 100%; text-align: center;">
+            <label>Preview Transparansi</label>
+        </div>
+        <div class="canvas-container">
+            <canvas id="glyphCanvas"></canvas>
+        </div>
+        <button class="btn" onclick="downloadGlyph()">Download Glyph PNG</button>
+    </div>
+</div>
 
-        // Data Base Warna
-        const rankData = {
-            "NOVARIA":     { color: "#8E9E9B", icon: "leaf" },
-            "IRONVEIL":    { color: "#A6B1B0", icon: "sword" },
-            "SILVERLIGHT": { color: "#D2D8D8", icon: "shield" },
-            "GOLDHAVEN":   { color: "#D99B18", icon: "coin" },
-            "PLATINEX":    { color: "#2E9C8A", icon: "gem" },
-            "CRYSTALON":   { color: "#9B5DA2", icon: "crystal" },
-            "MYTHORIA":    { color: "#D34235", icon: "youtube" },
-            "ETERNALIS":   { color: "#C65C10", icon: "flame" },
-            "CELESTORA":   { color: "#408ECA", icon: "star" },
-            "DIVINEXUS":   { color: "#E0901A", icon: "sun" },
-            "ADMIN":       { color: "#BA2B20", icon: "skull" },
-            "OWNER":       { color: "#E5BE24", icon: "crown" }
-        };
+<script>
+    const canvas = document.getElementById('glyphCanvas');
+    const ctx = canvas.getContext('2d');
 
-        // Fungsi Canggih untuk Bikin Gelap/Terang Otomatis
-        function shadeColor(color, percent) {
-            let R = parseInt(color.substring(1,3),16);
-            let G = parseInt(color.substring(3,5),16);
-            let B = parseInt(color.substring(5,7),16);
-            R = parseInt(R * (100 + percent) / 100);
-            G = parseInt(G * (100 + percent) / 100);
-            B = parseInt(B * (100 + percent) / 100);
-            R = (R<255)?R:255; G = (G<255)?G:255; B = (B<255)?B:255;
-            R = (R>0)?R:0; G = (G>0)?G:0; B = (B>0)?B:0;
-            let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-            let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-            let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-            return "#"+RR+GG+BB;
+    const inputs = {
+        preset: document.getElementById('rankPreset'),
+        text: document.getElementById('glyphText'),
+        textColor: document.getElementById('textColor'),
+        bgColor: document.getElementById('bgColor'),
+        width: document.getElementById('canvasWidth'),
+        height: document.getElementById('canvasHeight'),
+        iconUpload: document.getElementById('iconUpload')
+    };
+
+    let uploadedIcon = null;
+
+    function drawRoundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.lineWidth = 2; ctx.strokeStyle = stroke; ctx.stroke(); }
+    }
+
+    function renderGlyph() {
+        const width = parseInt(inputs.width.value) || 256;
+        const height = parseInt(inputs.height.value) || 64;
+        
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Styling
+        const text = inputs.text.value;
+        const bgColor = inputs.bgColor.value;
+        const textColor = inputs.textColor.value;
+        
+        // Setup font to measure text
+        const fontSize = height * 0.5;
+        ctx.font = `bold ${fontSize}px 'Minecraft', 'Segoe UI', sans-serif`;
+        ctx.textBaseline = 'middle';
+        
+        let textWidth = ctx.measureText(text).width;
+        let iconSize = 0;
+        let gap = 0;
+
+        if (uploadedIcon) {
+            iconSize = height * 0.6;
+            gap = 8;
         }
 
-        // Custom Font Engine (1 Pixel Width)
-        const pixelFont = {
-            'A': ["010","101","111","101","101"],
-            'B': ["110","101","110","101","110"],
-            'C': ["011","100","100","100","011"],
-            'D': ["110","101","101","101","110"],
-            'E': ["111","100","111","100","111"],
-            'F': ["111","100","110","100","100"],
-            'G': ["011","100","101","101","011"],
-            'H': ["101","101","111","101","101"],
-            'I': ["111","010","010","010","111"],
-            'J': ["001","001","001","101","010"],
-            'K': ["101","101","110","101","101"],
-            'L': ["100","100","100","100","111"],
-            'M': ["10001","11011","10101","10001","10001"], // 5 px width
-            'N': ["1001","1101","1011","1001","1001"],     // 4 px width
-            'O': ["010","101","101","101","010"],
-            'P': ["110","101","110","100","100"],
-            'Q': ["010","101","101","011","001"],
-            'R': ["110","101","110","101","101"],
-            'S': ["011","100","010","001","110"],
-            'T': ["111","010","010","010","010"],
-            'U': ["101","101","101","101","011"],
-            'V': ["101","101","101","101","010"],
-            'W': ["10001","10001","10101","11011","10001"], // 5 px width
-            'X': ["101","101","010","101","101"],
-            'Y': ["101","101","010","010","010"],
-            'Z': ["111","001","010","100","111"]
-        };
+        const totalContentWidth = textWidth + iconSize + gap;
+        const paddingX = 16;
+        const bgWidth = totalContentWidth + (paddingX * 2);
+        const bgHeight = height * 0.8;
+        
+        const startX = (width - bgWidth) / 2;
+        const startY = (height - bgHeight) / 2;
 
-        // Icon Matrix (Max 10x10)
-        const icons = {
-            crown: ["00000000","10000010","11000110","10101010","11111110","11111110"],
-            skull: ["011110","111111","101101","111111","010010"],
-            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
-            sword: ["00001","00011","01110","11100","01000"],
-            shield: ["111111","100001","100001","010010","001100"],
-            gem: ["011110","111111","011110","001100"],
-            crystal: ["00100","01110","11111","01110","00100"],
-            flame: ["00100","01100","11110","11111","01110"],
-            star: ["00100","01110","11111","01110","10001"],
-            sun: ["10101","01110","11111","01110","10101"],
-            coin: ["01110","11111","11011","11111","01110"],
-            leaf: ["0010","0110","1111","0110","0010"]
-        };
+        // Draw Background (Opacity 80% for modern game UI look)
+        ctx.globalAlpha = 0.85;
+        drawRoundRect(ctx, startX, startY, bgWidth, bgHeight, 8, bgColor, textColor);
+        ctx.globalAlpha = 1.0;
 
-        function drawBox(x, y, w, h, baseColor) {
-            // Kalkulasi warna dari Base (Terang -> Normal -> Gelap)
-            const cBorderLight = shadeColor(baseColor, 50); // Paling cerah (Border Atas Kiri)
-            const cBorderDark = shadeColor(baseColor, -40); // Paling gelap (Border Bawah Kanan)
-            
-            const cTop = shadeColor(baseColor, 15);  // Agak Terang
-            const cMid = baseColor;                  // Normal
-            const cBot = shadeColor(baseColor, -20); // Agak Gelap
-
-            // 1. Gambar Background 3 Tingkat
-            const segment = Math.floor((h - 2) / 3);
-            
-            ctx.fillStyle = cTop; // Atas
-            ctx.fillRect(x + 1, y + 1, w - 2, segment);
-            
-            ctx.fillStyle = cMid; // Tengah
-            ctx.fillRect(x + 1, y + 1 + segment, w - 2, h - 2 - (segment * 2));
-            
-            ctx.fillStyle = cBot; // Bawah
-            ctx.fillRect(x + 1, y + h - 1 - segment, w - 2, segment);
-
-            // 2. Gambar Border 3D (Bukan Putih)
-            ctx.fillStyle = cBorderLight;
-            ctx.fillRect(x, y, w - 1, 1); // Garis atas
-            ctx.fillRect(x, y, 1, h - 1); // Garis kiri
-
-            ctx.fillStyle = cBorderDark;
-            ctx.fillRect(x, y + h - 1, w, 1); // Garis bawah
-            ctx.fillRect(x + w - 1, y, 1, h); // Garis kanan
+        // Draw Icon if exists
+        let currentX = startX + paddingX;
+        if (uploadedIcon) {
+            const iconY = (height - iconSize) / 2;
+            ctx.drawImage(uploadedIcon, currentX, iconY, iconSize, iconSize);
+            currentX += iconSize + gap;
         }
 
-        function drawRank() {
-            ctx.clearRect(0, 0, 83, 83);
-            const rankName = document.getElementById('rankSelect').value;
-            const data = rankData[rankName];
-            
-            const boxHeight = 16;
-            const startY = Math.floor((83 - boxHeight) / 2); // Center Y
+        // Draw Text
+        ctx.fillStyle = textColor;
+        // Simple drop shadow for Minecraft style
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 0;
+        
+        ctx.fillText(text, currentX, height / 2);
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+    }
 
-            // 1. Kotak Icon (Kiri) - Lebar 16px
-            drawBox(1, startY, 16, boxHeight, data.color);
+    // Event Listeners
+    inputs.preset.addEventListener('change', (e) => {
+        const selected = e.target.options[e.target.selectedIndex];
+        if (selected.value !== "none") {
+            inputs.text.value = selected.value;
+            inputs.textColor.value = selected.getAttribute('data-color');
+            inputs.bgColor.value = selected.getAttribute('data-bg');
+            renderGlyph();
+        }
+    });
 
-            // 2. Kotak Teks (Kanan) - Lebar 64px
-            drawBox(18, startY, 64, boxHeight, data.color);
+    [inputs.text, inputs.textColor, inputs.bgColor, inputs.width, inputs.height].forEach(input => {
+        input.addEventListener('input', renderGlyph);
+    });
 
-            // 3. Gambar Icon Pixel
-            const iconMatrix = icons[data.icon];
-            if(iconMatrix) {
-                const iW = iconMatrix[0].length;
-                const iH = iconMatrix.length;
-                const oX = 1 + Math.floor((16 - iW) / 2); 
-                const oY = startY + Math.floor((16 - iH) / 2);
-
-                for(let r = 0; r < iH; r++) {
-                    for(let c = 0; c < iW; c++) {
-                        if(iconMatrix[r][c] === '1') {
-                            ctx.fillStyle = "#ffffff"; // Murni putih, no shadow
-                            ctx.fillRect(oX + c, oY + r, 1, 1);
-                        }
-                    }
+    inputs.iconUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedIcon = img;
+                    renderGlyph();
                 }
+                img.src = event.target.result;
             }
-
-            // 4. Gambar Teks Custom 1 Pixel
-            let cursorX = 22; // Start X untuk teks
-            const textY = startY + Math.floor((boxHeight - 5) / 2); // Center font (font height is 5)
-
-            for(let i=0; i<rankName.length; i++) {
-                let char = rankName[i];
-                let charMap = pixelFont[char];
-                if(!charMap) continue;
-
-                let charWidth = charMap[0].length;
-
-                // Cegah teks keluar dari kotak
-                if (cursorX + charWidth > 18 + 62) break; 
-
-                for(let row=0; row<5; row++) {
-                    for(let col=0; col<charWidth; col++) {
-                        if(charMap[row][col] === '1') {
-                            ctx.fillStyle = "#ffffff"; // Murni putih 1px, no shadow
-                            ctx.fillRect(cursorX + col, textY + row, 1, 1);
-                        }
-                    }
-                }
-                cursorX += charWidth + 1; // Jarak antar huruf 1px
-            }
+            reader.readAsDataURL(file);
+        } else {
+            uploadedIcon = null;
+            renderGlyph();
         }
+    });
 
-        function downloadPNG() {
-            const link = document.createElement('a');
-            const rankName = document.getElementById('rankSelect').value;
-            link.download = `template_glyph_${rankName}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
+    function downloadGlyph() {
+        const link = document.createElement('a');
+        link.download = `glyph_${inputs.text.value.toLowerCase()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
 
-        // Gambar saat pertama buka
-        window.onload = drawRank;
-    </script>
+    // Initial render
+    renderGlyph();
+</script>
+
 </body>
 </html>
