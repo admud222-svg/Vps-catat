@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Supreme Studio v25</title>
+    <title>Eldoria Supreme Studio v26 FINAL</title>
     <style>
         :root {
             --bg-main: #070809; --bg-panel: #111214; --primary: #5865F2;
@@ -67,7 +67,7 @@
         .slider-group label { width: 65px; color: #aaa; font-size: 10px; font-weight: bold; }
         input[type="range"] { flex: 1; accent-color: var(--success); cursor: pointer; }
 
-        /* FLOATING TERAPKAN BUTTON */
+        /* FLOATING TERAPKAN BUTTON (TIDAK BOLONG, UI PROFESSIONAL) */
         .floating-actions { position: sticky; bottom: 0; left: 0; right: 0; background: #0a0b0c; padding: 15px; border-top: 1px solid #333; display: flex; gap: 10px; z-index: 50; }
         
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
@@ -108,7 +108,7 @@
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
             <div class="modal-header">
-                <span id="editTitle" style="font-weight:bold; color:var(--gold);">DESIGN EDITOR V25</span>
+                <span id="editTitle" style="font-weight:bold; color:var(--gold);">DESIGN EDITOR V26</span>
                 <button class="btn-danger" onclick="closeEditor()" style="padding: 6px 12px;">X</button>
             </div>
             
@@ -133,13 +133,13 @@
                 </details>
 
                 <details open>
-                    <summary>🔤 2. TEKS & 4 FONT ENGINE</summary>
+                    <summary>🔤 2. TEKS & 4 FONT ENGINE (FIXED!)</summary>
                     <div class="details-content">
                         <input type="text" id="customText" placeholder="SILVERLIGHT / MOD / ADMIN..." oninput="previewEditor()">
-                        <div class="tool-row">
+                        <div class="tool-row" style="margin-top: 5px;">
                             <select id="fontStyle" onchange="previewEditor()" style="flex:2.5;">
-                                <option value="capsbold">Caps Small Bold (Paling Baru)</option>
-                                <option value="mcten">Minecraft Ten (Original)</option>
+                                <option value="capsbold">Caps Small Bold (Tebal)</option>
+                                <option value="mcten">Minecraft Ten (Ori)</option>
                                 <option value="smallcaps">Small Caps (Elegan)</option>
                                 <option value="regular">Regular Classic (1px)</option>
                             </select>
@@ -166,7 +166,7 @@
                     <summary>✨ 3. LOGO ICON & SHADOW (20 PILIHAN)</summary>
                     <div class="details-content">
                         <div class="visual-picker" id="iconPicker" style="grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));"></div>
-                        <div class="tool-row" style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px;">
+                        <div class="tool-row" style="margin-top:10px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #333;">
                             <div class="input-group"><label>Warna Icon</label><input type="color" id="iconColor" value="#ffffff" style="height:35px; padding:0;"></div>
                             <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; margin-top:15px;">
                                 <input type="checkbox" id="iconGradient" checked> Gradasi
@@ -255,7 +255,8 @@
             const cp = document.getElementById('colorPicker'); cp.innerHTML = '';
             rankColors.forEach(c => {
                 let div = document.createElement('div'); div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
-                div.style.background = c.color; div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
+                div.style.background = c.color; div.title = c.name;
+                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
                 cp.appendChild(div);
             });
             const sp = document.getElementById('stylePicker'); sp.innerHTML = '';
@@ -267,62 +268,68 @@
             const ip = document.getElementById('iconPicker'); ip.innerHTML = '';
             iconList.forEach(ic => {
                 let div = document.createElement('div'); div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
-                div.innerText = ic.label; div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
+                div.innerText = ic.label; div.title = ic.id;
+                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
                 ip.appendChild(div);
             });
         }
 
-        // FONT ENGINE SUPREME V25 (NEW CAPS SMALL BOLD ADDED)
+        // --- THE 4 FONT ENGINES (100% SEPARATED AND FIXED) ---
+
+        // 1. Regular Classic (3x5 standard pixel)
+        const regularFont = { 
+            'A':["010","101","111","101","101"], 'B':["110","101","110","101","110"], 'C':["011","100","100","100","011"], 
+            'D':["110","101","101","101","110"], 'E':["111","100","111","100","111"], 'F':["111","100","110","100","100"], 
+            'G':["011","100","101","101","011"], 'H':["101","101","111","101","101"], 'I':["111","010","010","010","111"], 
+            'J':["001","001","001","101","010"], 'K':["101","110","110","101","101"], 'L':["100","100","100","100","111"], 
+            'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["010","101","101","101","010"], 
+            'P':["110","101","110","100","100"], 'Q':["010","101","101","011","001"], 'R':["110","101","110","101","101"], 
+            'S':["011","100","010","001","110"], 'T':["111","010","010","010","010"], 'U':["101","101","101","101","011"], 
+            'V':["101","101","101","101","010"], 'W':["10001","10001","10101","11011","10001"], 'X':["101","101","010","101","101"], 
+            'Y':["101","101","010","010","010"], 'Z':["111","001","010","100","111"], '1': ["010","110","010","010","111"], 
+            '2': ["010","101","001","010","111"], '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
+        };
+
+        // 2. Small Caps (4x5 thin and elegant)
+        const smallCapsFont = { 
+            'A':["0110","1001","1111","1001","1001"], 'B':["1110","1001","1110","1001","1110"], 'C':["0111","1000","1000","1000","0111"], 
+            'D':["1110","1001","1001","1001","1110"], 'E':["1111","1000","1110","1000","1111"], 'F':["1111","1000","1110","1000","1000"], 
+            'G':["0111","1000","1011","1001","0111"], 'H':["1001","1001","1111","1001","1001"], 'I':["111","010","010","010","111"], 
+            'J':["0001","0001","0001","1001","0110"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 
+            'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["0110","1001","1001","1001","0110"], 
+            'P':["1110","1001","1110","1000","1000"], 'Q':["0110","1001","1001","0110","0001"], 'R':["1110","1001","1110","1010","1001"], 
+            'S':["0111","1000","0110","0001","1110"], 'T':["111","010","010","010","010"], 'U':["1001","1001","1001","1001","0110"], 
+            'V':["1001","1001","1001","0110","0110"], 'W':["10001","10001","10101","11011","10001"], 'X':["1001","1001","0110","1001","1001"], 
+            'Y':["1001","1001","0110","0010","0010"], 'Z':["1111","0001","0010","0100","1111"]
+        };
+
+        // 3. Minecraft Ten (Original with hollow curves O, R, C, D)
+        const mcTenFont = {
+            'A':["0110","1001","1111","1001","1001"], 'B':["1110","1001","1110","1001","1110"], 'C':["0111","1000","1000","1000","0111"], 
+            'D':["1110","1001","1001","1001","1110"], 'E':["1111","1000","1110","1000","1111"], 'F':["1111","1000","1110","1000","1000"], 
+            'G':["0111","1000","1011","1001","0111"], 'H':["1001","1001","1111","1001","1001"], 'I':["111","010","010","010","111"], 
+            'J':["0001","0001","0001","1001","0110"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 
+            'M':["10001","11011","10101","10001","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["0110","1001","1001","1001","0110"], 
+            'P':["1110","1001","1110","1000","1000"], 'Q':["0110","1001","1001","0110","0001"], 'R':["1110","1001","1110","1010","1001"], 
+            'S':["0111","1000","0110","0001","1110"], 'T':["111","010","010","010","010"], 'U':["1001","1001","1001","1001","0110"], 
+            'V':["10001","10001","01010","01010","00100"], 'W':["10001","10001","10101","11011","10001"], 'X':["10001","01010","00100","01010","10001"], 
+            'Y':["10001","01010","00100","00100","00100"], 'Z':["11111","00010","00100","01000","11111"], '1':["0110","0010","0010","0010","0111"], 
+            '2':["0110","1001","0010","0100","1111"], '3':["0110","1001","0011","1001","0110"], '0':["0110","1001","1001","1001","0110"]
+        };
+
+        // 4. Caps Small Bold (From reference image: super thick, wide, full blocky)
         const capsBoldFont = {
-            'A':["1111","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"],
-            'D':["1111","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1111"], 'F':["1111","1000","1111","1000","1000"],
-            'G':["1111","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001"], 'I':["1111","0110","0110","0110","1111"],
-            'J':["0011","0011","0011","1011","0111"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"],
-            'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["1111","1001","1001","1001","1111"],
-            'P':["1111","1001","1111","1000","1000"], 'Q':["1111","1001","1001","1111","0011"], 'R':["1111","1001","1111","1010","1001"],
-            'S':["1111","1000","1111","0001","1111"], 'T':["1111","0110","0110","0110","0110"], 'U':["1001","1001","1001","1001","1111"],
-            'V':["1001","1001","1001","0110","0110"], 'W':["10001","10001","10101","11011","11111"], 'X':["1001","1001","0110","1001","1001"],
+            'A':["1111","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"], 
+            'D':["1111","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1111"], 'F':["1111","1000","1111","1000","1000"], 
+            'G':["1111","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001"], 'I':["1111","0110","0110","0110","1111"], 
+            'J':["0011","0011","0011","1011","0111"], 'K':["1001","1010","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 
+            'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1011","1001","1001"], 'O':["1111","1001","1001","1001","1111"], 
+            'P':["1111","1001","1111","1000","1000"], 'Q':["1111","1001","1001","1111","0011"], 'R':["1111","1001","1111","1010","1001"], 
+            'S':["1111","1000","1111","0001","1111"], 'T':["1111","0110","0110","0110","0110"], 'U':["1001","1001","1001","1001","1111"], 
+            'V':["1001","1001","1001","0110","0110"], 'W':["10001","10001","10101","11011","11111"], 'X':["1001","1001","0110","1001","1001"], 
             'Y':["1001","1001","0110","0110","0110"], 'Z':["1111","0011","0110","1100","1111"]
         };
 
-        const mcTenFont = {
-            'A':["0110","1001","1111","1001","1001"], 'B':["1110","1001","1110","1001","1110"],
-            'C':["0111","1000","1000","1000","0111"], 'D':["1110","1001","1001","1001","1110"],
-            'E':["1111","1000","1110","1000","1111"], 'F':["1111","1000","1110","1000","1000"],
-            'G':["0111","1000","1011","1001","0111"], 'H':["1001","1001","1111","1001","1001"],
-            'O':["0110","1001","1001","1001","0110"], 'R':["1110","1001","1110","1010","1001"],
-            'S':["0111","1000","0110","0001","1110"], 'T':["111","010","010","010","010"],
-            'V':["10001","10001","01010","01010","00100"], 'I':["111","010","010","010","111"]
-        };
-
-        const smallCapsFont = { 
-            'A':["010","101","111","101","101"], 'B':["110","101","110","101","110"], 
-            'C':["011","100","100","100","011"], 'D':["110","101","101","101","110"], 
-            'O':["010","101","101","101","010"], 'R':["110","101","110","101","101"], 
-            'S':["011","100","010","001","110"], 'L':["100","100","100","100","111"], 
-            'I':["111","010","010","010","111"]
-        };
-
-        const regularFont = smallCapsFont;
-
-        const iconsMatrix = { 
-            crown:["00100100","01000010","11011011","11111111","11111111"], skull:["011110","111111","101101","111111","010010"], 
-            shield:["111111","100001","100001","010010","001100"], check:["000001","000011","100110","111100","011000"], 
-            head:["01110","11111","11111","01110","11111"], queen:["10101","11111","11111","11111","01110"], 
-            staff:["00100","01110","00100","00100","00100"], hammer:["11111","11111","00100","00100","00100"], 
-            dragon:["01010","11111","11111","01110","10101"], youtube:["01111110","11111111","11110111","11111111","01111110"], 
-            lightning:["00110","01100","11111","00110","01000"], sword:["00001","00011","01110","11100","01000"], gem:["011110","111111","011110","001100"],
-            helmet:["011110","010010","110011","101101","100001"], bow:["00110","01010","10010","11000","00000"], 
-            potion:["001100","001100","011110","111111","011110"], book:["000000","011011","111111","111111","011011"], 
-            anvil:["11111","00100","01110","11111","00000"], fire:["00100","01100","11110","11111","01110"]
-        };
-
-        function shadeColor(color, percent) {
-            let R = parseInt(color.substring(1,3),16); let G = parseInt(color.substring(3,5),16); let B = parseInt(color.substring(5,7),16);
-            R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
-            R = Math.min(255, Math.max(0, R)); G = Math.min(255, Math.max(0, G)); B = Math.min(255, Math.max(0, B));
-            return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
-        }
 
         function createEmptyCanvas() { masterCanvas.width = 1024; masterCanvas.height = 1024; mCtx.clearRect(0,0,1024,1024); isImageLoaded = true; processGlyphs(); }
 
@@ -336,7 +343,7 @@
         });
 
         function processGlyphs() {
-            if(!isImageLoaded) return;
+            if(!isImageLoaded) return alert("Upload dulu, baru klik PISAHKAN!");
             const cell = 64; glyphDataList = []; gallery.innerHTML = ''; 
             const temp = document.createElement('canvas'); temp.width = cell; temp.height = cell; const tCtx = temp.getContext('2d');
             const baseHex = parseInt(document.getElementById('baseHex').value, 16);
@@ -366,8 +373,10 @@
             const txt = document.getElementById('customText').value.toUpperCase();
             if(txt) {
                 const tx = parseInt(document.getElementById('textX').value), ty = parseInt(document.getElementById('textY').value), tCol = document.getElementById('textColor').value;
-                const fontSelect = document.getElementById('fontStyle').value, hasShadow = document.getElementById('useTextShadow').checked, sCol = document.getElementById('textShadowColor').value;
+                const fontSelect = document.getElementById('fontStyle').value, hasShadow = document.getElementById('useTextShadow').checked;
+                const sx = parseInt(document.getElementById('textShadowX').value), sy = parseInt(document.getElementById('textShadowY').value), sCol = document.getElementById('textShadowColor').value;
                 
+                // RESOLVE CORRECT FONT FROM DROPDOWN
                 let activeFont = mcTenFont;
                 if(fontSelect === 'smallcaps') activeFont = smallCapsFont;
                 if(fontSelect === 'regular') activeFont = regularFont;
@@ -378,10 +387,8 @@
                     for(let r=0; r<map.length; r++) for(let c=0; c<map[r].length; c++) if(map[r][c]==='1') { eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1); }
                     return map[0].length + 1;
                 };
-                if(hasShadow) { 
-                    const sx = parseInt(document.getElementById('textShadowX').value), sy = parseInt(document.getElementById('textShadowY').value);
-                    let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } drawChar(char, cx + sx, ty + sy, sCol); cx += (activeFont[char]?activeFont[char][0].length + 1 : 4); } 
-                }
+                
+                if(hasShadow) { let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } drawChar(char, cx+sx, ty+sy, sCol); cx += (activeFont[char]?activeFont[char][0].length + 1 : 4); } }
                 let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } cx += drawChar(char, cx, ty, tCol); }
             }
         }
@@ -401,6 +408,7 @@
                 const inX = x+1, inY = y+1, inW = bw-2, inH = bh-2;
                 baseCtx.fillStyle = baseColor; baseCtx.fillRect(inX, inY, inW, inH);
                 
+                // Styles Logic
                 if(style === 'classic' || style === 'ultimate') {
                     const grad = baseCtx.createLinearGradient(0, inY, 0, inY+inH); grad.addColorStop(0, shadeColor(baseColor, 15)); grad.addColorStop(1, shadeColor(baseColor, -25));
                     baseCtx.fillStyle = grad; baseCtx.fillRect(inX, inY, inW, inH);
@@ -413,9 +421,40 @@
                     baseCtx.fillStyle = shadeColor(baseColor, 60); let lx = Math.floor(inW/2);
                     for(let j=0; j<inH; j++) { baseCtx.fillRect(inX+lx, inY+j, 1, 1); if(j%3===0) lx--; else lx++; }
                 }
+                if(style === 'chaos') {
+                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) if((i*3+j*7)%5===0) { baseCtx.fillStyle = shadeColor(baseColor, 20); baseCtx.fillRect(inX+i, inY+j, 1, 1); }
+                }
+                if(style === 'carbon') {
+                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) { baseCtx.fillStyle = (i+j)%2===0?shadeColor(baseColor,-15):shadeColor(baseColor,-30); baseCtx.fillRect(inX+i, inY+j, 1, 1); }
+                }
                 if(style === 'magma') {
                     baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH);
                     for(let i=0; i<inW; i++) { let hL = 2+((i*2)%3); baseCtx.fillStyle = shadeColor(baseColor, 30); baseCtx.fillRect(inX+i, inY+inH-hL, 1, hL); }
+                }
+                if(style === 'glass') {
+                    baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(inX, inY, inW, 3);
+                }
+                if(style === 'split') {
+                    baseCtx.fillStyle = shadeColor(baseColor, 15); baseCtx.fillRect(inX, inY, inW, Math.floor(inH/2));
+                    baseCtx.fillStyle = shadeColor(baseColor, -25); baseCtx.fillRect(inX, inY+Math.floor(inH/2), inW, inH-Math.floor(inH/2));
+                }
+                if(style === 'scan') {
+                    for(let i=0; i<inH; i+=2) { baseCtx.fillStyle = shadeColor(baseColor, -20); baseCtx.fillRect(inX, inY+i, inW, 1); }
+                }
+                if(style === 'dots') {
+                    baseCtx.fillStyle = shadeColor(baseColor, -25);
+                    for(let i=0; i<inW; i+=2) for(let j=0; j<inH; j+=2) baseCtx.fillRect(inX+i, inY+j, 1, 1);
+                }
+                if(style === 'grid') {
+                    baseCtx.fillStyle = shadeColor(baseColor, -25);
+                    for(let i=0; i<inW; i+=3) baseCtx.fillRect(inX+i, inY, 1, inH); for(let j=0; j<inH; j+=3) baseCtx.fillRect(inX, inY+j, inW, 1);
+                }
+                if(style === 'vines') {
+                    baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH); baseCtx.fillStyle = shadeColor(baseColor, 20);
+                    for(let i=0; i<inW; i+=3) baseCtx.fillRect(inX+i, inY + (i%2===0?2:6), 2, 2);
+                }
+                if(style === 'encased') {
+                    baseCtx.fillStyle = cOutline; baseCtx.fillRect(x,y,bw,bh); baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+2,y+2,bw-4,bh-4);
                 }
 
                 if(style !== 'hollow' && style !== 'flat') {
@@ -424,6 +463,7 @@
                 }
             };
             drawBox(sx, sy, iw); drawBox(sx+iw+gap, sy, tw);
+            
             const icon = iconsMatrix[selectedIcon];
             if(icon) {
                 const ix = sx + Math.floor((iw-icon[0].length)/2), iy = sy + Math.floor((bh-icon.length)/2);
