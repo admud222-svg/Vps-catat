@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Glyph Studio v9</title>
+    <title>Eldoria Glyph Studio v10</title>
     <style>
         :root {
             --bg-main: #0f1012; --bg-panel: #1e1f22; --primary: #5865F2;
@@ -83,6 +83,7 @@
         .hex-code { font-family: monospace; font-size: 12px; color: var(--gold); }
         .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
 
+        /* MODAL EDITOR MOBILE OPTIMIZED (V10) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000;
@@ -90,22 +91,33 @@
         .modal {
             background: var(--bg-panel); border-radius: 12px; width: 95%; max-width: 450px;
             max-height: 95vh; overflow-y: auto; border: 2px solid var(--primary); display: flex; flex-direction: column;
+            position: relative;
         }
         
-        .modal-header { padding: 12px 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; }
-        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .modal-header { 
+            padding: 12px 15px; border-bottom: 1px solid #333; display: flex; 
+            justify-content: space-between; align-items: center; 
+        }
+
+        /* STICKY CANVAS WRAPPER BIAR GAK ILANG PAS SCROLL SLIDER DI HP! */
+        .sticky-canvas-area {
+            position: sticky; top: 0; z-index: 20; background: var(--bg-panel);
+            padding: 15px; border-bottom: 1px solid #333; box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+        }
 
         .editor-canvas-wrap {
-            width: 100%; max-width: 250px; aspect-ratio: 1/1; border: 2px solid #000; margin: 0 auto;
+            width: 100%; max-width: 200px; aspect-ratio: 1/1; border: 2px solid #000; margin: 0 auto;
             background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%);
-            background-size: 20px 20px; cursor: crosshair; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden;
+            background-size: 20px 20px; cursor: crosshair; border-radius: 4px; overflow: hidden;
         }
 
-        .tool-box { background: #111214; padding: 12px; border-radius: 10px; border: 1px solid #333; }
-        .tool-box h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--gold); text-transform: uppercase; }
+        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+
+        .tool-box { background: #111214; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .tool-box h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--gold); text-transform: uppercase; border-bottom: 1px dashed #333; padding-bottom: 5px; }
         
-        .slider-group { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .slider-group label { width: 40px; color: #fff; font-size: 11px; }
+        .slider-group { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .slider-group label { width: 50px; color: #fff; font-size: 11px; }
         input[type="range"] { flex: 1; accent-color: var(--success); }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -114,7 +126,7 @@
 </head>
 <body>
 
-    <h1>✨ ELDORIA STUDIO V9</h1>
+    <h1>✨ ELDORIA STUDIO V10</h1>
 
     <div class="toolbar">
         <div class="tool-row">
@@ -122,7 +134,7 @@
                 <label>File Spritesheet (PNG)</label>
                 <input type="file" id="uploadFile">
             </div>
-            <button class="btn-warning" onclick="createEmptyCanvas()" style="margin-top: 15px;">✨ BUAT KOSONG</button>
+            <button class="btn-warning" onclick="createEmptyCanvas()" style="margin-top: 15px;">✨ KANVAS KOSONG</button>
         </div>
         <div class="tool-row">
             <div class="input-group"><label>X Grid</label><input type="number" id="gridCols" value="16"></div>
@@ -140,28 +152,73 @@
         <div class="glyph-gallery" id="galleryContainer"></div>
     </div>
 
+    <!-- EDITOR MODAL OPTIMIZED FOR MOBILE UX -->
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
             <div class="modal-header">
                 <span id="editTitle" style="font-weight:bold; color:var(--gold);">EDIT GLYPH</span>
                 <button class="btn-danger" onclick="closeEditor()" style="padding: 5px 10px; font-size: 11px;">TUTUP</button>
             </div>
-            <div class="modal-body">
-                
+            
+            <!-- STICKY CANVAS: GAK AKAN HILANG PAS SCROLL SLIDER! -->
+            <div class="sticky-canvas-area">
                 <div class="editor-canvas-wrap">
                     <canvas id="editCanvas"></canvas>
                 </div>
+            </div>
 
+            <div class="modal-body">
+                <!-- 1. TEMPLATE 9 WARNA & 9 ICON -->
+                <div class="tool-box">
+                    <h4 style="color:#faa61a;">🛡️ 1. Desain Base & Icon</h4>
+                    <div class="tool-row" style="margin-bottom: 8px;">
+                        <select id="rankTemplate" style="flex:1;">
+                            <option value="">-- Pilih 9 Warna Rank --</option>
+                            <option value="#55FF55">Hijau Cerah (MOD)</option>
+                            <option value="#c0392b">Merah Gelap (Admin)</option>
+                            <option value="#f1c40f">Emas Mahkota (Owner)</option>
+                            <option value="#3498db">Biru Laut (Celestora)</option>
+                            <option value="#00FFFF">Cyan (Diamond)</option>
+                            <option value="#9b59b6">Ungu (Crystalon)</option>
+                            <option value="#ecf0f1">Putih Perak (Silverlight)</option>
+                            <option value="#e74c3c">Merah Terang (Mythoria)</option>
+                            <option value="#e67e22">Oranye (Eternalis)</option>
+                        </select>
+                    </div>
+                    <div class="tool-row" style="margin-bottom: 8px;">
+                        <select id="iconTemplate" style="flex:2;">
+                            <option value="none">Tanpa Icon</option>
+                            <option value="crown">👑 Crown</option>
+                            <option value="skull">💀 Skull</option>
+                            <option value="youtube">▶️ YouTube</option>
+                            <option value="shield">🛡️ Shield</option>
+                            <option value="check">✔️ Check</option>
+                            <option value="lightning">⚡ Bolt</option>
+                            <option value="sword">⚔️ Pedang</option>
+                            <option value="gem">💎 Permata</option>
+                            <option value="leaf">🍃 Daun</option>
+                        </select>
+                        <input type="color" id="iconColor" value="#ffffff" style="flex:1; padding:0; height: 35px; cursor: pointer;" title="Warna Icon">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer;">
+                            <input type="checkbox" id="iconGradient" checked> Gradasi Icon
+                        </label>
+                        <button class="btn-warning" style="flex:1;" onclick="applyTemplate()">TERAPKAN</button>
+                    </div>
+                </div>
+
+                <!-- 2. KONTROL TEKS & POSISI -->
                 <div class="tool-box" style="border-color: var(--success);">
-                    <h4>🔤 Kontrol Teks (Cetak Langsung)</h4>
+                    <h4 style="color:#23a559;">🔤 2. Cetak Teks</h4>
                     <input type="text" id="customText" placeholder="Ketik teks (Cth: MOD)" oninput="previewEditor()" style="margin-bottom: 10px;">
                     
                     <div class="slider-group">
-                        <label>GESER X</label>
+                        <label>POS X</label>
                         <input type="range" id="textX" min="-5" max="60" value="23" oninput="previewEditor()">
                     </div>
                     <div class="slider-group">
-                        <label>GESER Y</label>
+                        <label>POS Y</label>
                         <input type="range" id="textY" min="-5" max="60" value="24" oninput="previewEditor()">
                     </div>
 
@@ -181,44 +238,9 @@
                     </div>
                 </div>
 
+                <!-- 3. MANUAL PIXEL BRUSH -->
                 <div class="tool-box">
-                    <h4>🛡️ Template Warna & Icon</h4>
-                    <div class="tool-row" style="margin-bottom: 8px;">
-                        <select id="rankTemplate" style="flex:1;">
-                            <option value="">-- Pilih Warna Background --</option>
-                            <option value="#55FF55">Hijau Cerah (MOD)</option>
-                            <option value="#E74C3C">Merah (Admin)</option>
-                            <option value="#F1C40F">Emas (Owner)</option>
-                            <option value="#408ECA">Biru (Celestora)</option>
-                            <option value="#00FFFF">Cyan (Diamond)</option>
-                            <option value="#9B59B6">Ungu (Amethyst)</option>
-                            <option value="#D2D8D8">Abu-abu (Silver)</option>
-                        </select>
-                    </div>
-                    <div class="tool-row" style="margin-bottom: 8px;">
-                        <select id="iconTemplate" style="flex:2;">
-                            <option value="none">Tanpa Icon</option>
-                            <option value="crown">👑 Crown</option>
-                            <option value="skull">💀 Skull</option>
-                            <option value="shield">🛡️ Shield</option>
-                            <option value="check">✔️ Check</option>
-                            <option value="lightning">⚡ Bolt</option>
-                            <option value="sword">⚔️ Pedang</option>
-                            <option value="youtube">▶️ YouTube</option>
-                        </select>
-                        <!-- FITUR WARNA ICON BARU -->
-                        <input type="color" id="iconColor" value="#ffffff" style="flex:1; padding:0; height: 35px; cursor: pointer;" title="Warna Icon">
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer;">
-                            <input type="checkbox" id="iconGradient" checked> Gradasi Icon
-                        </label>
-                        <button class="btn-warning" style="flex:1;" onclick="applyTemplate()">TERAPKAN</button>
-                    </div>
-                </div>
-
-                <div class="tool-box">
-                    <h4>🖌️ Pixel Brush Manual</h4>
+                    <h4 style="color:#fff;">🖌️ 3. Brush Manual</h4>
                     <div class="tool-row">
                         <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
                         <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
@@ -257,12 +279,13 @@
         const icons = {
             crown: ["00100100","01000010","11011011","11111111","11111111"],
             skull: ["011110","111111","101101","111111","010010"],
+            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
             shield: ["111111","100001","100001","010010","001100"],
-            heart: ["01010","11111","11111","01110","00100"],
-            lightning: ["00110","01100","11111","00110","01000"],
             check: ["000001","000011","100110","111100","011000"],
+            lightning: ["00110","01100","11111","00110","01000"],
             sword: ["00001","00011","01110","11100","01000"],
-            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"]
+            gem: ["011110","111111","011110","001100"],
+            leaf: ["0010","0110","1111","0110","0010"]
         };
 
         function shadeColor(color, percent) {
@@ -348,6 +371,7 @@
 
         function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
 
+        // ENGINE TEXT PREVIEW (FIXED SHADOW +1x, +1y)
         function previewEditor() {
             eCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
             eCtx.drawImage(baseEditorCanvas, 0, 0);
@@ -372,21 +396,21 @@
                             }
                         }
                     }
-                    return map[0].length + 1; 
+                    return map[0].length + 1; // Jarak antar huruf 1px
                 };
 
-                if(hasShadow) {
-                    let curX = tx;
-                    for(let char of txt) {
-                        if(char === ' ') { curX += 3; continue; }
-                        curX += drawChar(char, curX+1, ty+1, '#111111');
-                    }
-                }
-                
+                // Gambar Teks Beserta Shadow Sekaligus per Huruf biar gak ketumpuk
                 let curX = tx;
                 for(let char of txt) {
                     if(char === ' ') { curX += 3; continue; }
-                    curX += drawChar(char, curX, ty, tCol);
+                    
+                    if(hasShadow) {
+                        // Offset murni 1px Kanan, 1px Bawah (Warna Shadow Standar #3F3F3F)
+                        drawChar(char, curX + 1, ty + 1, '#3F3F3F'); 
+                    }
+                    // Gambar layer utama di atasnya
+                    let width = drawChar(char, curX, ty, tCol);
+                    curX += width;
                 }
             }
         }
@@ -396,33 +420,39 @@
             document.getElementById('customText').value = ""; previewEditor();
         }
 
-        // ENGINE TEMPLATE KOTAK DENGAN BORDER HITAM & ICON GRADASI
+        // ENGINE TEMPLATE KOTAK DENGAN BORDER LUAR GELAP
         function applyTemplate() {
             const baseColor = document.getElementById('rankTemplate').value;
             if(!baseColor) return;
             const w = editCanvas.width; const h = editCanvas.height;
             
-            const cTop = shadeColor(baseColor, 20);     
-            const cBot = shadeColor(baseColor, -20);    
-            const cBorderLight = shadeColor(baseColor, 60); 
-            const cBorderDark = shadeColor(baseColor, -50); 
+            // Konfigurasi Warna
+            const cOutline = shadeColor(baseColor, -75); // BORDER LUAR: Gelap banget dari warna dasar (Bukan hitam murni)
+            const cBorderLight = shadeColor(baseColor, 50);  // Highlight Dalam (Terang)
+            const cBorderDark = shadeColor(baseColor, -30);  // Shadow Dalam (Gelap)
+            const cTop = baseColor; 
+            const cBot = shadeColor(baseColor, -25); // Gradasi Tengah
             
             baseCtx.clearRect(0,0,w,h);
             const bh=14, iw=14, tw=40, gap=1;
             const sx = Math.floor((w-(iw+gap+tw))/2), sy = Math.floor((h-bh)/2);
             
             const drawBox = (x, y, bw) => {
-                baseCtx.fillStyle = '#000000';
+                // 1. Outline Luar (Dynamic Dark Color)
+                baseCtx.fillStyle = cOutline;
                 baseCtx.fillRect(x, y, bw, bh);
 
+                // 2. Inner Highlight (Atas & Kiri)
                 baseCtx.fillStyle = cBorderLight;
                 baseCtx.fillRect(x+1, y+1, bw-2, 1); 
                 baseCtx.fillRect(x+1, y+1, 1, bh-2); 
 
+                // 3. Inner Shadow (Bawah & Kanan)
                 baseCtx.fillStyle = cBorderDark;
                 baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); 
                 baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
 
+                // 4. Center Smooth Gradient
                 const grad = baseCtx.createLinearGradient(0, y+2, 0, y+bh-2);
                 grad.addColorStop(0, cTop);
                 grad.addColorStop(1, cBot);
@@ -433,7 +463,7 @@
             drawBox(sx, sy, iw); 
             drawBox(sx+iw+gap, sy, tw);
             
-            // Gambar Logo Icon dengan Warna & Gradasi
+            // Gambar Logo Icon
             const iconName = document.getElementById('iconTemplate').value;
             const iCol = document.getElementById('iconColor').value;
             const useIGrad = document.getElementById('iconGradient').checked;
@@ -464,6 +494,7 @@
             previewEditor();
         }
 
+        // TOUCH/MOUSE DRAWING MANUAL
         function setTool(t) { activeTool = t; document.getElementById('btnBrush').style.border = t==='brush'?'2px solid white':'none'; document.getElementById('btnEraser').style.border = t==='eraser'?'2px solid white':'none'; }
         function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = editCanvas.width/r.width; const clientX = e.touches?e.touches[0].clientX : e.clientX; const clientY = e.touches?e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX-r.left)*s), y: Math.floor((clientY-r.top)*s) }; }
         
