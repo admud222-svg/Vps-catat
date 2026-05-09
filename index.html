@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Glyph Generator - Eldoria</title>
+    <title>Eldoria Rank & Glyph Mapper</title>
     <style>
         body {
             background-color: #2c2f33;
@@ -22,9 +22,11 @@
             border-radius: 8px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 2px solid #7289da;
         }
+        .panel-gold { border-color: #faa61a; }
         .controls {
             display: flex;
             gap: 15px;
@@ -33,7 +35,7 @@
             margin-bottom: 10px;
         }
         .control-group { display: flex; flex-direction: column; gap: 5px; }
-        input[type="number"], input[type="color"], input[type="range"], select {
+        input[type="number"], input[type="file"], select {
             padding: 7px;
             border: 1px solid #7289da;
             border-radius: 4px;
@@ -52,51 +54,61 @@
             transition: 0.2s;
         }
         button:hover { background-color: #5b6eae; }
-        .btn-template { background-color: #43b581; }
-        .btn-template:hover { background-color: #3ca374; }
-        .btn-download { background-color: #faa61a; font-size: 16px; padding: 10px 20px; }
-        .btn-download:hover { background-color: #e09619; }
+        .btn-download { background-color: #43b581; font-size: 14px; padding: 8px 15px; }
+        .btn-download:hover { background-color: #3ca374; }
 
-        .canvas-container {
-            background-image: 
-                linear-gradient(45deg, #808080 25%, transparent 25%), 
-                linear-gradient(-45deg, #808080 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #808080 75%), 
-                linear-gradient(-45deg, transparent 75%, #808080 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border: 2px solid #7289da;
-            border-radius: 4px;
-            width: 320px; 
-            height: 320px;
-            cursor: crosshair;
-            margin: 0 auto 20px auto;
+        /* Canvas Kecil untuk Bikin Badge */
+        .canvas-mini {
+            background: #111;
+            border: 1px solid #43b581;
+            margin: 10px auto;
+            display: block;
+            image-rendering: pixelated;
         }
 
-        canvas {
+        /* Canvas Besar untuk Preview 960x960 */
+        .canvas-sprite-container {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
+            border: 2px dashed #faa61a;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #111;
+            position: relative;
+        }
+        #spriteCanvas {
             width: 100%;
             height: 100%;
-            /* Anti-blur untuk preview browser */
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
+        }
+
+        .output-box {
+            width: 100%;
+            background: #2c2f33;
+            color: #43b581;
+            border: 1px solid #7289da;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            resize: none;
         }
     </style>
 </head>
 <body>
 
-    <h1>✨ UI & Glyph Generator Eldoria</h1>
+    <h1>✨ Eldoria Glyph Mapper</h1>
 
-    <div class="panel" style="border: 2px solid #faa61a;">
-        <h3 style="color: #faa61a;">🛡️ Pembuat Rank Badge (Khusus Glyph)</h3>
-        <p style="text-align:center; font-size:12px; margin-top:-5px; color:#ccc;">
-            Anti-blur! Ukuran canvas tetap 83x83, tapi gambar di-scale tebal dan diberi jarak aman (padding).
-        </p>
+    <!-- PANEL 1: GENERATOR BADGE -->
+    <div class="panel">
+        <h3>🛡️ 1. Buat Rank Badge</h3>
         <div class="controls">
-            <div class="control-group" style="width: 200px;">
-                <label>Pilih Rank Eldoria:</label>
-                <select id="rankSelect">
+            <div class="control-group">
+                <label>Pilih Rank:</label>
+                <select id="rankSelect" onchange="generateRankBadge()">
                     <option value="NOVARIA">NOVARIA</option>
                     <option value="IRONVEIL">IRONVEIL</option>
                     <option value="SILVERLIGHT">SILVERLIGHT</option>
@@ -111,25 +123,65 @@
                     <option value="OWNER">OWNER</option>
                 </select>
             </div>
-            <div class="control-group" style="justify-content: flex-end;">
-                <button class="btn-template" onclick="generateRankBadge()">Buat Rank Glyph</button>
+            <div class="control-group">
+                <label>Lebar Badge (px)</label>
+                <input type="number" id="badgeW" value="83" onchange="generateRankBadge()">
             </div>
+            <div class="control-group">
+                <label>Tinggi Badge (px)</label>
+                <input type="number" id="badgeH" value="83" onchange="generateRankBadge()">
+            </div>
+        </div>
+        
+        <canvas id="pixelCanvas" class="canvas-mini" width="83" height="83"></canvas>
+        
+        <div style="text-align: center;">
+            <button class="btn-download" onclick="downloadImage()">⬇️ Download Hanya Badge PNG</button>
         </div>
     </div>
 
-    <!-- CANVAS PREVIEW -->
-    <div class="canvas-container">
-        <canvas id="pixelCanvas" width="83" height="83"></canvas>
-    </div>
+    <!-- PANEL 2: GLYPH MAPPER 960x960 -->
+    <div class="panel panel-gold">
+        <h3 style="color: #faa61a;">🗺️ 2. Cocokkan ke Glyph Master (960x960)</h3>
+        <div class="controls">
+            <div class="control-group" style="width: 100%;">
+                <label>Upload Gambar Glyph Kamu (misal 960x960):</label>
+                <input type="file" id="uploadGlyph" accept="image/png, image/jpeg">
+            </div>
+        </div>
+        
+        <div class="controls" style="margin-top: 10px;">
+            <div class="control-group">
+                <label>Geser Kiri/Kanan (X)</label>
+                <input type="number" id="posX" value="0" step="1" oninput="updateSpritePreview()">
+            </div>
+            <div class="control-group">
+                <label>Geser Atas/Bawah (Y)</label>
+                <input type="number" id="posY" value="0" step="1" oninput="updateSpritePreview()">
+            </div>
+            <div class="control-group" style="justify-content: flex-end;">
+                <button onclick="centerBadge()">Taruh Tengah</button>
+            </div>
+        </div>
 
-    <button class="btn-download" onclick="downloadImage()">⬇️ Download Hasil PNG</button>
+        <div class="canvas-sprite-container">
+            <canvas id="spriteCanvas" width="960" height="960"></canvas>
+        </div>
+
+        <h4 style="margin-bottom: 5px;">Kirim Data Ini ke AI:</h4>
+        <textarea id="outputData" class="output-box" rows="3" readonly></textarea>
+    </div>
 
     <script>
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Mematikan anti-aliasing di kanvas supaya font dan kotak benar-benar tajam
         ctx.imageSmoothingEnabled = false;
+
+        const spriteCanvas = document.getElementById('spriteCanvas');
+        const sCtx = spriteCanvas.getContext('2d');
+        sCtx.imageSmoothingEnabled = false;
+
+        let templateImage = null; // Menyimpan gambar 960x960 yang diupload
 
         const rankData = {
             "NOVARIA":     { c1: "#BFC9CA", c2: "#7F8C8D", icon: "leaf" },
@@ -161,65 +213,53 @@
             leaf: ["0010","0110","1111","0110","0010"]
         };
 
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
         function generateRankBadge() {
-            clearCanvas();
+            const w = parseInt(document.getElementById('badgeW').value) || 83;
+            const h = parseInt(document.getElementById('badgeH').value) || 83;
+            canvas.width = w;
+            canvas.height = h;
+            
+            ctx.clearRect(0, 0, w, h);
             
             const rankName = document.getElementById('rankSelect').value;
             const data = rankData[rankName];
 
-            // Trik Supaya Gak Blur:
-            // 1. Skala dibesarkan (1 pixel logis = 2 pixel layar)
-            // 2. Padding/jarak aman di sekelilingnya
-            const pSize = 2; // Pixel Size (ketebalan)
-            
-            // Lebar total elemen: Icon box (10) + spasi (1) + Text box (27) = 38 blok.
-            // 38 blok * 2 (pSize) = 76 pixel fisik.
-            // Sisa dari 83 pixel adalah 7. Jadi kita punya padding 3.5 pixel di kiri & kanan! Aman!
+            const pSize = 2; // Ketebalan pixel
             const badgeW = 38 * pSize; 
             const badgeH = 10 * pSize; 
 
-            // Center position (Jarak aman)
-            const offsetX = Math.floor((83 - badgeW) / 2); 
-            const offsetY = Math.floor((83 - badgeH) / 2);
+            const offsetX = Math.floor((w - badgeW) / 2); 
+            const offsetY = Math.floor((h - badgeH) / 2);
 
-            // --- 1. GAMBAR BORDER PUTIH ---
+            // BORDER
             ctx.fillStyle = "#ffffff";
-            // Kotak Kiri (Background Icon) -> Lebar 10 blok
             ctx.fillRect(offsetX, offsetY, 10 * pSize, badgeH); 
-            // Kotak Kanan (Background Teks) -> Lebar 27 blok
             ctx.fillRect(offsetX + 11 * pSize, offsetY, 27 * pSize, badgeH); 
 
-            // --- 2. ISI WARNA DALAM (Tanpa Gradasi Smooth, pakai warna Solid Hard-edge) ---
-            // Kotak Kiri
-            ctx.fillStyle = data.c1; // Warna atas
+            // WARNA DALAM
+            ctx.fillStyle = data.c1; 
             ctx.fillRect(offsetX + 1*pSize, offsetY + 1*pSize, 8*pSize, 4*pSize);
-            ctx.fillStyle = data.c2; // Warna bawah
+            ctx.fillStyle = data.c2; 
             ctx.fillRect(offsetX + 1*pSize, offsetY + 5*pSize, 8*pSize, 4*pSize);
 
-            // Kotak Kanan
             ctx.fillStyle = data.c1;
             ctx.fillRect(offsetX + 12*pSize, offsetY + 1*pSize, 25*pSize, 4*pSize);
             ctx.fillStyle = data.c2;
             ctx.fillRect(offsetX + 12*pSize, offsetY + 5*pSize, 25*pSize, 4*pSize);
 
-            // --- 3. GAMBAR ICON PIXEL ART ---
+            // ICON
             const iconMatrix = icons[data.icon];
             if(iconMatrix) {
                 const iW = iconMatrix[0].length;
                 const iH = iconMatrix.length;
-                // Center icon di dalam kotak 10x10 blok
                 const oX = offsetX + Math.floor((10 - iW) / 2) * pSize; 
                 const oY = offsetY + Math.floor((10 - iH) / 2) * pSize;
 
                 for(let r = 0; r < iH; r++) {
                     for(let c = 0; c < iW; c++) {
                         if(iconMatrix[r][c] === '1') {
-                            // Shadow hitam solid (Hard edge)
                             ctx.fillStyle = "#111111";
                             ctx.fillRect(oX + (c * pSize) + pSize, oY + (r * pSize) + pSize, pSize, pSize);
-                            // Warna putih icon
                             ctx.fillStyle = "#ffffff";
                             ctx.fillRect(oX + (c * pSize), oY + (r * pSize), pSize, pSize);
                         }
@@ -227,34 +267,94 @@
                 }
             }
 
-            // --- 4. GAMBAR TEKS RANK ---
-            // Pake font default tapi di-bold. Shadow bukan pakai trik blur, tapi digambar manual offsetnya
+            // TEKS
             ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            
-            // Center dari kotak teks (lebar 27 blok / 54 pixel)
             const textX = offsetX + (11 * pSize) + Math.floor((27 * pSize) / 2);
             const textY = offsetY + Math.floor((10 * pSize) / 2);
 
-            // Bikin bayangan TEGAS tanpa bluring
             ctx.fillStyle = "#111111"; 
             ctx.fillText(rankName, textX + 1.5, textY + 1.5, 25 * pSize);
-            
-            // Teks putih
             ctx.fillStyle = "#ffffff";
-            ctx.fillText(rankName, textX, textY, 25 * pSize); // maxWidth dilimit biar gak nabrak border
+            ctx.fillText(rankName, textX, textY, 25 * pSize);
+
+            // Selalu update preview di kanvas besar jika rank diubah
+            updateSpritePreview();
+        }
+
+        // --- SISTEM UPLOAD GLYPH MASTER ---
+        document.getElementById('uploadGlyph').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    templateImage = img;
+                    spriteCanvas.width = img.width; 
+                    spriteCanvas.height = img.height;
+                    updateSpritePreview();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function centerBadge() {
+            if(!templateImage) return;
+            document.getElementById('posX').value = Math.floor(spriteCanvas.width / 2) - Math.floor(canvas.width / 2);
+            document.getElementById('posY').value = Math.floor(spriteCanvas.height / 2) - Math.floor(canvas.height / 2);
+            updateSpritePreview();
+        }
+
+        function updateSpritePreview() {
+            if(!templateImage) {
+                // Gambar background default jika belum upload
+                sCtx.fillStyle = "#222";
+                sCtx.fillRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+                sCtx.fillStyle = "#444";
+                sCtx.font = "20px Arial";
+                sCtx.textAlign = "center";
+                sCtx.fillText("Belum ada gambar Glyph yang diupload", spriteCanvas.width/2, spriteCanvas.height/2);
+            } else {
+                sCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+                // 1. Gambar Template Master (Misal 960x960)
+                sCtx.drawImage(templateImage, 0, 0);
+            }
+
+            // 2. Tumpuk Gambar Badge di Koordinat X, Y
+            const x = parseInt(document.getElementById('posX').value) || 0;
+            const y = parseInt(document.getElementById('posY').value) || 0;
+            const w = canvas.width;
+            const h = canvas.height;
+            const rankName = document.getElementById('rankSelect').value;
+
+            // Gambar Badge-nya
+            sCtx.drawImage(canvas, x, y);
+
+            // Bikin kotak merah tipis buat menandai batas (biar gampang ngepasinnya)
+            sCtx.strokeStyle = "rgba(255, 0, 0, 0.8)";
+            sCtx.lineWidth = 1;
+            sCtx.strokeRect(x, y, w, h);
+
+            // Update Text Data untuk AI
+            const outputText = `RANK: ${rankName}\nUKURAN GLYPH MASTER: ${spriteCanvas.width}x${spriteCanvas.height}\nKOORDINAT BADGE -> [ X: ${x}, Y: ${y}, W: ${w}, H: ${h} ]`;
+            document.getElementById('outputData').value = outputText;
         }
 
         function downloadImage() {
             const link = document.createElement('a');
             const rankName = document.getElementById('rankSelect').value;
-            link.download = `glyph_${rankName.toLowerCase()}.png`;
+            link.download = `badge_${rankName.toLowerCase()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        window.onload = () => { generateRankBadge(); };
+        window.onload = () => { 
+            generateRankBadge(); 
+            updateSpritePreview();
+        };
     </script>
 </body>
 </html>
