@@ -3,259 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Dashboard CSS Badge Generator</title>
+    <title>Eldoria Glyph Inspector</title>
     <style>
-        body {
-            background-color: #2c2f33;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-        h1, h3 { margin-top: 0; margin-bottom: 10px; text-align: center; }
-        .panel {
-            background: #23272a;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 800px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border: 2px solid #7289da;
-        }
-        .controls {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        select {
-            padding: 10px;
-            border: 1px solid #7289da;
-            border-radius: 4px;
-            background: #2c2f33;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        button {
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        .btn-generate { background-color: #faa61a; }
-        .btn-generate:hover { background-color: #e09619; }
-
-        .canvas-container {
-            background-image: 
-                linear-gradient(45deg, #808080 25%, transparent 25%), 
-                linear-gradient(-45deg, #808080 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #808080 75%), 
-                linear-gradient(-45deg, transparent 75%, #808080 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border: 2px solid #7289da;
-            border-radius: 4px;
-            width: 166px; /* Dibesarkan 2x lipat buat preview di browser */
-            height: 166px;
-            margin: 0 auto 20px auto;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            image-rendering: pixelated;
-        }
-
-        .output-box {
-            width: 100%;
-            height: 250px;
-            background: #1e2124;
-            color: #43b581;
-            border: 1px solid #7289da;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 13px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
+        :root { --discord-blue: #7289da; --dark-bg: #2c2f33; --panel-bg: #23272a; }
+        body { background-color: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .container { background: var(--panel-bg); padding: 20px; border-radius: 12px; border: 2px solid var(--discord-blue); width: 95%; max-width: 1100px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Area tempat CSS akan disuntikkan secara live untuk preview murni HTML */
-        #liveCssPreviewArea {
-            margin: 20px auto;
-            border: 1px dashed #43b581;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #2c2f33;
-            width: 150px;
-            height: 50px;
-        }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .upload-section { background: #1e2124; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: center; }
+        
+        .workspace { display: flex; gap: 20px; flex-wrap: wrap; }
+        
+        /* Area Image Viewer */
+        .viewer { flex: 2; min-width: 400px; position: relative; overflow: auto; background: #111; border: 2px solid #444; max-height: 700px; border-radius: 8px; }
+        #glyphCanvas { cursor: crosshair; image-rendering: pixelated; display: block; }
+
+        /* Area Result & Export */
+        .sidebar { flex: 1; min-width: 300px; background: #1e2124; padding: 20px; border-radius: 8px; border: 1px solid var(--discord-blue); }
+        .preview-label { text-align: center; font-weight: bold; color: #faa61a; margin-bottom: 10px; }
+        .preview-box { width: 100px; height: 100px; background: #000; border: 2px dashed #43b581; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        
+        /* Container untuk hasil pixel art CSS */
+        #selectionPreview { width: 1px; height: 1px; position: absolute; top: 0; left: 0; }
+
+        label { font-size: 13px; color: #aaa; margin-bottom: 5px; display: block; }
+        input[type="number"], textarea { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #444; background: #2c2f33; color: white; font-family: monospace; box-sizing: border-box; }
+        input[type="file"] { background: var(--discord-blue); padding: 8px; border-radius: 4px; cursor: pointer; }
+        
+        button { width: 100%; padding: 12px; background: #43b581; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; }
+        button:hover { background: #3ca374; transform: translateY(-2px); }
+        
+        .coord-display { background: #000; padding: 10px; border-radius: 4px; border-left: 4px solid #faa61a; font-family: monospace; color: #faa61a; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <h1>🖥️ Web CSS Badge Generator</h1>
-
-    <div class="panel">
-        <h3 style="color: #faa61a;">Ekstrak Pixel Menjadi Kode CSS Box-Shadow</h3>
-        <p style="text-align:center; font-size:13px; color:#ccc;">
-            Sistem ini akan membaca setiap warna pixel di Canvas, lalu mengubahnya menjadi koordinat CSS <code>box-shadow</code>.
-        </p>
+    <div class="container">
+        <div class="header">
+            <h2>🔍 Eldoria Glyph Inspector & CSS Extractor</h2>
+        </div>
         
-        <div class="controls">
-            <select id="rankSelect" onchange="drawRankToCanvas()">
-                <option value="NOVARIA">NOVARIA</option>
-                <option value="IRONVEIL">IRONVEIL</option>
-                <option value="SILVERLIGHT">SILVERLIGHT</option>
-                <option value="GOLDHAVEN">GOLDHAVEN</option>
-                <option value="PLATINEX">PLATINEX</option>
-                <option value="CRYSTALON">CRYSTALON</option>
-                <option value="MYTHORIA">MYTHORIA</option>
-                <option value="ETERNALIS">ETERNALIS</option>
-                <option value="CELESTORA">CELESTORA</option>
-                <option value="DIVINEXUS">DIVINEXUS</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="OWNER">OWNER</option>
-            </select>
-            <button class="btn-generate" onclick="extractToCSS()">🔄 Generate Kode HTML & CSS</button>
+        <div class="upload-section">
+            <div style="flex: 1;">
+                <label>1. Pilih File Glyph (PNG 960x960):</label>
+                <input type="file" id="imageLoader" accept="image/png">
+            </div>
+            <div>
+                <label>Ukuran Grid (W):</label>
+                <input type="number" id="boxW" value="83" style="width: 80px; margin-bottom: 0;">
+            </div>
+            <div>
+                <label>Ukuran Grid (H):</label>
+                <input type="number" id="boxH" value="83" style="width: 80px; margin-bottom: 0;">
+            </div>
         </div>
 
-        <div class="canvas-container">
-            <!-- Ukuran canvas asli tetap 83x83 -->
-            <canvas id="pixelCanvas" width="83" height="83"></canvas>
-        </div>
+        <div class="workspace">
+            <!-- Tempat Gambar Asli -->
+            <div class="viewer">
+                <canvas id="glyphCanvas"></canvas>
+            </div>
 
-        <h3 style="margin-top: 20px; color: #43b581;">Preview Hasil Murni HTML/CSS:</h3>
-        <div id="liveCssPreviewArea">
-            <!-- HTML murni akan muncul di sini -->
+            <!-- Tempat Hasil Scan -->
+            <div class="sidebar">
+                <div class="preview-label">PREVIEW CSS ART</div>
+                <div class="preview-box" id="previewContainer">
+                    <div id="selectionPreview"></div>
+                </div>
+                
+                <label>Koordinat Terpilih:</label>
+                <div id="coordInfo" class="coord-display">X: 0, Y: 0</div>
+                
+                <button onclick="generateCSS()">✨ EKSTRAK JADI KODE CSS</button>
+                
+                <label style="margin-top: 15px;">Kode HTML & CSS (Siap Paste):</label>
+                <textarea id="outputCode" rows="12" readonly placeholder="Klik pada gambar lalu tekan tombol di atas..."></textarea>
+                
+                <p style="font-size: 11px; color: #666; text-align: center;">Trik: Gunakan ukuran box 83x83 agar pas dengan rank Eldoria.</p>
+            </div>
         </div>
-
-        <h4 style="margin-bottom: 5px;">Copy Paste Kode Ini ke Web Kamu:</h4>
-        <textarea id="outputCode" class="output-box" readonly placeholder="Klik 'Generate Kode' untuk memunculkan CSS murni di sini..."></textarea>
     </div>
 
     <script>
-        const canvas = document.getElementById('pixelCanvas');
+        const imageLoader = document.getElementById('imageLoader');
+        const canvas = document.getElementById('glyphCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        ctx.imageSmoothingEnabled = false;
+        const previewDiv = document.getElementById('selectionPreview');
+        const output = document.getElementById('outputCode');
+        const coordInfo = document.getElementById('coordInfo');
 
-        const rankData = {
-            "NOVARIA":     { c1: "#BFC9CA", c2: "#7F8C8D", icon: "leaf" },
-            "IRONVEIL":    { c1: "#D5DBDB", c2: "#839192", icon: "sword" },
-            "SILVERLIGHT": { c1: "#FDFEFE", c2: "#BDC3C7", icon: "shield" },
-            "GOLDHAVEN":   { c1: "#F1C40F", c2: "#B9770E", icon: "coin" },
-            "PLATINEX":    { c1: "#48C9B0", c2: "#117A65", icon: "gem" },
-            "CRYSTALON":   { c1: "#D2B4DE", c2: "#8E44AD", icon: "crystal" },
-            "MYTHORIA":    { c1: "#F1948A", c2: "#C0392B", icon: "youtube" },
-            "ETERNALIS":   { c1: "#E67E22", c2: "#A04000", icon: "flame" },
-            "CELESTORA":   { c1: "#85C1E9", c2: "#2874A6", icon: "star" },
-            "DIVINEXUS":   { c1: "#F8C471", c2: "#D68910", icon: "sun" },
-            "ADMIN":       { c1: "#E74C3C", c2: "#7B241C", icon: "skull" },
-            "OWNER":       { c1: "#F7DC6F", c2: "#17202A", icon: "crown" }
-        };
+        let img = new Image();
+        let selectedX = 0;
+        let selectedY = 0;
 
-        const icons = {
-            crown: ["1000001","1100011","1010101","1111111","1111111"],
-            skull: ["011110","111111","101101","111111","010010"],
-            youtube: ["0111110","1111111","1110111","1111011","1110111","1111111","0111110"],
-            sword: ["00001","00011","01110","11100","01000"],
-            shield: ["111111","100001","100001","010010","001100"],
-            gem: ["011110","111111","011110","001100"],
-            crystal: ["00100","01110","11111","01110","00100"],
-            flame: ["00100","01100","11110","11111","01110"],
-            star: ["00100","01110","11111","01110","10001"],
-            sun: ["10101","01110","11111","01110","10101"],
-            coin: ["01110","11111","11011","11111","01110"],
-            leaf: ["0010","0110","1111","0110","0010"]
-        };
+        // 1. Handle Upload Gambar
+        imageLoader.addEventListener('change', (e) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    drawOverlay();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
 
-        function drawRankToCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const rankName = document.getElementById('rankSelect').value;
-            const data = rankData[rankName];
+        // 2. Handle Klik di Gambar
+        canvas.addEventListener('mousedown', (e) => {
+            if (!img.src) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const w = parseInt(document.getElementById('boxW').value);
+            const h = parseInt(document.getElementById('boxH').value);
 
-            const pSize = 2; 
-            const badgeW = 38 * pSize; 
-            const badgeH = 10 * pSize; 
+            // Klik mouse mendefinisikan pojok kiri atas kotak
+            selectedX = Math.floor((e.clientX - rect.left) * scaleX);
+            selectedY = Math.floor((e.clientY - rect.top) * scaleY);
 
-            // Offset X dan Y ditaruh agak mepet supaya CSS Box Shadownya gak nyita ruang kosong
-            const offsetX = 0; 
-            const offsetY = 0;
+            coordInfo.innerText = `X: ${selectedX}, Y: ${selectedY} (Box: ${w}x${h})`;
+            
+            drawOverlay();
+        });
 
-            // BORDER
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(offsetX, offsetY, 10 * pSize, badgeH); 
-            ctx.fillRect(offsetX + 11 * pSize, offsetY, 27 * pSize, badgeH); 
+        function drawOverlay() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            
+            const w = parseInt(document.getElementById('boxW').value);
+            const h = parseInt(document.getElementById('boxH').value);
+            
+            // Gambar kotak seleksi merah
+            ctx.strokeStyle = "#ff0000";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(selectedX, selectedY, w, h);
 
-            // WARNA DALAM
-            ctx.fillStyle = data.c1; 
-            ctx.fillRect(offsetX + 1*pSize, offsetY + 1*pSize, 8*pSize, 4*pSize);
-            ctx.fillStyle = data.c2; 
-            ctx.fillRect(offsetX + 1*pSize, offsetY + 5*pSize, 8*pSize, 4*pSize);
-
-            ctx.fillStyle = data.c1;
-            ctx.fillRect(offsetX + 12*pSize, offsetY + 1*pSize, 25*pSize, 4*pSize);
-            ctx.fillStyle = data.c2;
-            ctx.fillRect(offsetX + 12*pSize, offsetY + 5*pSize, 25*pSize, 4*pSize);
-
-            // ICON
-            const iconMatrix = icons[data.icon];
-            if(iconMatrix) {
-                const iW = iconMatrix[0].length;
-                const iH = iconMatrix.length;
-                const oX = offsetX + Math.floor((10 - iW) / 2) * pSize; 
-                const oY = offsetY + Math.floor((10 - iH) / 2) * pSize;
-
-                for(let r = 0; r < iH; r++) {
-                    for(let c = 0; c < iW; c++) {
-                        if(iconMatrix[r][c] === '1') {
-                            ctx.fillStyle = "#111111";
-                            ctx.fillRect(oX + (c * pSize) + pSize, oY + (r * pSize) + pSize, pSize, pSize);
-                            ctx.fillStyle = "#ffffff";
-                            ctx.fillRect(oX + (c * pSize), oY + (r * pSize), pSize, pSize);
-                        }
-                    }
-                }
-            }
-
-            // TEKS
-            ctx.font = "bold 13px 'Segoe UI', Arial, sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            const textX = offsetX + (11 * pSize) + Math.floor((27 * pSize) / 2);
-            const textY = offsetY + Math.floor((10 * pSize) / 2);
-
-            ctx.fillStyle = "#111111"; 
-            ctx.fillText(rankName, textX + 1.5, textY + 1.5, 25 * pSize);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillText(rankName, textX, textY, 25 * pSize);
+            // Gambar highlight transparan
+            ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
+            ctx.fillRect(selectedX, selectedY, w, h);
         }
 
         function rgbToHex(r, g, b) {
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         }
 
-        // --- SISTEM EKSTRAK KE CSS BOX SHADOW ---
-        function extractToCSS() {
-            const rankName = document.getElementById('rankSelect').value;
-            const w = canvas.width;
-            const h = canvas.height;
-            const imgData = ctx.getImageData(0, 0, w, h).data;
+        // 3. Sistem Scan Piksel & Ubah ke CSS Murni
+        function generateCSS() {
+            if (!img.src) return alert("Upload gambar dulu!");
             
+            const w = parseInt(document.getElementById('boxW').value);
+            const h = parseInt(document.getElementById('boxH').value);
+            
+            // Ambil data piksel area kotak
+            const imgData = ctx.getImageData(selectedX, selectedY, w, h).data;
             let shadowData = [];
 
-            // Memindai setiap titik di canvas
+            // Memperkecil skala agar preview box shadow muat (opsional)
             for (let y = 0; y < h; y++) {
                 for (let x = 0; x < w; x++) {
                     const idx = (y * w + x) * 4;
@@ -264,41 +171,31 @@
                     const b = imgData[idx+2];
                     const a = imgData[idx+3];
 
-                    // Jika pixel tidak transparan
-                    if (a > 10) { 
-                        const hexCode = rgbToHex(r, g, b);
-                        // Format: Xpx Ypx Warna
-                        shadowData.push(`${x}px ${y}px ${hexCode}`);
+                    if (a > 50) { // Hanya ambil pixel yang solid (nggak terlalu transparan)
+                        const hex = rgbToHex(r, g, b);
+                        shadowData.push(`${x}px ${y}px ${hex}`);
                     }
                 }
             }
 
-            // Membangun text HTML dan CSS final
-            const className = `badge-${rankName.toLowerCase()}`;
-            
-            let cssString = `<style>
-.${className} {
-    /* 1 div aja cukup, ukurannya 1x1 pixel */
+            const cssCode = `<style>
+.eldoria-rank-pixel {
     width: 1px;
     height: 1px;
-    /* Rahasianya ada di box-shadow ini */
+    background: transparent;
     box-shadow: 
         ${shadowData.join(',\n        ')};
 }
 </style>
 
-<!-- Panggil tag div ini di mana saja di web mu -->
-<div class="${className}"></div>`;
+<!-- Elemen Rank -->
+<div class="eldoria-rank-pixel"></div>`;
 
-            // Tampilkan kodenya di textarea
-            document.getElementById('outputCode').value = cssString;
-
-            // Suntikkan langsung kodenya ke area live preview biar kamu bisa lihat hasilnya tanpa nunggu
-            document.getElementById('liveCssPreviewArea').innerHTML = cssString;
+            output.value = cssCode;
+            
+            // Render ke preview box
+            previewDiv.style.boxShadow = shadowData.join(',');
         }
-
-        // Inisialisasi awal
-        window.onload = () => { drawRankToCanvas(); };
     </script>
 </body>
 </html>
