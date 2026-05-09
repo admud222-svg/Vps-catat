@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Ultimate Studio v13</title>
+    <title>Eldoria Ultimate Studio v14</title>
     <style>
         :root {
             --bg-main: #0f1012; --bg-panel: #1e1f22; --primary: #5865F2;
@@ -115,9 +115,7 @@
         .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 8px; }
 
         /* ACCORDION MENU (Biar ga penuh layar) */
-        details {
-            background: #111214; border-radius: 8px; border: 1px solid #333; overflow: hidden;
-        }
+        details { background: #111214; border-radius: 8px; border: 1px solid #333; overflow: hidden; }
         summary {
             padding: 12px 15px; font-size: 12px; color: var(--gold); font-weight: bold; text-transform: uppercase;
             cursor: pointer; background: #18191c; list-style: none; display: flex; justify-content: space-between;
@@ -128,17 +126,19 @@
         .details-content { padding: 15px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #333; }
 
         .visual-picker { display: flex; flex-wrap: wrap; gap: 8px; }
-        .color-box {
-            width: 25px; height: 25px; border-radius: 4px; cursor: pointer; border: 2px solid #333; transition: 0.2s;
-        }
+        .color-box { width: 25px; height: 25px; border-radius: 4px; cursor: pointer; border: 2px solid #333; transition: 0.2s; }
         .color-box.active { border-color: var(--gold); transform: scale(1.15); box-shadow: 0 0 8px var(--gold); }
-        .icon-box {
-            width: 28px; height: 28px; border-radius: 4px; cursor: pointer; background: #1e1f22; border: 2px solid #333; 
-            display: flex; justify-content: center; align-items: center; font-size: 14px; transition: 0.2s;
-        }
+        .icon-box { width: 28px; height: 28px; border-radius: 4px; cursor: pointer; background: #1e1f22; border: 2px solid #333; display: flex; justify-content: center; align-items: center; font-size: 14px; transition: 0.2s; }
         .icon-box.active { border-color: var(--gold); background: #333; }
+        
+        .style-btn {
+            background: #1e1f22; border: 1px solid #444; padding: 6px 10px; border-radius: 4px;
+            font-size: 11px; color: #ccc; cursor: pointer; transition: 0.2s; flex: 1 1 calc(33% - 10px);
+            text-align: center;
+        }
+        .style-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
 
-        .slider-group { display: flex; align-items: center; gap: 8px; }
+        .slider-group { display: flex; align-items: center; gap: 8px; margin-bottom: 5px;}
         .slider-group label { width: 55px; color: #fff; font-size: 10px; }
         input[type="range"] { flex: 1; accent-color: var(--success); }
 
@@ -148,7 +148,7 @@
 </head>
 <body>
 
-    <h1>✨ ELDORIA ULTIMATE v13</h1>
+    <h1>✨ ELDORIA ULTIMATE v14</h1>
 
     <div class="toolbar">
         <div class="tool-row">
@@ -190,49 +190,32 @@
 
             <div class="modal-body">
                 
-                <!-- SECTION 1: STYLE & WARNA -->
+                <!-- SECTION 1: STYLE & WARNA (NO DROPDOWN!) -->
                 <details open>
-                    <summary>🛡️ 1. Desain Base & Warna</summary>
+                    <summary>🛡️ 1. Desain Base & Background</summary>
                     <div class="details-content">
-                        <label>Warna Rank (9 Pilihan):</label>
+                        <label>Warna Dasar Rank:</label>
                         <div class="visual-picker" id="colorPicker"></div>
 
-                        <label>Style Background (16 Pilihan Extrim):</label>
-                        <select id="bgStyle">
-                            <option value="classic">1. Classic Eldoria (Halus + 3D Border)</option>
-                            <option value="shiny">2. Shiny Glass (Garis Cahaya Diagonal)</option>
-                            <option value="flat">3. Flat Minimalist (Solid, no gradient)</option>
-                            <option value="split">4. Split Half (Atas Terang, Bawah Gelap)</option>
-                            <option value="dotted">5. Dotted Overlay (Titik-titik retro)</option>
-                            <option value="neon">6. Cyber Neon (Background Hitam, Border Nyala)</option>
-                            <option value="scanline">7. Scanline CRT (Garis Horizontal)</option>
-                            <option value="metal">8. Metallic Brushed (Gradient Besi)</option>
-                            <option value="carbon">9. Carbon Fiber (Gelap Elegan)</option>
-                            <option value="hollow">10. Hollow Outline (Tengah Transparan)</option>
-                            <option value="grid">11. Grid Overlay (Kotak-kotak halus)</option>
-                            <option value="bevel">12. Hard Bevel (3D Kaku/Tegas)</option>
-                            <option value="inset">13. Inset Pressed (Tenggelam ke dalam)</option>
-                            <option value="glass">14. Frosted Glass (Terang Transparan)</option>
-                            <option value="vintage">15. Vintage Sepia (Warna Pudar Coklat)</option>
-                            <option value="ultimate">16. Eldoria Ultimate (Kombinasi Sempurna)</option>
-                        </select>
+                        <label style="margin-top: 10px;">Style Background & Efek (16 Pilihan):</label>
+                        <div class="visual-picker" id="stylePicker"></div>
                     </div>
                 </details>
 
                 <!-- SECTION 2: ICON & SHADOW -->
                 <details>
-                    <summary>✨ 2. Logo Icon & Shadow (14 Icon)</summary>
+                    <summary>✨ 2. Logo Icon (14 Pilihan)</summary>
                     <div class="details-content">
                         <div class="visual-picker" id="iconPicker"></div>
                         
-                        <div class="tool-row">
+                        <div class="tool-row" style="margin-top: 5px;">
                             <div class="input-group">
                                 <label>Warna Icon</label>
                                 <input type="color" id="iconColor" value="#ffffff" style="height:35px; padding:0; cursor:pointer;">
                             </div>
                             <div class="input-group" style="justify-content:center;">
                                 <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; font-size:12px; margin-top:15px;">
-                                    <input type="checkbox" id="iconGradient" checked> Gradasi Icon
+                                    <input type="checkbox" id="iconGradient" checked> Gradasi
                                 </label>
                             </div>
                         </div>
@@ -242,10 +225,9 @@
                                 <input type="checkbox" id="useIconShadow" checked> Aktifkan Shadow Icon
                             </label>
                             <div class="tool-row">
-                                <div class="input-group"><label>Shadow X</label><input type="number" id="iconShadowX" value="0" style="padding:5px;"></div>
-                                <div class="input-group"><label>Shadow Y</label><input type="number" id="iconShadowY" value="1" style="padding:5px;"></div>
-                                <div class="input-group"><label>Warna</label><input type="color" id="iconShadowColor" value="#111111" style="height:28px; padding:0;"></div>
-                                <div class="input-group"><label>Opacity</label><input type="number" id="iconShadowOp" value="0.7" step="0.1" min="0" max="1" style="padding:5px;"></div>
+                                <div class="input-group"><label>Geser X</label><input type="number" id="iconShadowX" value="0" style="padding:5px;"></div>
+                                <div class="input-group"><label>Geser Y</label><input type="number" id="iconShadowY" value="1" style="padding:5px;"></div>
+                                <div class="input-group"><label>Warna</label><input type="color" id="iconShadowColor" value="#222222" style="height:28px; padding:0;"></div>
                             </div>
                         </div>
 
@@ -253,16 +235,16 @@
                     </div>
                 </details>
 
-                <!-- SECTION 3: TEKS -->
+                <!-- SECTION 3: TEKS (BUG FIXED!) -->
                 <details open>
-                    <summary>🔤 3. Cetak Teks & Shadow</summary>
+                    <summary>🔤 3. Cetak Teks & Shadow Teks</summary>
                     <div class="details-content">
-                        <input type="text" id="customText" placeholder="Ketik teks (Cth: MOD)" oninput="previewEditor()">
+                        <input type="text" id="customText" placeholder="Ketik teks (Cth: ADMIN)" oninput="previewEditor()">
                         
                         <div class="tool-row" style="margin-top:5px;">
                             <select id="fontStyle" onchange="previewEditor()" style="flex:2;">
-                                <option value="modern">Modern Elegance (Baru)</option>
-                                <option value="smallcaps">Small Caps</option>
+                                <option value="modern">Modern Elegance</option>
+                                <option value="smallcaps">Small Caps (Rapat)</option>
                                 <option value="regular">Regular Classic</option>
                             </select>
                             <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; padding:0; height: 35px; cursor: pointer;">
@@ -273,13 +255,12 @@
 
                         <div style="border-top: 1px dashed #333; padding-top:10px; margin-top:5px;">
                             <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; font-size:12px; margin-bottom:10px;">
-                                <input type="checkbox" id="useTextShadow" checked onchange="previewEditor()"> Aktifkan Shadow Teks (Cahaya Depan)
+                                <input type="checkbox" id="useTextShadow" checked onchange="previewEditor()"> Shadow Teks (Cahaya Depan)
                             </label>
                             <div class="tool-row">
-                                <div class="input-group"><label>Shadow X</label><input type="number" id="textShadowX" value="0" oninput="previewEditor()" style="padding:5px;"></div>
-                                <div class="input-group"><label>Shadow Y</label><input type="number" id="textShadowY" value="1" oninput="previewEditor()" style="padding:5px;"></div>
+                                <div class="input-group"><label>Geser X</label><input type="number" id="textShadowX" value="1" oninput="previewEditor()" style="padding:5px;"></div>
+                                <div class="input-group"><label>Geser Y</label><input type="number" id="textShadowY" value="1" oninput="previewEditor()" style="padding:5px;"></div>
                                 <div class="input-group"><label>Warna</label><input type="color" id="textShadowColor" value="#3F3F3F" oninput="previewEditor()" style="height:28px; padding:0;"></div>
-                                <div class="input-group"><label>Opacity</label><input type="number" id="textShadowOp" value="1.0" step="0.1" min="0" max="1" oninput="previewEditor()" style="padding:5px;"></div>
                             </div>
                         </div>
 
@@ -287,19 +268,7 @@
                     </div>
                 </details>
 
-                <!-- SECTION 4: MANUAL BRUSH -->
-                <details>
-                    <summary>🖌️ 4. Brush Manual</summary>
-                    <div class="details-content">
-                        <div class="tool-row">
-                            <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
-                            <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
-                            <button style="flex:1; background:#444;" onclick="setTool('eraser')" id="btnEraser">Eraser</button>
-                        </div>
-                    </div>
-                </details>
-
-                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px; margin-top: 10px;" onclick="saveEdit()">💾 SIMPAN PERUBAHAN & KEMBALI</button>
+                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px; margin-top: 5px;" onclick="saveEdit()">💾 SIMPAN PERUBAHAN & KEMBALI</button>
             </div>
         </div>
     </div>
@@ -331,7 +300,15 @@
             { id: "eternalis", color: "#e67e22", name: "Oranye" }
         ];
 
-        // TOTAL 14 ICON
+        const bgStyles = [
+            { id: "classic", name: "Classic" }, { id: "glossy", name: "Glossy/Kaca" }, { id: "encased", name: "Bold Encased" },
+            { id: "chaos", name: "Chaos Stripe" }, { id: "lightning", name: "Lightning" }, { id: "scanline", name: "Scanline" },
+            { id: "neon", name: "Cyber Neon" }, { id: "carbon", name: "Carbon Grid" }, { id: "metal", name: "Metal Brush" },
+            { id: "magma", name: "Magma Base" }, { id: "dotted", name: "Retro Dot" }, { id: "prism", name: "Prism Light" },
+            { id: "abyss", name: "Dark Abyss" }, { id: "camo", name: "Camo Pixel" }, { id: "hollow", name: "Hollow" },
+            { id: "ultimate", name: "Ultimate" }
+        ];
+
         const iconList = [
             { id: "none", label: "❌" }, { id: "crown", label: "👑" }, { id: "skull", label: "💀" },
             { id: "youtube", label: "▶️" }, { id: "shield", label: "🛡️" }, { id: "check", label: "✔️" },
@@ -342,6 +319,7 @@
 
         let selectedColor = rankColors[1].color; 
         let selectedIcon = iconList[2].id; 
+        let selectedStyle = bgStyles[1].id; // Default Glossy
 
         function initPickers() {
             const cp = document.getElementById('colorPicker');
@@ -350,6 +328,14 @@
                 div.style.background = c.color; div.title = c.name;
                 div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
                 cp.appendChild(div);
+            });
+
+            const sp = document.getElementById('stylePicker');
+            bgStyles.forEach(st => {
+                let btn = document.createElement('div'); btn.className = 'style-btn' + (st.id === selectedStyle ? ' active' : '');
+                btn.innerText = st.name;
+                btn.onclick = () => { document.querySelectorAll('.style-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); selectedStyle = st.id; };
+                sp.appendChild(btn);
             });
 
             const ip = document.getElementById('iconPicker');
@@ -361,7 +347,6 @@
             });
         }
 
-        // 3 JENIS FONT
         const regularFont = {
             'A': ["010","101","111","101","101"], 'B': ["110","101","110","101","110"], 'C': ["011","100","100","100","011"], 'D': ["110","101","101","101","110"], 'E': ["111","100","111","100","111"], 'F': ["111","100","110","100","100"], 'G': ["011","100","101","101","011"], 'H': ["101","101","111","101","101"], 'I': ["111","010","010","010","111"], 'J': ["001","001","001","101","010"], 'K': ["101","101","110","101","101"], 'L': ["100","100","100","100","111"], 'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"], 'O': ["010","101","101","101","010"], 'P': ["110","101","110","100","100"], 'Q': ["010","101","101","011","001"], 'R': ["110","101","110","101","101"], 'S': ["011","100","010","001","110"], 'T': ["111","010","010","010","010"], 'U': ["101","101","101","101","011"], 'V': ["101","101","101","101","010"], 'W': ["10001","10001","10101","11011","10001"], 'X': ["101","101","010","101","101"], 'Y': ["101","101","010","010","010"], 'Z': ["111","001","010","100","111"], '1': ["010","110","010","010","111"], '2': ["010","101","001","010","111"], '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
         };
@@ -369,24 +354,16 @@
             'A': ["0110","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1110"], 'C': ["0111","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1110"], 'E': ["1111","1000","1110","1000","1111"], 'F': ["1111","1000","1110","1000","1000"], 'G': ["0111","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001"], 'I': ["111","010","010","010","111"], 'J': ["0001","0001","0001","1001","0110"], 'K': ["1001","1010","1100","1010","1001"], 'L': ["1000","1000","1000","1000","1111"], 'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"], 'O': ["0110","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000"], 'Q': ["0110","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001"], 'S': ["0111","1000","0110","0001","1110"], 'T': ["111","010","010","010","010"], 'U': ["1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","0110","0110"], 'W': ["10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","01010","10001"], 'Y': ["1001","0110","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1111"]
         };
         const modernFont = {
-            'A': ["0110","1001","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1110","1110"], 'C': ["0111","1000","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1001","1110"], 'E': ["1111","1000","1110","1000","1000","1111"], 'F': ["1111","1000","1110","1000","1000","1000"], 'G': ["0111","1000","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001","1001"], 'I': ["111","010","010","010","010","111"], 'J': ["0001","0001","0001","0001","1001","0110"], 'K': ["1001","1010","1100","1010","1001","1001"], 'L': ["1000","1000","1000","1000","1000","1111"], 'M': ["10001","11011","10101","10001","10001","10001"], 'N': ["1001","1101","1011","1001","1001","1001"], 'O': ["0110","1001","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000","1000"], 'Q': ["0110","1001","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001","1001"], 'S': ["0111","1000","0110","0001","0001","1110"], 'T': ["111","010","010","010","010","010"], 'U': ["1001","1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","1001","0110","0110"], 'W': ["10001","10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","00100","01010","10001"], 'Y': ["1001","0110","0010","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1000","1111"], '1': ["010","110","010","010","010","111"], '2': ["0110","1001","0001","0010","0100","1111"], '3': ["1110","0001","0110","0001","0001","1110"], '0': ["0110","1001","1001","1001","1001","0110"]
+            'A': ["0110","1001","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1001","1110"], 'C': ["0111","1000","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1001","1110"], 'E': ["1111","1000","1110","1000","1000","1111"], 'F': ["1111","1000","1110","1000","1000","1000"], 'G': ["0111","1000","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001","1001"], 'I': ["111","010","010","010","010","111"], 'J': ["0001","0001","0001","0001","1001","0110"], 'K': ["1001","1010","1100","1010","1001","1001"], 'L': ["1000","1000","1000","1000","1000","1111"], 'M': ["10001","11011","10101","10001","10001","10001"], 'N': ["1001","1101","1011","1001","1001","1001"], 'O': ["0110","1001","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000","1000"], 'Q': ["0110","1001","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001","1001"], 'S': ["0111","1000","0110","0001","0001","1110"], 'T': ["111","010","010","010","010","010"], 'U': ["1001","1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","1001","0110","0110"], 'W': ["10001","10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","00100","01010","10001"], 'Y': ["1001","0110","0010","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1000","1111"], '1': ["010","110","010","010","010","111"], '2': ["0110","1001","0001","0010","0100","1111"], '3': ["1110","0001","0110","0001","0001","1110"], '0': ["0110","1001","1001","1001","1001","0110"]
         };
 
         const iconsMatrix = {
-            crown: ["00100100","01000010","11011011","11111111","11111111"],
-            skull: ["011110","111111","101101","111111","010010"],
-            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
-            shield: ["111111","100001","100001","010010","001100"],
-            check: ["000001","000011","100110","111100","011000"],
-            lightning: ["00110","01100","11111","00110","01000"],
-            sword: ["00001","00011","01110","11100","01000"],
-            gem: ["011110","111111","011110","001100"],
-            leaf: ["0010","0110","1111","0110","0010"],
-            helmet: ["011110","010010","110011","101101","100001"], 
-            bow: ["00110","01010","10010","11000","00000"], 
-            potion: ["001100","001100","011110","111111","011110"], 
-            book: ["000000","011011","111111","111111","011011"], 
-            anvil: ["11111","00100","01110","11111","00000"]
+            crown: ["00100100","01000010","11011011","11111111","11111111"], skull: ["011110","111111","101101","111111","010010"],
+            youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"], shield: ["111111","100001","100001","010010","001100"],
+            check: ["000001","000011","100110","111100","011000"], lightning: ["00110","01100","11111","00110","01000"],
+            sword: ["00001","00011","01110","11100","01000"], gem: ["011110","111111","011110","001100"], leaf: ["0010","0110","1111","0110","0010"],
+            helmet: ["011110","010010","110011","101101","100001"], bow: ["00110","01010","10010","11000","00000"], 
+            potion: ["001100","001100","011110","111111","011110"], book: ["000000","011011","111111","111111","011011"], anvil: ["11111","00100","01110","11111","00000"]
         };
 
         function shadeColor(color, percent) {
@@ -395,7 +372,6 @@
             R = Math.min(255, Math.max(0, R)); G = Math.min(255, Math.max(0, G)); B = Math.min(255, Math.max(0, B));
             return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
         }
-
         function hexToRgbaAlpha(hex, alpha) {
             let R = parseInt(hex.substring(1,3),16); let G = parseInt(hex.substring(3,5),16); let B = parseInt(hex.substring(5,7),16);
             return `rgba(${R},${G},${B},${alpha})`;
@@ -403,20 +379,14 @@
 
         function createEmptyCanvas() {
             masterCanvas.width = 960; masterCanvas.height = 960;
-            mCtx.clearRect(0,0,960,960); isImageLoaded = true;
-            processGlyphs();
+            mCtx.clearRect(0,0,960,960); isImageLoaded = true; processGlyphs();
         }
 
         document.getElementById('uploadFile').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
+            const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = (ev) => {
-                mainImage.onload = () => {
-                    masterCanvas.width = mainImage.width; masterCanvas.height = mainImage.height;
-                    mCtx.drawImage(mainImage, 0, 0); isImageLoaded = true;
-                    processGlyphs();
-                }
+                mainImage.onload = () => { masterCanvas.width = mainImage.width; masterCanvas.height = mainImage.height; mCtx.drawImage(mainImage, 0, 0); isImageLoaded = true; processGlyphs(); }
                 mainImage.src = ev.target.result;
             }
             reader.readAsDataURL(file);
@@ -424,60 +394,45 @@
 
         function processGlyphs() {
             if(!isImageLoaded) return alert("Load image/buat kosong dulu!");
-            const cols = parseInt(document.getElementById('gridCols').value);
-            const rows = parseInt(document.getElementById('gridRows').value);
+            const cols = parseInt(document.getElementById('gridCols').value); const rows = parseInt(document.getElementById('gridRows').value);
             const baseHexNum = parseInt(document.getElementById('baseHex').value, 16);
             const cellW = masterCanvas.width / cols; const cellH = masterCanvas.height / rows;
 
             glyphDataList = []; gallery.innerHTML = ''; 
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = cellW; tempCanvas.height = cellH;
-            const tCtx = tempCanvas.getContext('2d');
+            const tempCanvas = document.createElement('canvas'); tempCanvas.width = cellW; tempCanvas.height = cellH; const tCtx = tempCanvas.getContext('2d');
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     const currentHex = (baseHexNum + (r * cols) + c).toString(16).toUpperCase();
                     const x = c * cellW; const y = r * cellH;
-                    tCtx.clearRect(0, 0, cellW, cellH);
-                    tCtx.drawImage(masterCanvas, x, y, cellW, cellH, 0, 0, cellW, cellH);
+                    tCtx.clearRect(0, 0, cellW, cellH); tCtx.drawImage(masterCanvas, x, y, cellW, cellH, 0, 0, cellW, cellH);
                     const glyphObj = { id: `gl_${c}_${r}`, x, y, w: cellW, h: cellH, hex: currentHex, imgData: tempCanvas.toDataURL() };
                     glyphDataList.push(glyphObj);
                     
                     const card = document.createElement('div'); card.className = 'glyph-card';
                     card.innerHTML = `<img src="${glyphObj.imgData}" class="glyph-img" id="img_${glyphObj.id}">
                                       <div class="hex-code">\\u${glyphObj.hex}</div>
-                                      <div class="card-actions">
-                                        <button class="btn-warning" onclick="openEditor('${glyphObj.id}')">✏️ EDIT</button>
-                                        <button class="btn-success" onclick="downloadSingle('${glyphObj.id}')">⬇️ DL</button>
-                                      </div>`;
+                                      <div class="card-actions"><button class="btn-warning" onclick="openEditor('${glyphObj.id}')">✏️ EDIT</button><button class="btn-success" onclick="downloadSingle('${glyphObj.id}')">⬇️ DL</button></div>`;
                     gallery.appendChild(card);
                 }
             }
         }
 
-        function downloadSingle(id) {
-            const glyph = glyphDataList.find(g => g.id === id);
-            const link = document.createElement('a'); link.download = `glyph_${glyph.hex}.png`;
-            link.href = document.getElementById(`img_${id}`).src; link.click();
-        }
+        function downloadSingle(id) { const glyph = glyphDataList.find(g => g.id === id); const link = document.createElement('a'); link.download = `glyph_${glyph.hex}.png`; link.href = document.getElementById(`img_${id}`).src; link.click(); }
 
         function openEditor(id) {
             currentEditGlyph = glyphDataList.find(g => g.id === id);
             editCanvas.width = currentEditGlyph.w; editCanvas.height = currentEditGlyph.h;
             baseEditorCanvas.width = currentEditGlyph.w; baseEditorCanvas.height = currentEditGlyph.h;
-            
-            document.getElementById('textX').max = currentEditGlyph.w;
-            document.getElementById('textY').max = currentEditGlyph.h;
+            document.getElementById('textX').max = currentEditGlyph.w; document.getElementById('textY').max = currentEditGlyph.h;
             
             baseCtx.clearRect(0,0, currentEditGlyph.w, currentEditGlyph.h);
             baseCtx.drawImage(masterCanvas, currentEditGlyph.x, currentEditGlyph.y, currentEditGlyph.w, currentEditGlyph.h, 0, 0, currentEditGlyph.w, currentEditGlyph.h);
-            previewEditor();
-            document.getElementById('editorModal').style.display = 'flex';
+            previewEditor(); document.getElementById('editorModal').style.display = 'flex';
         }
-
         function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
 
-        // TEXT SHADOW DYNAMIC SYSTEM
+        // TEXT ENGINE (BUG FIXED - NO REDECLARATION)
         function previewEditor() {
             eCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
             eCtx.drawImage(baseEditorCanvas, 0, 0);
@@ -488,13 +443,11 @@
                 const ty = parseInt(document.getElementById('textY').value);
                 const tCol = document.getElementById('textColor').value;
                 const fontSelect = document.getElementById('fontStyle').value;
-                const hasShadow = document.getElementById('useShadow').checked;
+                const hasShadow = document.getElementById('useTextShadow').checked;
                 
                 const sx = parseInt(document.getElementById('textShadowX').value);
                 const sy = parseInt(document.getElementById('textShadowY').value);
-                const sColHex = document.getElementById('textShadowColor').value;
-                const sOp = document.getElementById('textShadowOp').value;
-                const shadowFill = hexToRgbaAlpha(sColHex, sOp);
+                const shadowFill = document.getElementById('textShadowColor').value;
 
                 let activeFont = regularFont;
                 if(fontSelect === 'smallcaps') activeFont = smallCapsFont;
@@ -504,159 +457,190 @@
                     const map = activeFont[char] || activeFont['?'] || ["111","101","111"]; 
                     for(let r=0; r<map.length; r++) {
                         for(let c=0; c<map[r].length; c++) {
-                            if(map[r][c]==='1') {
-                                eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1);
-                            }
+                            if(map[r][c]==='1') { eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1); }
                         }
                     }
                     return map[0].length + 1; 
                 };
 
-                // Shadow Pass
+                // 1. Draw Shadow Pass
                 if(hasShadow) {
-                    let curX = tx;
+                    let cxShadow = tx;
                     for(let char of txt) {
-                        if(char === ' ') { curX += 3; continue; }
-                        drawChar(char, curX + sx, ty + sy, shadowFill); 
-                        curX += (activeFont[char]?activeFont[char][0].length + 1 : 4);
+                        if(char === ' ') { cxShadow += 3; continue; }
+                        drawChar(char, cxShadow + sx, ty + sy, shadowFill); 
+                        cxShadow += (activeFont[char] ? activeFont[char][0].length + 1 : 4);
                     }
                 }
                 
-                // Text Pass
-                let curX = tx;
+                // 2. Draw Text Pass
+                let cxText = tx;
                 for(let char of txt) {
-                    if(char === ' ') { curX += 3; continue; }
-                    let width = drawChar(char, curX, ty, tCol);
-                    curX += width;
+                    if(char === ' ') { cxText += 3; continue; }
+                    let width = drawChar(char, cxText, ty, tCol);
+                    cxText += width;
                 }
             }
         }
 
-        function stampText() {
-            baseCtx.drawImage(editCanvas, 0, 0); 
-            document.getElementById('customText').value = ""; previewEditor();
-        }
+        function stampText() { baseCtx.drawImage(editCanvas, 0, 0); document.getElementById('customText').value = ""; previewEditor(); }
 
-        // 16 BACKGROUND STYLES & SHADOW ICON SYSTEM
+        // 16 STYLES BACKGROUND ENGINE
         function applyTemplate() {
             const baseColor = selectedColor;
             if(!baseColor) return;
-            const style = document.getElementById('bgStyle').value;
+            const style = selectedStyle;
             const w = editCanvas.width; const h = editCanvas.height;
             
             const cOutline = shadeColor(baseColor, -65); 
             const cBorderLight = shadeColor(baseColor, 50);  
             const cBorderDark = shadeColor(baseColor, -30);  
-            const cTop = baseColor; 
-            const cBot = shadeColor(baseColor, -25); 
+            const cTop = baseColor; const cBot = shadeColor(baseColor, -35); 
             
             baseCtx.clearRect(0,0,w,h);
             const bh=14, iw=14, tw=40, gap=1;
             const sx = Math.floor((w-(iw+gap+tw))/2), sy = Math.floor((h-bh)/2);
             
             const drawBox = (x, y, bw) => {
-                // Background & Styles
+                // Background Styling Engine
                 if(style === 'neon') {
-                    baseCtx.fillStyle = '#000'; baseCtx.fillRect(x, y, bw, bh);
+                    baseCtx.fillStyle = '#060606'; baseCtx.fillRect(x, y, bw, bh);
                     baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
                 } else if(style === 'hollow') {
                     baseCtx.fillStyle = 'rgba(0,0,0,0)'; baseCtx.clearRect(x,y,bw,bh);
                     baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
                 } else {
-                    baseCtx.fillStyle = cOutline; baseCtx.fillRect(x, y, bw, bh); // Outline luar
-                    
-                    if(style==='flat') {
-                        baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                    } else if(style==='split') {
-                        baseCtx.fillStyle = cTop; baseCtx.fillRect(x+1, y+1, bw-2, Math.floor(bh/2));
-                        baseCtx.fillStyle = cBot; baseCtx.fillRect(x+1, y+1+Math.floor(bh/2), bw-2, bh-2-Math.floor(bh/2));
-                    } else if(style==='glass') {
-                        baseCtx.fillStyle = shadeColor(baseColor, -50); baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                        baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                    } else if(style==='vintage') {
-                        baseCtx.fillStyle = '#A0522D'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    // Base Dark Outline for 3D encapsulation
+                    if(style === 'encased') {
+                        baseCtx.fillStyle = '#000000'; baseCtx.fillRect(x, y, bw, bh);
+                        baseCtx.fillStyle = cOutline; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
                     } else {
-                        // Classic Gradient Base
-                        const grad = baseCtx.createLinearGradient(0, y+1, 0, y+bh-1);
+                        baseCtx.fillStyle = cOutline; baseCtx.fillRect(x, y, bw, bh);
+                    }
+                    
+                    const innerX = x+1; const innerY = y+1; const innerW = bw-2; const innerH = bh-2;
+
+                    // Inner Fills
+                    if(style==='flat') { baseCtx.fillStyle = baseColor; baseCtx.fillRect(innerX, innerY, innerW, innerH); }
+                    else if(style==='split') {
+                        baseCtx.fillStyle = shadeColor(baseColor, 10); baseCtx.fillRect(innerX, innerY, innerW, Math.floor(innerH/2));
+                        baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(innerX, innerY+Math.floor(innerH/2), innerW, innerH-Math.floor(innerH/2));
+                    }
+                    else if(style==='glass') {
+                        baseCtx.fillStyle = hexToRgbaAlpha(baseColor, 0.4); baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                        baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(innerX, innerY, innerW, 3);
+                    }
+                    else if(style==='abyss') {
+                        baseCtx.fillStyle = '#111'; baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                        baseCtx.fillStyle = baseColor; baseCtx.fillRect(innerX, innerY, innerW, 1); baseCtx.fillRect(innerX, innerY+innerH-1, innerW, 1);
+                    }
+                    else {
+                        // Standard Gradient Base for the rest
+                        const grad = baseCtx.createLinearGradient(0, innerY, 0, innerY+innerH);
                         grad.addColorStop(0, cTop); grad.addColorStop(1, cBot);
-                        baseCtx.fillStyle = grad; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                        baseCtx.fillStyle = grad; baseCtx.fillRect(innerX, innerY, innerW, innerH);
                         
+                        // Overlays
+                        if(style==='glossy') {
+                            baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(innerX, innerY, innerW, Math.floor(innerH/2));
+                        }
                         if(style==='shiny') {
                             baseCtx.fillStyle = 'rgba(255,255,255,0.3)';
-                            baseCtx.beginPath(); baseCtx.moveTo(x+1, y+bh-2); baseCtx.lineTo(x+1+Math.floor(bw/3), y+1); baseCtx.lineTo(x+1+Math.floor(bw/2), y+1); baseCtx.lineTo(x+1+Math.floor(bw/6), y+bh-2); baseCtx.fill();
+                            baseCtx.beginPath(); baseCtx.moveTo(innerX, innerY+innerH); baseCtx.lineTo(innerX+Math.floor(innerW/3), innerY); baseCtx.lineTo(innerX+Math.floor(innerW/2), innerY); baseCtx.lineTo(innerX+Math.floor(innerW/6), innerY+innerH); baseCtx.fill();
+                        }
+                        if(style==='lightning') {
+                            baseCtx.fillStyle = 'rgba(255,255,255,0.6)';
+                            baseCtx.fillRect(innerX+4, innerY, 1, 3); baseCtx.fillRect(innerX+3, innerY+3, 2, 2); baseCtx.fillRect(innerX+2, innerY+5, 1, 4);
+                            if(innerW > 20) { baseCtx.fillRect(innerX+24, innerY+2, 1, 3); baseCtx.fillRect(innerX+23, innerY+5, 2, 2); }
+                        }
+                        if(style==='chaos') {
+                            for(let i=innerX; i<innerX+innerW; i++) {
+                                for(let j=innerY; j<innerY+innerH; j++) {
+                                    if ((i*17 + j*23) % 11 === 0) { baseCtx.fillStyle = 'rgba(0,0,0,0.4)'; baseCtx.fillRect(i,j,1,1); }
+                                    if ((i*13 + j*31) % 19 === 0) { baseCtx.fillStyle = 'rgba(255,255,255,0.3)'; baseCtx.fillRect(i,j,1,1); }
+                                }
+                            }
                         }
                         if(style==='scanline') {
-                            baseCtx.fillStyle = 'rgba(0,0,0,0.2)';
-                            for(let i=y+2; i<y+bh-1; i+=2) baseCtx.fillRect(x+1, i, bw-2, 1);
+                            baseCtx.fillStyle = 'rgba(0,0,0,0.3)';
+                            for(let i=innerY+1; i<innerY+innerH; i+=2) baseCtx.fillRect(innerX, i, innerW, 1);
                         }
                         if(style==='dotted') {
-                            baseCtx.fillStyle = shadeColor(baseColor, -40);
-                            for(let i=y+1; i<y+bh-1; i+=2) for(let j=x+1; j<x+bw-1; j+=2) baseCtx.fillRect(j, i, 1, 1);
+                            baseCtx.fillStyle = shadeColor(baseColor, -50);
+                            for(let i=innerY; i<innerY+innerH; i+=2) for(let j=innerX; j<innerX+innerW; j+=2) baseCtx.fillRect(j, i, 1, 1);
                         }
                         if(style==='metal') {
-                            const mg = baseCtx.createLinearGradient(0, y+1, 0, y+bh-1);
-                            mg.addColorStop(0, '#ddd'); mg.addColorStop(0.5, '#888'); mg.addColorStop(1, '#bbb');
-                            baseCtx.fillStyle = mg; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                            const mg = baseCtx.createLinearGradient(innerX, 0, innerX+innerW, 0);
+                            mg.addColorStop(0, shadeColor(baseColor,10)); mg.addColorStop(0.3, shadeColor(baseColor,-20)); mg.addColorStop(0.7, shadeColor(baseColor,20)); mg.addColorStop(1, shadeColor(baseColor,-10));
+                            baseCtx.fillStyle = mg; baseCtx.fillRect(innerX, innerY, innerW, innerH);
                         }
                         if(style==='carbon') {
-                            baseCtx.fillStyle = '#111'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                            baseCtx.fillStyle = '#222';
-                            for(let i=y+1; i<y+bh-1; i+=2) for(let j=x+1+(i%4===0?0:1); j<x+bw-1; j+=2) baseCtx.fillRect(j, i, 1, 1);
+                            baseCtx.fillStyle = shadeColor(baseColor, -60); baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                            baseCtx.fillStyle = shadeColor(baseColor, -40);
+                            for(let i=innerY; i<innerY+innerH; i+=2) for(let j=innerX+(i%4===0?0:1); j<innerX+innerW; j+=2) baseCtx.fillRect(j, i, 1, 1);
                         }
                         if(style==='grid') {
-                            baseCtx.fillStyle = 'rgba(0,0,0,0.1)';
-                            for(let i=y+1; i<y+bh-1; i+=3) baseCtx.fillRect(x+1, i, bw-2, 1);
-                            for(let j=x+1; j<x+bw-1; j+=3) baseCtx.fillRect(j, y+1, 1, bh-2);
+                            baseCtx.fillStyle = 'rgba(0,0,0,0.15)';
+                            for(let i=innerY+1; i<innerY+innerH; i+=3) baseCtx.fillRect(innerX, i, innerW, 1);
+                            for(let j=innerX+1; j<innerX+innerW; j+=3) baseCtx.fillRect(j, innerY, 1, innerH);
                         }
                         if(style==='ultimate') {
-                            baseCtx.fillStyle = shadeColor(baseColor,-20); baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                            baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
-                            baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(x+2, y+2, bw-4, Math.floor(bh/2)-1);
+                            baseCtx.fillStyle = shadeColor(baseColor,-30); baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                            baseCtx.fillStyle = baseColor; baseCtx.fillRect(innerX+1, innerY+1, innerW-2, innerH-2);
+                            baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(innerX+1, innerY+1, innerW-2, Math.floor(innerH/2)-1);
+                        }
+                        if(style==='magma') {
+                            baseCtx.fillStyle = '#111'; baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                            baseCtx.fillStyle = baseColor; 
+                            for(let i=innerX; i<innerX+innerW; i++) { let wave = Math.sin(i*0.5)*2; baseCtx.fillRect(i, innerY+innerH-3+wave, 1, 4); }
+                        }
+                        if(style==='camo') {
+                            baseCtx.fillStyle = shadeColor(baseColor, -20); baseCtx.fillRect(innerX, innerY, innerW, innerH);
+                            for(let i=innerX; i<innerX+innerW; i+=2) {
+                                for(let j=innerY; j<innerY+innerH; j+=2) {
+                                    if ((i*7 + j*11) % 5 === 0) { baseCtx.fillStyle = baseColor; baseCtx.fillRect(i,j,2,2); }
+                                    if ((i*13 + j*17) % 7 === 0) { baseCtx.fillStyle = shadeColor(baseColor,-40); baseCtx.fillRect(i,j,2,2); }
+                                }
+                            }
                         }
                     }
 
-                    // Inner Borders (kecuali styles tertentu)
-                    if(style!=='flat' && style!=='glass' && style!=='neon' && style!=='hollow' && style!=='vintage' && style!=='metal') {
-                        if(style==='inset') {
-                            baseCtx.fillStyle = cBorderDark; baseCtx.fillRect(x+1, y+1, bw-2, 1); baseCtx.fillRect(x+1, y+1, 1, bh-2); 
-                            baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
-                        } else {
-                            baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(x+1, y+1, bw-2, 1); baseCtx.fillRect(x+1, y+1, 1, bh-2); 
-                            baseCtx.fillStyle = cBorderDark; baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
-                        }
+                    // Inner Borders 3D (Kecuali gaya yang polos)
+                    if(!['flat', 'glass', 'neon', 'hollow', 'abyss'].includes(style)) {
+                        let bDark = cBorderDark; let bLight = cBorderLight;
+                        if(style === 'inset' || style === 'encased') { bDark = cBorderLight; bLight = cBorderDark; } // Invert border for inset look
+                        
+                        baseCtx.fillStyle = bLight; baseCtx.fillRect(innerX, innerY, innerW, 1); baseCtx.fillRect(innerX, innerY, 1, innerH); 
+                        baseCtx.fillStyle = bDark; baseCtx.fillRect(innerX, innerY+innerH-1, innerW, 1); baseCtx.fillRect(innerX+innerW-1, innerY, 1, innerH); 
                     }
                 }
             };
 
             drawBox(sx, sy, iw); drawBox(sx+iw+gap, sy, tw);
             
-            // GAMBAR ICON & SHADOWNYA
+            // DRAW ICON
             const iconName = selectedIcon;
             if(iconName !== 'none' && iconsMatrix[iconName]) {
                 const icon = iconsMatrix[iconName];
                 const iH = icon.length; const iW = icon[0].length;
-                const ix = sx + Math.floor((iw-iW)/2);
-                const iy = sy + Math.floor((bh-iH)/2);
+                const ix = sx + Math.floor((iw-iW)/2); const iy = sy + Math.floor((bh-iH)/2);
 
                 const iCol = document.getElementById('iconColor').value;
                 const useIGrad = document.getElementById('iconGradient').checked;
                 const useIShadow = document.getElementById('useIconShadow').checked;
 
-                // Shadow Icon Pass
                 if(useIShadow) {
                     const isx = parseInt(document.getElementById('iconShadowX').value);
                     const isy = parseInt(document.getElementById('iconShadowY').value);
-                    const isHex = document.getElementById('iconShadowColor').value;
-                    const isOp = document.getElementById('iconShadowOp').value;
-                    baseCtx.fillStyle = hexToRgbaAlpha(isHex, isOp);
+                    const shadowFill = document.getElementById('iconShadowColor').value;
+                    baseCtx.fillStyle = shadowFill;
                     for(let r=0; r<iH; r++) for(let c=0; c<iW; c++) if(icon[r][c] === '1') baseCtx.fillRect(ix+c+isx, iy+r+isy, 1, 1); 
                 }
 
-                // Main Icon Pass
                 let iconFill = iCol;
                 if(useIGrad) {
                     const gradIcon = baseCtx.createLinearGradient(0, iy, 0, iy+iH);
-                    gradIcon.addColorStop(0, iCol); gradIcon.addColorStop(1, shadeColor(iCol, -40)); 
+                    gradIcon.addColorStop(0, iCol); gradIcon.addColorStop(1, shadeColor(iCol, -50)); 
                     iconFill = gradIcon;
                 }
                 for(let r=0; r<iH; r++) for(let c=0; c<iW; c++) if(icon[r][c] === '1') { baseCtx.fillStyle = iconFill; baseCtx.fillRect(ix+c, iy+r, 1, 1); }
@@ -666,18 +650,15 @@
 
         function setTool(t) { activeTool = t; document.getElementById('btnBrush').style.border = t==='brush'?'2px solid white':'none'; document.getElementById('btnEraser').style.border = t==='eraser'?'2px solid white':'none'; }
         function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = editCanvas.width/r.width; const clientX = e.touches?e.touches[0].clientX : e.clientX; const clientY = e.touches?e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX-r.left)*s), y: Math.floor((clientY-r.top)*s) }; }
-        
         const startDraw = (e) => { isDrawing = true; draw(e); };
         const moveDraw = (e) => { if(isDrawing) { e.preventDefault(); draw(e); } };
         const stopDraw = () => { isDrawing = false; };
-        
         function draw(e) {
             const p = getEventPos(e);
             if(activeTool==='eraser') baseCtx.clearRect(p.x, p.y, 1, 1);
             else { baseCtx.fillStyle = document.getElementById('brushColor').value; baseCtx.clearRect(p.x, p.y, 1, 1); baseCtx.fillRect(p.x, p.y, 1, 1); }
             previewEditor();
         }
-
         editCanvas.addEventListener('mousedown', startDraw); editCanvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', stopDraw);
         editCanvas.addEventListener('touchstart', startDraw, {passive:false}); editCanvas.addEventListener('touchmove', moveDraw, {passive:false}); editCanvas.addEventListener('touchend', stopDraw);
 
@@ -689,7 +670,6 @@
         }
 
         function downloadMaster() { const link = document.createElement('a'); link.download='master_glyph.png'; link.href=masterCanvas.toDataURL(); link.click(); }
-
         window.onload = initPickers;
     </script>
 </body>
