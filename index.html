@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eldoria Rank & Glyph Mapper</title>
+    <title>Web Dashboard CSS Badge Generator</title>
     <style>
         body {
             background-color: #2c2f33;
@@ -18,66 +18,58 @@
         h1, h3 { margin-top: 0; margin-bottom: 10px; text-align: center; }
         .panel {
             background: #23272a;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             border: 2px solid #7289da;
         }
-        .panel-gold { border-color: #faa61a; }
         .controls {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        input[type="number"], input[type="file"], select {
-            padding: 7px;
+        select {
+            padding: 10px;
             border: 1px solid #7289da;
             border-radius: 4px;
             background: #2c2f33;
             color: white;
             font-weight: bold;
+            font-size: 16px;
         }
         button {
-            background-color: #7289da;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
             transition: 0.2s;
         }
-        button:hover { background-color: #5b6eae; }
-        .btn-download { background-color: #43b581; font-size: 14px; padding: 8px 15px; }
-        .btn-download:hover { background-color: #3ca374; }
+        .btn-generate { background-color: #faa61a; }
+        .btn-generate:hover { background-color: #e09619; }
 
-        /* Canvas Kecil untuk Bikin Badge */
-        .canvas-mini {
-            background: #111;
-            border: 1px solid #43b581;
-            margin: 10px auto;
-            display: block;
-            image-rendering: pixelated;
-        }
-
-        /* Canvas Besar untuk Preview 960x960 */
-        .canvas-sprite-container {
-            width: 100%;
-            max-width: 600px;
-            aspect-ratio: 1 / 1;
-            border: 2px dashed #faa61a;
+        .canvas-container {
+            background-image: 
+                linear-gradient(45deg, #808080 25%, transparent 25%), 
+                linear-gradient(-45deg, #808080 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #808080 75%), 
+                linear-gradient(-45deg, transparent 75%, #808080 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 2px solid #7289da;
             border-radius: 4px;
-            overflow: hidden;
-            background: #111;
-            position: relative;
+            width: 166px; /* Dibesarkan 2x lipat buat preview di browser */
+            height: 166px;
+            margin: 0 auto 20px auto;
         }
-        #spriteCanvas {
+        canvas {
             width: 100%;
             height: 100%;
             image-rendering: pixelated;
@@ -85,103 +77,78 @@
 
         .output-box {
             width: 100%;
-            background: #2c2f33;
+            height: 250px;
+            background: #1e2124;
             color: #43b581;
             border: 1px solid #7289da;
             padding: 10px;
             border-radius: 4px;
             font-family: monospace;
-            font-size: 14px;
-            margin-top: 10px;
+            font-size: 13px;
             box-sizing: border-box;
-            resize: none;
+            resize: vertical;
+        }
+        
+        /* Area tempat CSS akan disuntikkan secara live untuk preview murni HTML */
+        #liveCssPreviewArea {
+            margin: 20px auto;
+            border: 1px dashed #43b581;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #2c2f33;
+            width: 150px;
+            height: 50px;
         }
     </style>
 </head>
 <body>
 
-    <h1>✨ Eldoria Glyph Mapper</h1>
+    <h1>🖥️ Web CSS Badge Generator</h1>
 
-    <!-- PANEL 1: GENERATOR BADGE -->
     <div class="panel">
-        <h3>🛡️ 1. Buat Rank Badge</h3>
+        <h3 style="color: #faa61a;">Ekstrak Pixel Menjadi Kode CSS Box-Shadow</h3>
+        <p style="text-align:center; font-size:13px; color:#ccc;">
+            Sistem ini akan membaca setiap warna pixel di Canvas, lalu mengubahnya menjadi koordinat CSS <code>box-shadow</code>.
+        </p>
+        
         <div class="controls">
-            <div class="control-group">
-                <label>Pilih Rank:</label>
-                <select id="rankSelect" onchange="generateRankBadge()">
-                    <option value="NOVARIA">NOVARIA</option>
-                    <option value="IRONVEIL">IRONVEIL</option>
-                    <option value="SILVERLIGHT">SILVERLIGHT</option>
-                    <option value="GOLDHAVEN">GOLDHAVEN</option>
-                    <option value="PLATINEX">PLATINEX</option>
-                    <option value="CRYSTALON">CRYSTALON</option>
-                    <option value="MYTHORIA">MYTHORIA</option>
-                    <option value="ETERNALIS">ETERNALIS</option>
-                    <option value="CELESTORA">CELESTORA</option>
-                    <option value="DIVINEXUS">DIVINEXUS</option>
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="OWNER">OWNER</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Lebar Badge (px)</label>
-                <input type="number" id="badgeW" value="83" onchange="generateRankBadge()">
-            </div>
-            <div class="control-group">
-                <label>Tinggi Badge (px)</label>
-                <input type="number" id="badgeH" value="83" onchange="generateRankBadge()">
-            </div>
-        </div>
-        
-        <canvas id="pixelCanvas" class="canvas-mini" width="83" height="83"></canvas>
-        
-        <div style="text-align: center;">
-            <button class="btn-download" onclick="downloadImage()">⬇️ Download Hanya Badge PNG</button>
-        </div>
-    </div>
-
-    <!-- PANEL 2: GLYPH MAPPER 960x960 -->
-    <div class="panel panel-gold">
-        <h3 style="color: #faa61a;">🗺️ 2. Cocokkan ke Glyph Master (960x960)</h3>
-        <div class="controls">
-            <div class="control-group" style="width: 100%;">
-                <label>Upload Gambar Glyph Kamu (misal 960x960):</label>
-                <input type="file" id="uploadGlyph" accept="image/png, image/jpeg">
-            </div>
-        </div>
-        
-        <div class="controls" style="margin-top: 10px;">
-            <div class="control-group">
-                <label>Geser Kiri/Kanan (X)</label>
-                <input type="number" id="posX" value="0" step="1" oninput="updateSpritePreview()">
-            </div>
-            <div class="control-group">
-                <label>Geser Atas/Bawah (Y)</label>
-                <input type="number" id="posY" value="0" step="1" oninput="updateSpritePreview()">
-            </div>
-            <div class="control-group" style="justify-content: flex-end;">
-                <button onclick="centerBadge()">Taruh Tengah</button>
-            </div>
+            <select id="rankSelect" onchange="drawRankToCanvas()">
+                <option value="NOVARIA">NOVARIA</option>
+                <option value="IRONVEIL">IRONVEIL</option>
+                <option value="SILVERLIGHT">SILVERLIGHT</option>
+                <option value="GOLDHAVEN">GOLDHAVEN</option>
+                <option value="PLATINEX">PLATINEX</option>
+                <option value="CRYSTALON">CRYSTALON</option>
+                <option value="MYTHORIA">MYTHORIA</option>
+                <option value="ETERNALIS">ETERNALIS</option>
+                <option value="CELESTORA">CELESTORA</option>
+                <option value="DIVINEXUS">DIVINEXUS</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="OWNER">OWNER</option>
+            </select>
+            <button class="btn-generate" onclick="extractToCSS()">🔄 Generate Kode HTML & CSS</button>
         </div>
 
-        <div class="canvas-sprite-container">
-            <canvas id="spriteCanvas" width="960" height="960"></canvas>
+        <div class="canvas-container">
+            <!-- Ukuran canvas asli tetap 83x83 -->
+            <canvas id="pixelCanvas" width="83" height="83"></canvas>
         </div>
 
-        <h4 style="margin-bottom: 5px;">Kirim Data Ini ke AI:</h4>
-        <textarea id="outputData" class="output-box" rows="3" readonly></textarea>
+        <h3 style="margin-top: 20px; color: #43b581;">Preview Hasil Murni HTML/CSS:</h3>
+        <div id="liveCssPreviewArea">
+            <!-- HTML murni akan muncul di sini -->
+        </div>
+
+        <h4 style="margin-bottom: 5px;">Copy Paste Kode Ini ke Web Kamu:</h4>
+        <textarea id="outputCode" class="output-box" readonly placeholder="Klik 'Generate Kode' untuk memunculkan CSS murni di sini..."></textarea>
     </div>
 
     <script>
         const canvas = document.getElementById('pixelCanvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.imageSmoothingEnabled = false;
-
-        const spriteCanvas = document.getElementById('spriteCanvas');
-        const sCtx = spriteCanvas.getContext('2d');
-        sCtx.imageSmoothingEnabled = false;
-
-        let templateImage = null; // Menyimpan gambar 960x960 yang diupload
 
         const rankData = {
             "NOVARIA":     { c1: "#BFC9CA", c2: "#7F8C8D", icon: "leaf" },
@@ -213,23 +180,18 @@
             leaf: ["0010","0110","1111","0110","0010"]
         };
 
-        function generateRankBadge() {
-            const w = parseInt(document.getElementById('badgeW').value) || 83;
-            const h = parseInt(document.getElementById('badgeH').value) || 83;
-            canvas.width = w;
-            canvas.height = h;
-            
-            ctx.clearRect(0, 0, w, h);
-            
+        function drawRankToCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             const rankName = document.getElementById('rankSelect').value;
             const data = rankData[rankName];
 
-            const pSize = 2; // Ketebalan pixel
+            const pSize = 2; 
             const badgeW = 38 * pSize; 
             const badgeH = 10 * pSize; 
 
-            const offsetX = Math.floor((w - badgeW) / 2); 
-            const offsetY = Math.floor((h - badgeH) / 2);
+            // Offset X dan Y ditaruh agak mepet supaya CSS Box Shadownya gak nyita ruang kosong
+            const offsetX = 0; 
+            const offsetY = 0;
 
             // BORDER
             ctx.fillStyle = "#ffffff";
@@ -278,83 +240,65 @@
             ctx.fillText(rankName, textX + 1.5, textY + 1.5, 25 * pSize);
             ctx.fillStyle = "#ffffff";
             ctx.fillText(rankName, textX, textY, 25 * pSize);
-
-            // Selalu update preview di kanvas besar jika rank diubah
-            updateSpritePreview();
         }
 
-        // --- SISTEM UPLOAD GLYPH MASTER ---
-        document.getElementById('uploadGlyph').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    templateImage = img;
-                    spriteCanvas.width = img.width; 
-                    spriteCanvas.height = img.height;
-                    updateSpritePreview();
-                }
-                img.src = event.target.result;
-            }
-            reader.readAsDataURL(file);
-        });
-
-        function centerBadge() {
-            if(!templateImage) return;
-            document.getElementById('posX').value = Math.floor(spriteCanvas.width / 2) - Math.floor(canvas.width / 2);
-            document.getElementById('posY').value = Math.floor(spriteCanvas.height / 2) - Math.floor(canvas.height / 2);
-            updateSpritePreview();
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         }
 
-        function updateSpritePreview() {
-            if(!templateImage) {
-                // Gambar background default jika belum upload
-                sCtx.fillStyle = "#222";
-                sCtx.fillRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-                sCtx.fillStyle = "#444";
-                sCtx.font = "20px Arial";
-                sCtx.textAlign = "center";
-                sCtx.fillText("Belum ada gambar Glyph yang diupload", spriteCanvas.width/2, spriteCanvas.height/2);
-            } else {
-                sCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-                // 1. Gambar Template Master (Misal 960x960)
-                sCtx.drawImage(templateImage, 0, 0);
-            }
-
-            // 2. Tumpuk Gambar Badge di Koordinat X, Y
-            const x = parseInt(document.getElementById('posX').value) || 0;
-            const y = parseInt(document.getElementById('posY').value) || 0;
+        // --- SISTEM EKSTRAK KE CSS BOX SHADOW ---
+        function extractToCSS() {
+            const rankName = document.getElementById('rankSelect').value;
             const w = canvas.width;
             const h = canvas.height;
-            const rankName = document.getElementById('rankSelect').value;
+            const imgData = ctx.getImageData(0, 0, w, h).data;
+            
+            let shadowData = [];
 
-            // Gambar Badge-nya
-            sCtx.drawImage(canvas, x, y);
+            // Memindai setiap titik di canvas
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const r = imgData[idx];
+                    const g = imgData[idx+1];
+                    const b = imgData[idx+2];
+                    const a = imgData[idx+3];
 
-            // Bikin kotak merah tipis buat menandai batas (biar gampang ngepasinnya)
-            sCtx.strokeStyle = "rgba(255, 0, 0, 0.8)";
-            sCtx.lineWidth = 1;
-            sCtx.strokeRect(x, y, w, h);
+                    // Jika pixel tidak transparan
+                    if (a > 10) { 
+                        const hexCode = rgbToHex(r, g, b);
+                        // Format: Xpx Ypx Warna
+                        shadowData.push(`${x}px ${y}px ${hexCode}`);
+                    }
+                }
+            }
 
-            // Update Text Data untuk AI
-            const outputText = `RANK: ${rankName}\nUKURAN GLYPH MASTER: ${spriteCanvas.width}x${spriteCanvas.height}\nKOORDINAT BADGE -> [ X: ${x}, Y: ${y}, W: ${w}, H: ${h} ]`;
-            document.getElementById('outputData').value = outputText;
+            // Membangun text HTML dan CSS final
+            const className = `badge-${rankName.toLowerCase()}`;
+            
+            let cssString = `<style>
+.${className} {
+    /* 1 div aja cukup, ukurannya 1x1 pixel */
+    width: 1px;
+    height: 1px;
+    /* Rahasianya ada di box-shadow ini */
+    box-shadow: 
+        ${shadowData.join(',\n        ')};
+}
+</style>
+
+<!-- Panggil tag div ini di mana saja di web mu -->
+<div class="${className}"></div>`;
+
+            // Tampilkan kodenya di textarea
+            document.getElementById('outputCode').value = cssString;
+
+            // Suntikkan langsung kodenya ke area live preview biar kamu bisa lihat hasilnya tanpa nunggu
+            document.getElementById('liveCssPreviewArea').innerHTML = cssString;
         }
 
-        function downloadImage() {
-            const link = document.createElement('a');
-            const rankName = document.getElementById('rankSelect').value;
-            link.download = `badge_${rankName.toLowerCase()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        window.onload = () => { 
-            generateRankBadge(); 
-            updateSpritePreview();
-        };
+        // Inisialisasi awal
+        window.onload = () => { drawRankToCanvas(); };
     </script>
 </body>
 </html>
