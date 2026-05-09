@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria Glyph Studio v12</title>
+    <title>Eldoria Ultimate Studio v13</title>
     <style>
         :root {
             --bg-main: #0f1012; --bg-panel: #1e1f22; --primary: #5865F2;
@@ -26,8 +26,8 @@
             box-sizing: border-box; border: 1px solid var(--border);
         }
 
-        .tool-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 100px; }
+        .tool-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; align-items: center; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 90px; }
         label { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; }
         
         input[type="file"], input[type="text"], input[type="number"], select {
@@ -86,55 +86,60 @@
         /* MODAL EDITOR MOBILE OPTIMIZED */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: flex-start; z-index: 1000;
+            overflow-y: auto; padding: 10px 0; box-sizing: border-box;
         }
         .modal {
             background: var(--bg-panel); border-radius: 12px; width: 95%; max-width: 450px;
-            max-height: 95vh; overflow-y: auto; border: 2px solid var(--primary); display: flex; flex-direction: column;
-            position: relative;
+            border: 2px solid var(--primary); display: flex; flex-direction: column; margin: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         
         .modal-header { 
             padding: 12px 15px; border-bottom: 1px solid #333; display: flex; 
             justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; 
+            border-top-left-radius: 10px; border-top-right-radius: 10px;
         }
 
         .sticky-canvas-area {
-            position: sticky; top: 0; z-index: 20; background: var(--bg-panel);
+            position: sticky; top: 53px; z-index: 20; background: var(--bg-panel);
             padding: 15px; border-bottom: 1px solid #333; box-shadow: 0 5px 10px rgba(0,0,0,0.4);
         }
 
         .editor-canvas-wrap {
-            width: 100%; max-width: 200px; aspect-ratio: 1/1; border: 2px solid #000; margin: 0 auto;
+            width: 100%; max-width: 220px; aspect-ratio: 1/1; border: 2px solid #000; margin: 0 auto;
             background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%);
             background-size: 20px 20px; cursor: crosshair; border-radius: 4px; overflow: hidden;
         }
 
-        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 8px; }
 
-        .tool-box { background: #111214; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        .tool-box h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--gold); text-transform: uppercase; border-bottom: 1px dashed #333; padding-bottom: 5px; }
-        
-        /* VISUAL PICKERS (CARD MENU) */
-        .visual-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        
+        /* ACCORDION MENU (Biar ga penuh layar) */
+        details {
+            background: #111214; border-radius: 8px; border: 1px solid #333; overflow: hidden;
+        }
+        summary {
+            padding: 12px 15px; font-size: 12px; color: var(--gold); font-weight: bold; text-transform: uppercase;
+            cursor: pointer; background: #18191c; list-style: none; display: flex; justify-content: space-between;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: "▼"; font-size: 10px; color: #888; }
+        details[open] summary::after { content: "▲"; }
+        .details-content { padding: 15px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #333; }
+
+        .visual-picker { display: flex; flex-wrap: wrap; gap: 8px; }
         .color-box {
-            width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
-            border: 2px solid #333; transition: 0.2s; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            width: 25px; height: 25px; border-radius: 4px; cursor: pointer; border: 2px solid #333; transition: 0.2s;
         }
-        .color-box:hover { transform: scale(1.1); }
         .color-box.active { border-color: var(--gold); transform: scale(1.15); box-shadow: 0 0 8px var(--gold); }
-
         .icon-box {
-            width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
-            background: #1e1f22; border: 2px solid #333; display: flex;
-            justify-content: center; align-items: center; font-size: 16px; transition: 0.2s;
+            width: 28px; height: 28px; border-radius: 4px; cursor: pointer; background: #1e1f22; border: 2px solid #333; 
+            display: flex; justify-content: center; align-items: center; font-size: 14px; transition: 0.2s;
         }
-        .icon-box:hover { background: #333; }
-        .icon-box.active { border-color: var(--gold); background: #333; box-shadow: 0 0 8px var(--gold); }
+        .icon-box.active { border-color: var(--gold); background: #333; }
 
-        .slider-group { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .slider-group label { width: 50px; color: #fff; font-size: 11px; }
+        .slider-group { display: flex; align-items: center; gap: 8px; }
+        .slider-group label { width: 55px; color: #fff; font-size: 10px; }
         input[type="range"] { flex: 1; accent-color: var(--success); }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -143,19 +148,17 @@
 </head>
 <body>
 
-    <h1>✨ ELDORIA STUDIO V12</h1>
+    <h1>✨ ELDORIA ULTIMATE v13</h1>
 
     <div class="toolbar">
         <div class="tool-row">
             <div class="input-group" style="flex: 2;">
-                <label>File Spritesheet (PNG)</label>
+                <label>Spritesheet (960x960 PNG)</label>
                 <input type="file" id="uploadFile">
             </div>
-            <!-- TOMBOL BIKIN KANVAS KOSONG (960x960) -->
             <button class="btn-warning" onclick="createEmptyCanvas()" style="margin-top: 15px;">✨ KANVAS KOSONG</button>
         </div>
         <div class="tool-row">
-            <!-- DEFAULT GRID 16x16 -->
             <div class="input-group"><label>X Grid</label><input type="number" id="gridCols" value="16"></div>
             <div class="input-group"><label>Y Grid</label><input type="number" id="gridRows" value="16"></div>
             <div class="input-group"><label>Hex Awal</label><input type="text" id="baseHex" value="E100"></div>
@@ -171,7 +174,6 @@
         <div class="glyph-gallery" id="galleryContainer"></div>
     </div>
 
-    <!-- EDITOR MODAL OPTIMIZED FOR MOBILE UX -->
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
             <div class="modal-header">
@@ -179,7 +181,7 @@
                 <button class="btn-danger" onclick="closeEditor()" style="padding: 5px 10px; font-size: 11px;">TUTUP</button>
             </div>
             
-            <!-- STICKY CANVAS: MELAYANG DI ATAS PAS DI SCROLL DI HP! -->
+            <!-- STICKY CANVAS PREVIEW -->
             <div class="sticky-canvas-area">
                 <div class="editor-canvas-wrap">
                     <canvas id="editCanvas"></canvas>
@@ -188,66 +190,116 @@
 
             <div class="modal-body">
                 
-                <!-- 1. TEMPLATE VISUAL (CARD MENU) -->
-                <div class="tool-box">
-                    <h4 style="color:#faa61a;">🛡️ 1. Desain Base & Icon (9 Pilihan)</h4>
-                    
-                    <label style="display:block; margin-bottom:5px;">Warna Rank:</label>
-                    <div class="visual-picker" id="colorPicker"></div>
+                <!-- SECTION 1: STYLE & WARNA -->
+                <details open>
+                    <summary>🛡️ 1. Desain Base & Warna</summary>
+                    <div class="details-content">
+                        <label>Warna Rank (9 Pilihan):</label>
+                        <div class="visual-picker" id="colorPicker"></div>
 
-                    <label style="display:block; margin-bottom:5px; margin-top:10px;">Logo Icon:</label>
-                    <div class="visual-picker" id="iconPicker"></div>
-
-                    <div style="display:flex; align-items:center; gap:10px; margin-top:15px;">
-                        <input type="color" id="iconColor" value="#ffffff" style="flex:1; padding:0; height: 35px; cursor: pointer;" title="Warna Icon">
-                        <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; flex:2;">
-                            <input type="checkbox" id="iconGradient" checked> Gradasi Icon
-                        </label>
-                        <button class="btn-warning" style="flex:2;" onclick="applyTemplate()">TERAPKAN</button>
-                    </div>
-                </div>
-
-                <!-- 2. KONTROL TEKS & POSISI -->
-                <div class="tool-box" style="border-color: var(--success);">
-                    <h4 style="color:#23a559;">🔤 2. Cetak Teks</h4>
-                    <input type="text" id="customText" placeholder="Ketik teks (Cth: MOD)" oninput="previewEditor()" style="margin-bottom: 10px;">
-                    
-                    <div class="slider-group">
-                        <label>POS X</label>
-                        <input type="range" id="textX" min="-5" max="60" value="23" oninput="previewEditor()">
-                    </div>
-                    <div class="slider-group">
-                        <label>POS Y</label>
-                        <input type="range" id="textY" min="-5" max="60" value="24" oninput="previewEditor()">
-                    </div>
-
-                    <div style="display:flex; gap:10px; margin-top:10px;">
-                        <select id="fontStyle" onchange="previewEditor()" style="flex:2;">
-                            <option value="smallcaps">Small Caps (Elegan)</option>
-                            <option value="regular">Regular Classic</option>
+                        <label>Style Background (16 Pilihan Extrim):</label>
+                        <select id="bgStyle">
+                            <option value="classic">1. Classic Eldoria (Halus + 3D Border)</option>
+                            <option value="shiny">2. Shiny Glass (Garis Cahaya Diagonal)</option>
+                            <option value="flat">3. Flat Minimalist (Solid, no gradient)</option>
+                            <option value="split">4. Split Half (Atas Terang, Bawah Gelap)</option>
+                            <option value="dotted">5. Dotted Overlay (Titik-titik retro)</option>
+                            <option value="neon">6. Cyber Neon (Background Hitam, Border Nyala)</option>
+                            <option value="scanline">7. Scanline CRT (Garis Horizontal)</option>
+                            <option value="metal">8. Metallic Brushed (Gradient Besi)</option>
+                            <option value="carbon">9. Carbon Fiber (Gelap Elegan)</option>
+                            <option value="hollow">10. Hollow Outline (Tengah Transparan)</option>
+                            <option value="grid">11. Grid Overlay (Kotak-kotak halus)</option>
+                            <option value="bevel">12. Hard Bevel (3D Kaku/Tegas)</option>
+                            <option value="inset">13. Inset Pressed (Tenggelam ke dalam)</option>
+                            <option value="glass">14. Frosted Glass (Terang Transparan)</option>
+                            <option value="vintage">15. Vintage Sepia (Warna Pudar Coklat)</option>
+                            <option value="ultimate">16. Eldoria Ultimate (Kombinasi Sempurna)</option>
                         </select>
-                        <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; padding:0; height: 35px; cursor: pointer;" title="Warna Teks">
                     </div>
-                    
-                    <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
-                        <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer;">
-                            <input type="checkbox" id="useShadow" checked onchange="previewEditor()"> Shadow
-                        </label>
-                        <button class="btn-success" style="flex:1;" onclick="stampText()">✅ BAKAR TEKS</button>
-                    </div>
-                </div>
+                </details>
 
-                <!-- 3. MANUAL PIXEL BRUSH -->
-                <div class="tool-box">
-                    <h4 style="color:#fff;">🖌️ 3. Brush Manual</h4>
-                    <div class="tool-row">
-                        <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
-                        <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
-                        <button style="flex:1; background:#444;" onclick="setTool('eraser')" id="btnEraser">Eraser</button>
-                    </div>
-                </div>
+                <!-- SECTION 2: ICON & SHADOW -->
+                <details>
+                    <summary>✨ 2. Logo Icon & Shadow (14 Icon)</summary>
+                    <div class="details-content">
+                        <div class="visual-picker" id="iconPicker"></div>
+                        
+                        <div class="tool-row">
+                            <div class="input-group">
+                                <label>Warna Icon</label>
+                                <input type="color" id="iconColor" value="#ffffff" style="height:35px; padding:0; cursor:pointer;">
+                            </div>
+                            <div class="input-group" style="justify-content:center;">
+                                <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; font-size:12px; margin-top:15px;">
+                                    <input type="checkbox" id="iconGradient" checked> Gradasi Icon
+                                </label>
+                            </div>
+                        </div>
 
-                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px;" onclick="saveEdit()">💾 SIMPAN & KEMBALI</button>
+                        <div style="border-top: 1px dashed #333; padding-top:10px;">
+                            <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; font-size:12px; margin-bottom:10px;">
+                                <input type="checkbox" id="useIconShadow" checked> Aktifkan Shadow Icon
+                            </label>
+                            <div class="tool-row">
+                                <div class="input-group"><label>Shadow X</label><input type="number" id="iconShadowX" value="0" style="padding:5px;"></div>
+                                <div class="input-group"><label>Shadow Y</label><input type="number" id="iconShadowY" value="1" style="padding:5px;"></div>
+                                <div class="input-group"><label>Warna</label><input type="color" id="iconShadowColor" value="#111111" style="height:28px; padding:0;"></div>
+                                <div class="input-group"><label>Opacity</label><input type="number" id="iconShadowOp" value="0.7" step="0.1" min="0" max="1" style="padding:5px;"></div>
+                            </div>
+                        </div>
+
+                        <button class="btn-warning btn-full" onclick="applyTemplate()">TERAPKAN BASE & ICON</button>
+                    </div>
+                </details>
+
+                <!-- SECTION 3: TEKS -->
+                <details open>
+                    <summary>🔤 3. Cetak Teks & Shadow</summary>
+                    <div class="details-content">
+                        <input type="text" id="customText" placeholder="Ketik teks (Cth: MOD)" oninput="previewEditor()">
+                        
+                        <div class="tool-row" style="margin-top:5px;">
+                            <select id="fontStyle" onchange="previewEditor()" style="flex:2;">
+                                <option value="modern">Modern Elegance (Baru)</option>
+                                <option value="smallcaps">Small Caps</option>
+                                <option value="regular">Regular Classic</option>
+                            </select>
+                            <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; padding:0; height: 35px; cursor: pointer;">
+                        </div>
+
+                        <div class="slider-group" style="margin-top:10px;"><label>GESER X</label><input type="range" id="textX" min="-5" max="60" value="23" oninput="previewEditor()"></div>
+                        <div class="slider-group"><label>GESER Y</label><input type="range" id="textY" min="-5" max="60" value="24" oninput="previewEditor()"></div>
+
+                        <div style="border-top: 1px dashed #333; padding-top:10px; margin-top:5px;">
+                            <label style="display:flex; align-items:center; gap:5px; color:#fff; cursor:pointer; font-size:12px; margin-bottom:10px;">
+                                <input type="checkbox" id="useTextShadow" checked onchange="previewEditor()"> Aktifkan Shadow Teks (Cahaya Depan)
+                            </label>
+                            <div class="tool-row">
+                                <div class="input-group"><label>Shadow X</label><input type="number" id="textShadowX" value="0" oninput="previewEditor()" style="padding:5px;"></div>
+                                <div class="input-group"><label>Shadow Y</label><input type="number" id="textShadowY" value="1" oninput="previewEditor()" style="padding:5px;"></div>
+                                <div class="input-group"><label>Warna</label><input type="color" id="textShadowColor" value="#3F3F3F" oninput="previewEditor()" style="height:28px; padding:0;"></div>
+                                <div class="input-group"><label>Opacity</label><input type="number" id="textShadowOp" value="1.0" step="0.1" min="0" max="1" oninput="previewEditor()" style="padding:5px;"></div>
+                            </div>
+                        </div>
+
+                        <button class="btn-success btn-full" onclick="stampText()" style="margin-top:10px;">✅ BAKAR TEKS KE GAMBAR</button>
+                    </div>
+                </details>
+
+                <!-- SECTION 4: MANUAL BRUSH -->
+                <details>
+                    <summary>🖌️ 4. Brush Manual</summary>
+                    <div class="details-content">
+                        <div class="tool-row">
+                            <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
+                            <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
+                            <button style="flex:1; background:#444;" onclick="setTool('eraser')" id="btnEraser">Eraser</button>
+                        </div>
+                    </div>
+                </details>
+
+                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px; margin-top: 10px;" onclick="saveEdit()">💾 SIMPAN PERUBAHAN & KEMBALI</button>
             </div>
         </div>
     </div>
@@ -267,7 +319,6 @@
         let isDrawing = false;
         let activeTool = 'brush';
 
-        // 9 WARNA CARD MENU
         const rankColors = [
             { id: "mod", color: "#55FF55", name: "Hijau Cerah" },
             { id: "admin", color: "#c0392b", name: "Merah Gelap" },
@@ -280,59 +331,48 @@
             { id: "eternalis", color: "#e67e22", name: "Oranye" }
         ];
 
-        // 9 ICON CARD MENU
+        // TOTAL 14 ICON
         const iconList = [
-            { id: "none", label: "❌" },
-            { id: "crown", label: "👑" },
-            { id: "skull", label: "💀" },
-            { id: "youtube", label: "▶️" },
-            { id: "shield", label: "🛡️" },
-            { id: "check", label: "✔️" },
-            { id: "lightning", label: "⚡" },
-            { id: "sword", label: "⚔️" },
-            { id: "gem", label: "💎" }
+            { id: "none", label: "❌" }, { id: "crown", label: "👑" }, { id: "skull", label: "💀" },
+            { id: "youtube", label: "▶️" }, { id: "shield", label: "🛡️" }, { id: "check", label: "✔️" },
+            { id: "lightning", label: "⚡" }, { id: "sword", label: "⚔️" }, { id: "gem", label: "💎" },
+            { id: "helmet", label: "🪖" }, { id: "bow", label: "🏹" }, { id: "potion", label: "🧪" },
+            { id: "book", label: "📖" }, { id: "anvil", label: "🔨" }
         ];
 
-        let selectedColor = rankColors[1].color; // Default Merah Admin
-        let selectedIcon = iconList[2].id; // Default Skull
+        let selectedColor = rankColors[1].color; 
+        let selectedIcon = iconList[2].id; 
 
-        // Render Visual Pickers
         function initPickers() {
             const cp = document.getElementById('colorPicker');
             rankColors.forEach(c => {
-                let div = document.createElement('div');
-                div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
+                let div = document.createElement('div'); div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
                 div.style.background = c.color; div.title = c.name;
-                div.onclick = () => {
-                    document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active'); selectedColor = c.color;
-                };
+                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
                 cp.appendChild(div);
             });
 
             const ip = document.getElementById('iconPicker');
             iconList.forEach(ic => {
-                let div = document.createElement('div');
-                div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
+                let div = document.createElement('div'); div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
                 div.innerText = ic.label; div.title = ic.id;
-                div.onclick = () => {
-                    document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active'); selectedIcon = ic.id;
-                };
+                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
                 ip.appendChild(div);
             });
         }
 
-        // Fonts
+        // 3 JENIS FONT
         const regularFont = {
             'A': ["010","101","111","101","101"], 'B': ["110","101","110","101","110"], 'C': ["011","100","100","100","011"], 'D': ["110","101","101","101","110"], 'E': ["111","100","111","100","111"], 'F': ["111","100","110","100","100"], 'G': ["011","100","101","101","011"], 'H': ["101","101","111","101","101"], 'I': ["111","010","010","010","111"], 'J': ["001","001","001","101","010"], 'K': ["101","101","110","101","101"], 'L': ["100","100","100","100","111"], 'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"], 'O': ["010","101","101","101","010"], 'P': ["110","101","110","100","100"], 'Q': ["010","101","101","011","001"], 'R': ["110","101","110","101","101"], 'S': ["011","100","010","001","110"], 'T': ["111","010","010","010","010"], 'U': ["101","101","101","101","011"], 'V': ["101","101","101","101","010"], 'W': ["10001","10001","10101","11011","10001"], 'X': ["101","101","010","101","101"], 'Y': ["101","101","010","010","010"], 'Z': ["111","001","010","100","111"], '1': ["010","110","010","010","111"], '2': ["010","101","001","010","111"], '3': ["110","001","010","001","110"], '0': ["010","101","101","101","010"]
         };
-
         const smallCapsFont = {
             'A': ["0110","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1110"], 'C': ["0111","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1110"], 'E': ["1111","1000","1110","1000","1111"], 'F': ["1111","1000","1110","1000","1000"], 'G': ["0111","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001"], 'I': ["111","010","010","010","111"], 'J': ["0001","0001","0001","1001","0110"], 'K': ["1001","1010","1100","1010","1001"], 'L': ["1000","1000","1000","1000","1111"], 'M': ["10001","11011","10101","10001","10001"], 'N': ["1001","1101","1011","1001","1001"], 'O': ["0110","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000"], 'Q': ["0110","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001"], 'S': ["0111","1000","0110","0001","1110"], 'T': ["111","010","010","010","010"], 'U': ["1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","0110","0110"], 'W': ["10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","01010","10001"], 'Y': ["1001","0110","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1111"]
         };
+        const modernFont = {
+            'A': ["0110","1001","1001","1111","1001","1001"], 'B': ["1110","1001","1110","1001","1110","1110"], 'C': ["0111","1000","1000","1000","1000","0111"], 'D': ["1110","1001","1001","1001","1001","1110"], 'E': ["1111","1000","1110","1000","1000","1111"], 'F': ["1111","1000","1110","1000","1000","1000"], 'G': ["0111","1000","1000","1011","1001","0111"], 'H': ["1001","1001","1111","1001","1001","1001"], 'I': ["111","010","010","010","010","111"], 'J': ["0001","0001","0001","0001","1001","0110"], 'K': ["1001","1010","1100","1010","1001","1001"], 'L': ["1000","1000","1000","1000","1000","1111"], 'M': ["10001","11011","10101","10001","10001","10001"], 'N': ["1001","1101","1011","1001","1001","1001"], 'O': ["0110","1001","1001","1001","1001","0110"], 'P': ["1110","1001","1110","1000","1000","1000"], 'Q': ["0110","1001","1001","1001","0110","0001"], 'R': ["1110","1001","1110","1010","1001","1001"], 'S': ["0111","1000","0110","0001","0001","1110"], 'T': ["111","010","010","010","010","010"], 'U': ["1001","1001","1001","1001","1001","0110"], 'V': ["1001","1001","1001","1001","0110","0110"], 'W': ["10001","10001","10001","10101","11011","10001"], 'X': ["10001","01010","00100","00100","01010","10001"], 'Y': ["1001","0110","0010","0010","0010","0010"], 'Z': ["1111","0001","0010","0100","1000","1111"], '1': ["010","110","010","010","010","111"], '2': ["0110","1001","0001","0010","0100","1111"], '3': ["1110","0001","0110","0001","0001","1110"], '0': ["0110","1001","1001","1001","1001","0110"]
+        };
 
-        const icons = {
+        const iconsMatrix = {
             crown: ["00100100","01000010","11011011","11111111","11111111"],
             skull: ["011110","111111","101101","111111","010010"],
             youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"],
@@ -341,7 +381,12 @@
             lightning: ["00110","01100","11111","00110","01000"],
             sword: ["00001","00011","01110","11100","01000"],
             gem: ["011110","111111","011110","001100"],
-            leaf: ["0010","0110","1111","0110","0010"]
+            leaf: ["0010","0110","1111","0110","0010"],
+            helmet: ["011110","010010","110011","101101","100001"], 
+            bow: ["00110","01010","10010","11000","00000"], 
+            potion: ["001100","001100","011110","111111","011110"], 
+            book: ["000000","011011","111111","111111","011011"], 
+            anvil: ["11111","00100","01110","11111","00000"]
         };
 
         function shadeColor(color, percent) {
@@ -349,6 +394,11 @@
             R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
             R = Math.min(255, Math.max(0, R)); G = Math.min(255, Math.max(0, G)); B = Math.min(255, Math.max(0, B));
             return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
+        }
+
+        function hexToRgbaAlpha(hex, alpha) {
+            let R = parseInt(hex.substring(1,3),16); let G = parseInt(hex.substring(3,5),16); let B = parseInt(hex.substring(5,7),16);
+            return `rgba(${R},${G},${B},${alpha})`;
         }
 
         function createEmptyCanvas() {
@@ -377,8 +427,6 @@
             const cols = parseInt(document.getElementById('gridCols').value);
             const rows = parseInt(document.getElementById('gridRows').value);
             const baseHexNum = parseInt(document.getElementById('baseHex').value, 16);
-            
-            // 960 / 16 = 60px
             const cellW = masterCanvas.width / cols; const cellH = masterCanvas.height / rows;
 
             glyphDataList = []; gallery.innerHTML = ''; 
@@ -429,7 +477,7 @@
 
         function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
 
-        // ENGINE TEXT PREVIEW (PERFECT SHADOW #3F3F3F)
+        // TEXT SHADOW DYNAMIC SYSTEM
         function previewEditor() {
             eCtx.clearRect(0,0, editCanvas.width, editCanvas.height);
             eCtx.drawImage(baseEditorCanvas, 0, 0);
@@ -442,29 +490,42 @@
                 const fontSelect = document.getElementById('fontStyle').value;
                 const hasShadow = document.getElementById('useShadow').checked;
                 
-                const activeFont = fontSelect === 'smallcaps' ? smallCapsFont : regularFont;
+                const sx = parseInt(document.getElementById('textShadowX').value);
+                const sy = parseInt(document.getElementById('textShadowY').value);
+                const sColHex = document.getElementById('textShadowColor').value;
+                const sOp = document.getElementById('textShadowOp').value;
+                const shadowFill = hexToRgbaAlpha(sColHex, sOp);
+
+                let activeFont = regularFont;
+                if(fontSelect === 'smallcaps') activeFont = smallCapsFont;
+                if(fontSelect === 'modern') activeFont = modernFont;
 
                 const drawChar = (char, ox, oy, col) => {
                     const map = activeFont[char] || activeFont['?'] || ["111","101","111"]; 
                     for(let r=0; r<map.length; r++) {
                         for(let c=0; c<map[r].length; c++) {
                             if(map[r][c]==='1') {
-                                eCtx.fillStyle = col; 
-                                eCtx.fillRect(ox+c, oy+r, 1, 1);
+                                eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1);
                             }
                         }
                     }
-                    return map[0].length + 1; // Spasi
+                    return map[0].length + 1; 
                 };
 
+                // Shadow Pass
+                if(hasShadow) {
+                    let curX = tx;
+                    for(let char of txt) {
+                        if(char === ' ') { curX += 3; continue; }
+                        drawChar(char, curX + sx, ty + sy, shadowFill); 
+                        curX += (activeFont[char]?activeFont[char][0].length + 1 : 4);
+                    }
+                }
+                
+                // Text Pass
                 let curX = tx;
                 for(let char of txt) {
                     if(char === ' ') { curX += 3; continue; }
-                    
-                    if(hasShadow) {
-                        // Murni 1px offset, warna #3F3F3F standar Minecraft Shadow
-                        drawChar(char, curX + 1, ty + 1, '#3F3F3F'); 
-                    }
                     let width = drawChar(char, curX, ty, tCol);
                     curX += width;
                 }
@@ -476,14 +537,14 @@
             document.getElementById('customText').value = ""; previewEditor();
         }
 
-        // ENGINE TEMPLATE KOTAK (DYNAMIC BORDER LUAR)
+        // 16 BACKGROUND STYLES & SHADOW ICON SYSTEM
         function applyTemplate() {
             const baseColor = selectedColor;
             if(!baseColor) return;
+            const style = document.getElementById('bgStyle').value;
             const w = editCanvas.width; const h = editCanvas.height;
             
-            // Konfigurasi Warna DYNAMIC
-            const cOutline = shadeColor(baseColor, -65); // BORDER LUAR: 65% lebih gelap dari base (Bukan item!)
+            const cOutline = shadeColor(baseColor, -65); 
             const cBorderLight = shadeColor(baseColor, 50);  
             const cBorderDark = shadeColor(baseColor, -30);  
             const cTop = baseColor; 
@@ -491,66 +552,118 @@
             
             baseCtx.clearRect(0,0,w,h);
             const bh=14, iw=14, tw=40, gap=1;
-            // Gambar di tengah kanvas 60x60
             const sx = Math.floor((w-(iw+gap+tw))/2), sy = Math.floor((h-bh)/2);
             
             const drawBox = (x, y, bw) => {
-                // 1. Outline Luar (Dynamic Dark Color)
-                baseCtx.fillStyle = cOutline;
-                baseCtx.fillRect(x, y, bw, bh);
+                // Background & Styles
+                if(style === 'neon') {
+                    baseCtx.fillStyle = '#000'; baseCtx.fillRect(x, y, bw, bh);
+                    baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
+                } else if(style === 'hollow') {
+                    baseCtx.fillStyle = 'rgba(0,0,0,0)'; baseCtx.clearRect(x,y,bw,bh);
+                    baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
+                } else {
+                    baseCtx.fillStyle = cOutline; baseCtx.fillRect(x, y, bw, bh); // Outline luar
+                    
+                    if(style==='flat') {
+                        baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    } else if(style==='split') {
+                        baseCtx.fillStyle = cTop; baseCtx.fillRect(x+1, y+1, bw-2, Math.floor(bh/2));
+                        baseCtx.fillStyle = cBot; baseCtx.fillRect(x+1, y+1+Math.floor(bh/2), bw-2, bh-2-Math.floor(bh/2));
+                    } else if(style==='glass') {
+                        baseCtx.fillStyle = shadeColor(baseColor, -50); baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                        baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    } else if(style==='vintage') {
+                        baseCtx.fillStyle = '#A0522D'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    } else {
+                        // Classic Gradient Base
+                        const grad = baseCtx.createLinearGradient(0, y+1, 0, y+bh-1);
+                        grad.addColorStop(0, cTop); grad.addColorStop(1, cBot);
+                        baseCtx.fillStyle = grad; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                        
+                        if(style==='shiny') {
+                            baseCtx.fillStyle = 'rgba(255,255,255,0.3)';
+                            baseCtx.beginPath(); baseCtx.moveTo(x+1, y+bh-2); baseCtx.lineTo(x+1+Math.floor(bw/3), y+1); baseCtx.lineTo(x+1+Math.floor(bw/2), y+1); baseCtx.lineTo(x+1+Math.floor(bw/6), y+bh-2); baseCtx.fill();
+                        }
+                        if(style==='scanline') {
+                            baseCtx.fillStyle = 'rgba(0,0,0,0.2)';
+                            for(let i=y+2; i<y+bh-1; i+=2) baseCtx.fillRect(x+1, i, bw-2, 1);
+                        }
+                        if(style==='dotted') {
+                            baseCtx.fillStyle = shadeColor(baseColor, -40);
+                            for(let i=y+1; i<y+bh-1; i+=2) for(let j=x+1; j<x+bw-1; j+=2) baseCtx.fillRect(j, i, 1, 1);
+                        }
+                        if(style==='metal') {
+                            const mg = baseCtx.createLinearGradient(0, y+1, 0, y+bh-1);
+                            mg.addColorStop(0, '#ddd'); mg.addColorStop(0.5, '#888'); mg.addColorStop(1, '#bbb');
+                            baseCtx.fillStyle = mg; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                        }
+                        if(style==='carbon') {
+                            baseCtx.fillStyle = '#111'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                            baseCtx.fillStyle = '#222';
+                            for(let i=y+1; i<y+bh-1; i+=2) for(let j=x+1+(i%4===0?0:1); j<x+bw-1; j+=2) baseCtx.fillRect(j, i, 1, 1);
+                        }
+                        if(style==='grid') {
+                            baseCtx.fillStyle = 'rgba(0,0,0,0.1)';
+                            for(let i=y+1; i<y+bh-1; i+=3) baseCtx.fillRect(x+1, i, bw-2, 1);
+                            for(let j=x+1; j<x+bw-1; j+=3) baseCtx.fillRect(j, y+1, 1, bh-2);
+                        }
+                        if(style==='ultimate') {
+                            baseCtx.fillStyle = shadeColor(baseColor,-20); baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                            baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+                            baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(x+2, y+2, bw-4, Math.floor(bh/2)-1);
+                        }
+                    }
 
-                // 2. Inner Highlight
-                baseCtx.fillStyle = cBorderLight;
-                baseCtx.fillRect(x+1, y+1, bw-2, 1); 
-                baseCtx.fillRect(x+1, y+1, 1, bh-2); 
-
-                // 3. Inner Shadow
-                baseCtx.fillStyle = cBorderDark;
-                baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); 
-                baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
-
-                // 4. Center Smooth Gradient
-                const grad = baseCtx.createLinearGradient(0, y+2, 0, y+bh-2);
-                grad.addColorStop(0, cTop);
-                grad.addColorStop(1, cBot);
-                baseCtx.fillStyle = grad;
-                baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+                    // Inner Borders (kecuali styles tertentu)
+                    if(style!=='flat' && style!=='glass' && style!=='neon' && style!=='hollow' && style!=='vintage' && style!=='metal') {
+                        if(style==='inset') {
+                            baseCtx.fillStyle = cBorderDark; baseCtx.fillRect(x+1, y+1, bw-2, 1); baseCtx.fillRect(x+1, y+1, 1, bh-2); 
+                            baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
+                        } else {
+                            baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(x+1, y+1, bw-2, 1); baseCtx.fillRect(x+1, y+1, 1, bh-2); 
+                            baseCtx.fillStyle = cBorderDark; baseCtx.fillRect(x+1, y+bh-2, bw-2, 1); baseCtx.fillRect(x+bw-2, y+1, 1, bh-2); 
+                        }
+                    }
+                }
             };
 
-            drawBox(sx, sy, iw); 
-            drawBox(sx+iw+gap, sy, tw);
+            drawBox(sx, sy, iw); drawBox(sx+iw+gap, sy, tw);
             
+            // GAMBAR ICON & SHADOWNYA
             const iconName = selectedIcon;
-            const iCol = document.getElementById('iconColor').value;
-            const useIGrad = document.getElementById('iconGradient').checked;
-
-            if(iconName !== 'none' && icons[iconName]) {
-                const icon = icons[iconName];
+            if(iconName !== 'none' && iconsMatrix[iconName]) {
+                const icon = iconsMatrix[iconName];
                 const iH = icon.length; const iW = icon[0].length;
                 const ix = sx + Math.floor((iw-iW)/2);
                 const iy = sy + Math.floor((bh-iH)/2);
 
+                const iCol = document.getElementById('iconColor').value;
+                const useIGrad = document.getElementById('iconGradient').checked;
+                const useIShadow = document.getElementById('useIconShadow').checked;
+
+                // Shadow Icon Pass
+                if(useIShadow) {
+                    const isx = parseInt(document.getElementById('iconShadowX').value);
+                    const isy = parseInt(document.getElementById('iconShadowY').value);
+                    const isHex = document.getElementById('iconShadowColor').value;
+                    const isOp = document.getElementById('iconShadowOp').value;
+                    baseCtx.fillStyle = hexToRgbaAlpha(isHex, isOp);
+                    for(let r=0; r<iH; r++) for(let c=0; c<iW; c++) if(icon[r][c] === '1') baseCtx.fillRect(ix+c+isx, iy+r+isy, 1, 1); 
+                }
+
+                // Main Icon Pass
                 let iconFill = iCol;
                 if(useIGrad) {
                     const gradIcon = baseCtx.createLinearGradient(0, iy, 0, iy+iH);
-                    gradIcon.addColorStop(0, iCol); 
-                    gradIcon.addColorStop(1, shadeColor(iCol, -40)); 
+                    gradIcon.addColorStop(0, iCol); gradIcon.addColorStop(1, shadeColor(iCol, -40)); 
                     iconFill = gradIcon;
                 }
-
-                for(let r=0; r<iH; r++) {
-                    for(let c=0; c<iW; c++) {
-                        if(icon[r][c] === '1') { 
-                            baseCtx.fillStyle = iconFill; 
-                            baseCtx.fillRect(ix+c, iy+r, 1, 1); 
-                        }
-                    }
-                }
+                for(let r=0; r<iH; r++) for(let c=0; c<iW; c++) if(icon[r][c] === '1') { baseCtx.fillStyle = iconFill; baseCtx.fillRect(ix+c, iy+r, 1, 1); }
             }
             previewEditor();
         }
 
-        // TOUCH/MOUSE DRAWING MANUAL
         function setTool(t) { activeTool = t; document.getElementById('btnBrush').style.border = t==='brush'?'2px solid white':'none'; document.getElementById('btnEraser').style.border = t==='eraser'?'2px solid white':'none'; }
         function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = editCanvas.width/r.width; const clientX = e.touches?e.touches[0].clientX : e.clientX; const clientY = e.touches?e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX-r.left)*s), y: Math.floor((clientY-r.top)*s) }; }
         
