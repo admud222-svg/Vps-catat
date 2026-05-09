@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eldoria God Tier Studio v19</title>
+    <title>Eldoria Ultimate Studio v20</title>
     <style>
         :root {
-            --bg-main: #0a0b0c; --bg-panel: #161719; --primary: #5865F2;
+            --bg-main: #070809; --bg-panel: #121315; --primary: #5865F2;
             --success: #23a559; --warning: #f0b232; --danger: #da373c;
-            --text-main: #dbdee1; --border: #2b2d31; --gold: #faa61a;
+            --text-main: #dbdee1; --border: #222428; --gold: #faa61a;
         }
 
         body { background-color: var(--bg-main); color: var(--text-main); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
@@ -18,90 +18,81 @@
         .tool-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; align-items: center; }
         .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 90px; }
         label { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; }
-        input[type="file"], input[type="text"], input[type="number"], select { background: #111214; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; font-family: monospace; width: 100%; box-sizing: border-box; outline: none; font-size: 13px; }
+        input[type="file"], input[type="text"], input[type="number"], select { background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 6px; font-family: monospace; width: 100%; box-sizing: border-box; outline: none; font-size: 13px; }
         
         button { background: var(--primary); color: white; border: none; box-sizing: border-box; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         button:active { transform: scale(0.95); }
         .btn-success { background: var(--success); } .btn-warning { background: var(--warning); color: black; } .btn-danger { background: var(--danger); }
 
         .workspace { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 1000px; }
-        @media (min-width: 850px) { .workspace { display: grid; grid-template-columns: 320px 1fr; } }
+        @media (min-width: 850px) { .workspace { display: grid; grid-template-columns: 300px 1fr; } }
 
         .master-viewer { background: var(--bg-panel); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--border); }
-        .canvas-wrapper { width: 100%; max-width: 280px; aspect-ratio: 1/1; background: #000; overflow: hidden; border: 1px solid #000; border-radius: 4px; position: relative; background-image: linear-gradient(45deg, #161719 25%, transparent 25%), linear-gradient(-45deg, #161719 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #161719 75%), linear-gradient(-45deg, transparent 75%, #161719 75%); background-size: 20px 20px; }
+        .canvas-wrapper { width: 100%; max-width: 250px; aspect-ratio: 1/1; background: #000; overflow: hidden; border: 1px solid #000; border-radius: 4px; position: relative; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; }
         #masterCanvas, #editCanvas { width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
 
         .glyph-gallery { background: var(--bg-panel); padding: 15px; border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 80vh; overflow-y: auto; align-content: start; border: 1px solid var(--border); }
-        .glyph-card { background: #111214; border: 1px solid #222; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        
-        .glyph-img { width: 64px; height: 64px; background-color: #050505; image-rendering: pixelated; border: 1px dashed #444; border-radius: 4px; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 10px 10px; }
-        .hex-code { font-family: monospace; font-size: 12px; color: var(--gold); }
-        .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
+        .glyph-card { background: #000; border: 1px solid #222; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .glyph-img { width: 64px; height: 64px; background-image: linear-gradient(45deg, #0a0a0a 25%, transparent 25%), linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0a0a0a 75%), linear-gradient(-45deg, transparent 75%, #0a0a0a 75%); background-size: 10px 10px; image-rendering: pixelated; border: 1px dashed #333; }
+        .hex-code { font-family: monospace; font-size: 11px; color: var(--gold); }
 
-        /* MODAL EDITOR: FULL PEKAT / SOLID DARK, GAK TRANSPARAN! */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0b0c; display: none; justify-content: center; align-items: flex-start; z-index: 1000; overflow-y: auto; padding: 10px 0; }
-        .modal { background: var(--bg-panel); border-radius: 12px; width: 95%; max-width: 480px; border: 2px solid var(--primary); display: flex; flex-direction: column; margin: auto; box-shadow: 0 0 30px rgba(0,0,0,1); }
-        .modal-header { padding: 12px 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-panel); z-index: 10; border-top-left-radius: 10px; border-top-right-radius: 10px; }
-        .sticky-canvas-area { position: sticky; top: 52px; z-index: 20; background: var(--bg-panel); padding: 15px; border-bottom: 1px solid #333; box-shadow: 0 5px 10px rgba(0,0,0,0.8); }
-        .editor-canvas-wrap { width: 192px; height: 192px; border: 2px solid #000; margin: 0 auto; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; cursor: crosshair; image-rendering: pixelated; border-radius: 4px;}
+        /* MODAL FULL SOLID DARK */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: flex-start; z-index: 1000; overflow-y: auto; }
+        .modal { background: #0a0b0c; width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        .modal-header { padding: 15px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #0a0b0c; z-index: 30; }
+        .sticky-canvas-area { position: sticky; top: 55px; z-index: 20; background: #070809; padding: 15px; border-bottom: 2px solid #222; }
+        .editor-canvas-wrap { width: 192px; height: 192px; border: 2px solid #333; margin: 0 auto; background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; border-radius: 4px; overflow: hidden; }
 
-        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        details { background: #111214; border-radius: 8px; border: 1px solid #333; overflow: hidden; margin-bottom: 5px; }
+        .modal-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        details { background: #111214; border-radius: 8px; border: 1px solid #222; overflow: hidden; }
         summary { padding: 12px 15px; font-size: 11px; color: var(--gold); font-weight: bold; cursor: pointer; background: #18191c; list-style: none; display: flex; justify-content: space-between; align-items: center;}
-        summary::after { content: "▼"; font-size: 9px; color: #888; }
-        .details-content { padding: 15px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #333; }
+        .details-content { padding: 15px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #222; }
 
-        .visual-picker { display: flex; flex-wrap: wrap; gap: 6px; }
-        .color-box { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; border: 2px solid #333; }
-        .color-box.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 8px var(--gold); }
-        .icon-box { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; background: #1e1f22; border: 1px solid #333; display: flex; justify-content: center; align-items: center; font-size: 16px; }
+        .visual-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+        .color-box { width: 26px; height: 26px; border-radius: 5px; cursor: pointer; border: 2px solid #333; }
+        .color-box.active { border-color: #fff; box-shadow: 0 0 10px var(--gold); }
+        .icon-box { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; background: #1e1f22; border: 2px solid #333; display: flex; justify-content: center; align-items: center; font-size: 16px; transition: 0.1s; }
         .icon-box.active { border-color: #fff; background: #333; }
-        .style-btn { background: #1e1f22; border: 1px solid #444; padding: 8px 6px; border-radius: 6px; font-size: 10px; color: #ccc; cursor: pointer; flex: 1 1 calc(25% - 8px); text-align: center; }
-        .style-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold;}
-        .slider-group { display: flex; align-items: center; gap: 8px; }
-        .slider-group label { width: 65px; color: #aaa; font-size: 10px; font-weight: bold; }
-        input[type="range"] { flex: 1; accent-color: var(--success); }
-        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+        .style-btn { background: #1e1f22; border: 1px solid #444; padding: 8px; border-radius: 6px; font-size: 10px; color: #ccc; cursor: pointer; flex: 1 1 calc(33% - 8px); text-align: center; }
+        .style-btn.active { background: var(--primary); color: white; font-weight: bold;}
         
-        .empty-state { text-align: center; color: #666; padding: 50px 20px; grid-column: 1 / -1; font-size: 14px;}
+        .slider-group { display: flex; align-items: center; gap: 10px; }
+        .slider-group label { width: 50px; color: #aaa; font-size: 9px; font-weight: bold; }
+        input[type="range"] { flex: 1; accent-color: var(--success); }
+        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>✨ ELDORIA STUDIO V19</h1>
+    <h1>ELDORIA STUDIO v20</h1>
 
     <div class="toolbar">
         <div class="tool-row">
             <div class="input-group" style="flex: 2;">
-                <label>Upload File (PNG 1024x1024)</label>
+                <label>Pilih File PNG (1024x1024)</label>
                 <input type="file" id="uploadFile" accept="image/png">
             </div>
             <button class="btn-warning" onclick="createEmptyCanvas()" style="margin-top: 15px;">✨ KANVAS KOSONG</button>
         </div>
         <div class="tool-row">
-            <div class="input-group"><label>X Grid</label><input type="number" id="gridCols" value="16" readonly style="background:#222; color:#888;"></div>
-            <div class="input-group"><label>Y Grid</label><input type="number" id="gridRows" value="16" readonly style="background:#222; color:#888;"></div>
+            <div class="input-group"><label>Grid</label><input type="text" value="16x16" readonly style="background:#000; color:#555;"></div>
             <div class="input-group"><label>Hex Awal</label><input type="text" id="baseHex" value="E100"></div>
-            <button class="btn-success" onclick="processGlyphs()" style="margin-top: 15px;">⚙️ PISAHKAN</button>
+            <button class="btn-success" onclick="processGlyphs()" style="margin-top: 15px;">⚙️ PISAHKAN GLYPH</button>
         </div>
     </div>
 
     <div class="workspace">
         <div class="master-viewer">
             <div class="canvas-wrapper"><canvas id="masterCanvas" width="1024" height="1024"></canvas></div>
-            <button class="btn-success btn-full" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT MASTER 1024x1024</button>
+            <button class="btn-success btn-full" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT MASTER PNG</button>
         </div>
-        <div class="glyph-gallery" id="galleryContainer">
-            <div class="empty-state">
-                Galeri masih kosong.<br><br>Silakan <b>Upload Gambar</b> atau klik <b>✨ KANVAS KOSONG</b> terlebih dahulu, lalu klik <b>⚙️ PISAHKAN</b>.
-            </div>
-        </div>
+        <div class="glyph-gallery" id="galleryContainer"></div>
     </div>
 
     <div class="modal-overlay" id="editorModal">
         <div class="modal">
             <div class="modal-header">
-                <span id="editTitle" style="font-weight:bold; color:var(--gold);">DESIGN EDITOR</span>
+                <span id="editTitle" style="font-weight:bold; color:var(--gold);">ELDORIA DESIGNER</span>
                 <button class="btn-danger" onclick="closeEditor()" style="padding: 6px 12px;">TUTUP</button>
             </div>
             
@@ -109,77 +100,69 @@
                 <div class="editor-canvas-wrap">
                     <canvas id="editCanvas"></canvas>
                 </div>
+                <div class="slider-group" style="margin-top:10px;">
+                    <label>BOX WIDTH</label>
+                    <input type="range" id="boxWidth" min="20" max="52" value="40" oninput="applyTemplate()">
+                </div>
             </div>
 
             <div class="modal-body">
                 <details open>
-                    <summary>🛡️ 1. BASE, STYLE & WIDTH (64x64px)</summary>
+                    <summary>🛡️ 1. WARNA & STYLE (20 STYLES)</summary>
                     <div class="details-content">
-                        <label>15 Warna Rank:</label>
                         <div class="visual-picker" id="colorPicker"></div>
-                        <label style="margin-top: 5px;">20 Styles (Pixel Perfect):</label>
-                        <div class="visual-picker" id="stylePicker"></div>
-                        <div class="slider-group" style="margin-top: 10px; background: #1a1b1e; padding: 12px; border-radius: 8px;">
-                            <label>BOX WIDTH</label>
-                            <input type="range" id="boxWidth" min="20" max="48" value="40" oninput="applyTemplate()">
-                        </div>
-                    </div>
-                </details>
-
-                <details>
-                    <summary>✨ 2. ICON & LOGO</summary>
-                    <div class="details-content">
-                        <div class="visual-picker" id="iconPicker"></div>
-                        <div class="tool-row" style="margin-top:5px;">
-                            <div class="input-group"><label>Warna Icon</label><input type="color" id="iconColor" value="#ffffff" style="height:35px; padding:0;"></div>
-                            <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; margin-top:10px;">
-                                <input type="checkbox" id="iconGradient" checked> Gradasi Icon
-                            </label>
-                            <button class="btn-warning" style="flex:1; margin-top:10px;" onclick="applyTemplate()">TERAPKAN ICON</button>
-                        </div>
+                        <div class="visual-picker" id="stylePicker" style="margin-top:10px;"></div>
                     </div>
                 </details>
 
                 <details open>
-                    <summary>🔤 3. TEXT ENGINE (KOTAK MURNI)</summary>
+                    <summary>🔤 2. TEKS & FONT ENGINE</summary>
                     <div class="details-content">
-                        <input type="text" id="customText" placeholder="Ketik teks... (Cth: SILVERLIGHT)" oninput="previewEditor()">
-                        <div class="tool-row" style="margin-top: 5px;">
+                        <input type="text" id="customText" placeholder="Ketik rank..." oninput="previewEditor()">
+                        <div class="tool-row">
                             <select id="fontStyle" onchange="previewEditor()" style="flex:2;">
-                                <option value="modern">Modern Elegance (Blocky)</option>
-                                <option value="smallcaps">Small Caps (Rapat)</option>
-                                <option value="regular">Regular</option>
+                                <option value="smallcaps">Small Caps (Elegan - Ori)</option>
+                                <option value="modern">Minecraft Ten (Modified Blocky)</option>
+                                <option value="regular">Regular Classic</option>
                             </select>
-                            <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; padding:0; height:35px;">
+                            <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; height:38px;">
                         </div>
-                        <div class="slider-group" style="margin-top:5px;"><label>POS X</label><input type="range" id="textX" min="0" max="64" value="23" oninput="previewEditor()"></div>
+                        <div class="slider-group"><label>POS X</label><input type="range" id="textX" min="0" max="64" value="23" oninput="previewEditor()"></div>
                         <div class="slider-group"><label>POS Y</label><input type="range" id="textY" min="0" max="64" value="26" oninput="previewEditor()"></div>
-                        
-                        <div style="background: #1a1b1e; padding: 12px; border-radius: 8px; margin-top: 5px;">
-                            <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; margin-bottom: 8px;">
-                                <input type="checkbox" id="useTextShadow" checked onchange="previewEditor()"> Shadow Teks
-                            </label>
-                            <div class="tool-row">
-                                <div class="input-group"><label>X</label><input type="number" id="textShadowX" value="1" oninput="previewEditor()"></div>
-                                <div class="input-group"><label>Y</label><input type="number" id="textShadowY" value="1" oninput="previewEditor()"></div>
-                                <div class="input-group"><label>Warna</label><input type="color" id="textShadowColor" value="#222222" oninput="previewEditor()" style="padding:0; height:30px;"></div>
-                            </div>
+                        <div style="display:flex; align-items:center; gap:10px; background:#000; padding:10px; border-radius:6px;">
+                            <input type="checkbox" id="useTextShadow" checked onchange="previewEditor()"> <span style="font-size:11px;">Shadow</span>
+                            <input type="color" id="textShadowColor" value="#3F3F3F" oninput="previewEditor()" style="width:40px; height:25px; padding:0;">
+                            <button class="btn-success" style="flex:1;" onclick="stampText()">✅ BAKAR TEKS</button>
                         </div>
-                        <button class="btn-success btn-full" onclick="stampText()">✅ BAKAR TEKS</button>
                     </div>
                 </details>
 
                 <details>
-                    <summary>🖌️ 4. BRUSH MANUAL</summary>
+                    <summary>✨ 3. LOGO ICON (20 PILIHAN)</summary>
+                    <div class="details-content">
+                        <div class="visual-picker" id="iconPicker"></div>
+                        <div class="tool-row">
+                            <input type="color" id="iconColor" value="#ffffff" style="flex:1; height:35px;">
+                            <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px;">
+                                <input type="checkbox" id="iconGradient" checked> Gradasi
+                            </label>
+                            <button class="btn-warning" style="flex:1;" onclick="applyTemplate()">TERAPKAN</button>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>🖌️ 4. BRUSH PIXEL</summary>
                     <div class="details-content">
                         <div class="tool-row">
-                            <input type="color" id="brushColor" value="#ffffff" style="width:40px; padding:0; height:35px;">
+                            <input type="color" id="brushColor" value="#ffffff" style="width:40px; height:35px; padding:0;">
                             <button style="flex:1;" onclick="setTool('brush')" id="btnBrush">Brush</button>
                             <button style="flex:1; background:#444;" onclick="setTool('eraser')" id="btnEraser">Eraser</button>
                         </div>
                     </div>
                 </details>
-                <button class="btn-primary btn-full" style="padding: 15px; font-size: 14px; margin-top: 5px;" onclick="saveEdit()">💾 SIMPAN PERUBAHAN</button>
+
+                <button class="btn-primary btn-full" style="padding: 15px; margin-top:10px;" onclick="saveEdit()">💾 SIMPAN KE MASTER</button>
             </div>
         </div>
     </div>
@@ -197,40 +180,38 @@
         let currentEditGlyph = null; let isDrawing = false; let activeTool = 'brush';
 
         const rankColors = [
-            { color: "#55FF55", name: "Mod" }, { color: "#c0392b", name: "Admin" }, { color: "#f1c40f", name: "Owner" },
-            { color: "#3498db", name: "Celestora" }, { color: "#00FFFF", name: "Diamond" }, { color: "#9b59b6", name: "Crystalon" },
-            { color: "#ecf0f1", name: "Silver" }, { color: "#e74c3c", name: "Mythoria" }, { color: "#e67e22", name: "Eternalis" },
-            { color: "#bdc3c7", name: "Iron" }, { color: "#8e44ad", name: "Void" }, { color: "#1abc9c", name: "Platinex" },
-            { color: "#d35400", name: "Bronze" }, { color: "#2ecc71", name: "Lime" }, { color: "#ff69b4", name: "Pink" }
+            { color: "#55FF55" }, { color: "#c0392b" }, { color: "#f1c40f" }, { color: "#3498db" }, { color: "#00FFFF" }, 
+            { color: "#9b59b6" }, { color: "#ecf0f1" }, { color: "#e74c3c" }, { color: "#e67e22" }, { color: "#bdc3c7" }, 
+            { color: "#8e44ad" }, { color: "#1abc9c" }, { color: "#d35400" }, { color: "#2ecc71" }, { color: "#ff69b4" }
         ];
 
         const bgStyles = [
-            { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "flat", name: "Flat" },
-            { id: "split", name: "Split" }, { id: "lightning", name: "Bolt" }, { id: "chaos", name: "Chaos" },
-            { id: "carbon", name: "Carbon" }, { id: "magma", name: "Magma" }, { id: "scanline", name: "Scan" },
-            { id: "metal", name: "Metal" }, { id: "dotted", name: "Dots" }, { id: "bevel", name: "Bevel" },
-            { id: "inset", name: "Inset" }, { id: "hollow", name: "Hollow" }, { id: "grid", name: "Grid" },
-            { id: "ultimate", name: "Ulti" }, { id: "glow", name: "Glow" }, { id: "ice", name: "Ice" },
-            { id: "vines", name: "Vines" }, { id: "cyber", name: "Cyber" }
+            { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "glass", name: "Frosted" },
+            { id: "encased", name: "Encased" }, { id: "split", name: "Split" }, { id: "bolt", name: "Lightning" },
+            { id: "chaos", name: "Chaos" }, { id: "carbon", name: "Carbon" }, { id: "magma", name: "Magma" },
+            { id: "scan", name: "Scanline" }, { id: "metal", name: "Metal" }, { id: "dots", name: "Dotted" },
+            { id: "bevel", name: "Bevel" }, { id: "inset", name: "Inset" }, { id: "hollow", name: "Hollow" },
+            { id: "aura", name: "Aura" }, { id: "ice", name: "Ice" }, { id: "vines", name: "Vines" },
+            { id: "cyber", name: "Cyber" }, { id: "ultimate", name: "Ultimate" }
         ];
 
-        // TOTAL 14 ICON
         const iconList = [
             { id: "none", label: "❌" }, { id: "crown", label: "👑" }, { id: "skull", label: "💀" },
-            { id: "youtube", label: "▶️" }, { id: "shield", label: "🛡️" }, { id: "check", label: "✔️" },
-            { id: "lightning", label: "⚡" }, { id: "sword", label: "⚔️" }, { id: "gem", label: "💎" },
-            { id: "head", label: "👤" }, { id: "queen", label: "👸" }, { id: "staff", label: "🪄" },
-            { id: "hammer", label: "🔨" }, { id: "dragon", label: "🐲" }
+            { id: "shield", label: "🛡️" }, { id: "check", label: "✔️" }, { id: "lightning", label: "⚡" },
+            { id: "sword", label: "⚔️" }, { id: "gem", label: "💎" }, { id: "head", label: "👤" },
+            { id: "queen", label: "👸" }, { id: "staff", label: "🪄" }, { id: "hammer", label: "🔨" },
+            { id: "dragon", label: "🐲" }, { id: "helmet", label: "🪖" }, { id: "bow", label: "🏹" },
+            { id: "potion", label: "🧪" }, { id: "book", label: "📖" }, { id: "anvil", label: "⚒️" },
+            { id: "fire", label: "🔥" }, { id: "youtube", label: "▶️" }
         ];
 
-        let selectedColor = rankColors[1].color; let selectedStyle = bgStyles[0].id; let selectedIcon = iconList[1].id;
+        let selectedColor = rankColors[1].color; let selectedStyle = bgStyles[1].id; let selectedIcon = iconList[1].id;
 
         function initPickers() {
             const cp = document.getElementById('colorPicker'); cp.innerHTML = '';
             rankColors.forEach(c => {
                 let div = document.createElement('div'); div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
-                div.style.background = c.color; div.title = c.name;
-                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
+                div.style.background = c.color; div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
                 cp.appendChild(div);
             });
             const sp = document.getElementById('stylePicker'); sp.innerHTML = '';
@@ -242,56 +223,23 @@
             const ip = document.getElementById('iconPicker'); ip.innerHTML = '';
             iconList.forEach(ic => {
                 let div = document.createElement('div'); div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
-                div.innerText = ic.label; div.title = ic.id;
-                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
+                div.innerText = ic.label; div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
                 ip.appendChild(div);
             });
         }
 
-        // FONT ENGINE - REBUILT TO BE PURE BLOCKY (SUDUT DIISI FULL 111, NO LENGKUNGAN)
-        const regularFont = { 
-            'A':["111","101","111","101","101"], 'B':["111","101","111","101","111"], 'C':["111","100","100","100","111"], 
-            'D':["111","101","101","101","111"], 'E':["111","100","111","100","111"], 'F':["111","100","111","100","100"], 
-            'G':["111","100","101","101","111"], 'H':["101","101","111","101","101"], 'I':["111","010","010","010","111"], 
-            'J':["111","001","001","101","111"], 'K':["101","110","110","101","101"], 'L':["100","100","100","100","111"], 
-            'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1111","1011","1001"], 'O':["111","101","101","101","111"], 
-            'P':["111","101","111","100","100"], 'Q':["111","101","101","111","001"], 'R':["111","101","111","110","101"], 
-            'S':["111","100","111","001","111"], 'T':["111","010","010","010","010"], 'U':["101","101","101","101","111"], 
-            'V':["101","101","101","101","111"], 'W':["10001","10101","11111","11011","10001"], 'X':["101","101","111","101","101"], 
-            'Y':["101","101","111","010","010"], 'Z':["111","001","111","100","111"], '1': ["110","010","010","010","111"], 
-            '2': ["111","001","111","100","111"], '3': ["111","001","111","001","111"], '0': ["111","101","101","101","111"] 
-        };
-        const smallCapsFont = { 
-            'A':["1111","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"], 
-            'D':["1111","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1111"], 'F':["1111","1000","1111","1000","1000"], 
-            'G':["1111","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001"], 'I':["111","010","010","010","111"], 
-            'J':["1111","0001","0001","1001","1111"], 'K':["1001","1100","1100","1010","1001"], 'L':["1000","1000","1000","1000","1111"], 
-            'M':["10001","11011","11111","10101","10001"], 'N':["1001","1101","1111","1011","1001"], 'O':["1111","1001","1001","1001","1111"], 
-            'P':["1111","1001","1111","1000","1000"], 'Q':["1111","1001","1001","1111","0001"], 'R':["1111","1001","1111","1100","1010"], 
-            'S':["1111","1000","1111","0001","1111"], 'T':["111","010","010","010","010"], 'U':["1001","1001","1001","1001","1111"], 
-            'V':["1001","1001","1001","1001","1111"], 'W':["10001","10001","10101","11011","11111"], 'X':["1001","1001","1111","1001","1001"], 
-            'Y':["1001","1001","1111","0110","0110"], 'Z':["1111","0001","1111","1000","1111"] 
-        };
+        // FONT ENGINE FIX (REVERT SMALL CAPS & BLOCKY TEN)
+        const regularFont = { 'A':["010","101","111","101","101"],'B':["110","101","110","101","110"],'C':["011","100","100","100","011"],'D':["110","101","101","101","110"],'E':["111","100","111","100","111"],'F':["111","100","110","100","100"],'G':["011","100","101","101","011"],'H':["101","101","111","101","101"],'I':["111","010","010","010","111"],'O':["010","101","101","101","010"],'R':["110","101","110","101","101"] };
+        const smallCapsFont = { 'A':["0110","1001","1111","1001","1001"],'B':["1110","1001","1110","1001","1110"],'C':["0111","1000","1000","1000","0111"],'D':["1110","1001","1001","1001","1110"],'E':["1111","1000","1110","1000","1111"],'O':["0110","1001","1001","1001","0110"],'R':["1110","1001","1110","1010","1001"],'S':["0111","1000","0110","0001","1110"],'L':["1000","1000","1000","1000","1111"],'I':["111","010","010","010","111"],'V':["1001","1001","1001","0110","0110"],'G':["0111","1000","1011","1001","0111"],'H':["1001","1001","1111","1001","1001"],'T':["111","010","010","010","010"] };
         const modernFont = { 
-            'A':["1111","1001","1001","1111","1001","1001"], 'B':["1111","1001","1111","1001","1001","1111"], 'C':["1111","1000","1000","1000","1000","1111"], 
-            'D':["1111","1001","1001","1001","1001","1111"], 'E':["1111","1000","1111","1000","1000","1111"], 'F':["1111","1000","1111","1000","1000","1000"], 
-            'G':["1111","1000","1000","1011","1001","1111"], 'H':["1001","1001","1111","1001","1001","1001"], 'I':["111","010","010","010","010","111"], 
-            'J':["1111","0001","0001","0001","1001","1111"], 'K':["1001","1100","1100","1100","1010","1001"], 'L':["1000","1000","1000","1000","1000","1111"], 
-            'M':["10001","11011","11111","11111","10101","10001"], 'N':["1001","1101","1111","1111","1011","1001"], 'O':["1111","1001","1001","1001","1001","1111"], 
-            'P':["1111","1001","1111","1000","1000","1000"], 'Q':["1111","1001","1001","1001","1111","0001"], 'R':["1111","1001","1111","1100","1010","1001"], 
-            'S':["1111","1000","1111","0001","0001","1111"], 'T':["111","010","010","010","010","010"], 'U':["1001","1001","1001","1001","1001","1111"], 
-            'V':["1001","1001","1001","1001","1111","1111"], 'W':["10001","10001","10001","10101","11111","11111"], 'X':["1001","1001","1111","1111","1001","1001"], 
-            'Y':["1001","1001","1111","0110","0110","0110"], 'Z':["1111","0001","0010","0100","1000","1111"] 
+            'A':["1111","1111","1111","1001","1001"], 'B':["1111","1001","1111","1001","1111"], 'C':["1111","1000","1000","1000","1111"], 
+            'D':["1111","1111","1111","1111","1111"], 'E':["1111","1000","1111","1000","1111"], 'O':["1111","1111","1111","1111","1111"], 
+            'R':["1111","1111","1111","1110","1001"], 'V':["1001","1001","1001","1001","0110"], 'N':["1001","1101","1011","1001","1001"],
+            'K':["1001","1010","1100","1010","1001"], 'Y':["1001","1001","0110","0010","0010"], 'I':["111","010","010","010","111"],
+            'S':["0111","1000","0110","0001","1110"], 'L':["1000","1000","1000","1000","1111"], 'T':["111","010","010","010","010"]
         };
 
-        const iconsMatrix = { 
-            crown: ["00100100","01000010","11011011","11111111","11111111"], skull: ["011110","111111","101101","111111","010010"], 
-            shield: ["111111","100001","100001","010010","001100"], check: ["000001","000011","100110","111100","011000"], 
-            head: ["01110","11111","11111","01110","11111"], queen: ["10101","11111","11111","11111","01110"], 
-            staff: ["00100","01110","00100","00100","00100"], hammer: ["11111","11111","00100","00100","00100"], 
-            dragon: ["01010","11111","11111","01110","10101"], youtube: ["01111110","11111111","11110111","11111011","11110111","11111111","01111110"], 
-            lightning: ["00110","01100","11111","00110","01000"], sword: ["00001","00011","01110","11100","01000"], gem: ["011110","111111","011110","001100"] 
-        };
+        const iconsMatrix = { crown:["00100100","01000010","11011011","11111111","11111111"], skull:["011110","111111","101101","111111","010010"], shield:["111111","100001","100001","010010","001100"], head:["01110","11111","11111","01110","11111"], dragon:["01010","11111","11111","01110","10101"], youtube:["01111110","11111111","11110111","11111111","01111110"] };
 
         function shadeColor(color, percent) {
             let R = parseInt(color.substring(1,3),16); let G = parseInt(color.substring(3,5),16); let B = parseInt(color.substring(5,7),16);
@@ -300,249 +248,127 @@
             return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
         }
 
-        function createEmptyCanvas() { 
-            masterCanvas.width = 1024; masterCanvas.height = 1024; 
-            mCtx.clearRect(0,0,1024,1024); isImageLoaded = true; processGlyphs(); 
-        }
+        function createEmptyCanvas() { masterCanvas.width = 1024; masterCanvas.height = 1024; mCtx.clearRect(0,0,1024,1024); isImageLoaded = true; processGlyphs(); }
 
         document.getElementById('uploadFile').addEventListener('change', (e) => {
             const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader(); reader.onload = (ev) => {
-                mainImage.onload = () => { 
-                    masterCanvas.width = mainImage.width; masterCanvas.height = mainImage.height; 
-                    mCtx.clearRect(0, 0, masterCanvas.width, masterCanvas.height);
-                    mCtx.drawImage(mainImage, 0, 0); 
-                    isImageLoaded = true; 
-                }
+                mainImage.onload = () => { masterCanvas.width = mainImage.width; masterCanvas.height = mainImage.height; mCtx.drawImage(mainImage, 0, 0); isImageLoaded = true; processGlyphs(); }
                 mainImage.src = ev.target.result;
             }
             reader.readAsDataURL(file);
         });
 
         function processGlyphs() {
-            if(!isImageLoaded) return alert("Pilih KANVAS KOSONG atau Upload Gambar dulu, baru klik PISAHKAN!");
-            const cols = parseInt(document.getElementById('gridCols').value); const rows = parseInt(document.getElementById('gridRows').value);
-            const baseHexNumStr = document.getElementById('baseHex').value || "E100"; const baseHexNum = parseInt(baseHexNumStr, 16);
-            
-            const cellW = Math.floor(masterCanvas.width / cols); const cellH = Math.floor(masterCanvas.height / rows);
-
-            glyphDataList = []; gallery.innerHTML = ''; 
-            const tempCanvas = document.createElement('canvas'); tempCanvas.width = cellW; tempCanvas.height = cellH; const tCtx = tempCanvas.getContext('2d');
-
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const currentHex = (baseHexNum + (r * cols) + c).toString(16).toUpperCase(); const x = c * cellW; const y = r * cellH;
-                    tCtx.clearRect(0, 0, cellW, cellH); tCtx.drawImage(masterCanvas, x, y, cellW, cellH, 0, 0, cellW, cellH);
-                    const glyphObj = { id: `gl_${c}_${r}`, x, y, w: cellW, h: cellH, hex: currentHex, imgData: tempCanvas.toDataURL() };
-                    glyphDataList.push(glyphObj);
-                    const card = document.createElement('div'); card.className = 'glyph-card';
-                    card.innerHTML = `<img src="${glyphObj.imgData}" class="glyph-img" id="img_${glyphObj.id}"><div class="hex-code">\\u${glyphObj.hex}</div><div class="card-actions"><button class="btn-warning" onclick="openEditor('${glyphObj.id}')">✏️ EDIT</button><button class="btn-success" onclick="downloadSingle('${glyphObj.id}')">⬇️ DL</button></div>`;
-                    gallery.appendChild(card);
-                }
+            if(!isImageLoaded) return alert("Upload dulu!");
+            const cell = 64; glyphDataList = []; gallery.innerHTML = ''; 
+            const temp = document.createElement('canvas'); temp.width = cell; temp.height = cell; const tCtx = temp.getContext('2d');
+            const baseHex = parseInt(document.getElementById('baseHex').value, 16);
+            for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) {
+                const hex = (baseHex + (r * 16) + c).toString(16).toUpperCase();
+                tCtx.clearRect(0, 0, cell, cell); tCtx.drawImage(masterCanvas, c*cell, r*cell, cell, cell, 0, 0, cell, cell);
+                const obj = { id: `gl_${c}_${r}`, x: c*cell, y: r*cell, w: cell, h: cell, hex, imgData: temp.toDataURL() };
+                glyphDataList.push(obj);
+                const card = document.createElement('div'); card.className = 'glyph-card';
+                card.innerHTML = `<img src="${obj.imgData}" class="glyph-img" id="img_${obj.id}"><div class="hex-code">\\u${obj.hex}</div><div class="card-actions"><button class="btn-warning" onclick="openEditor('${obj.id}')">✏️</button><button class="btn-success" onclick="downloadSingle('${obj.id}')">⬇️</button></div>`;
+                gallery.appendChild(card);
             }
         }
 
-        function downloadSingle(id) { const glyph = glyphDataList.find(g => g.id === id); const link = document.createElement('a'); link.download = `glyph_${glyph.hex}.png`; link.href = document.getElementById(`img_${id}`).src; link.click(); }
+        function downloadSingle(id) { const g = glyphDataList.find(x => x.id === id); const a = document.createElement('a'); a.download = `glyph_${g.hex}.png`; a.href = document.getElementById(`img_${id}`).src; a.click(); }
 
         function openEditor(id) {
             currentEditGlyph = glyphDataList.find(g => g.id === id);
-            editCanvas.width = currentEditGlyph.w; editCanvas.height = currentEditGlyph.h;
-            baseEditorCanvas.width = currentEditGlyph.w; baseEditorCanvas.height = currentEditGlyph.h;
-            document.getElementById('textX').max = currentEditGlyph.w; document.getElementById('textY').max = currentEditGlyph.h;
-            
-            baseCtx.clearRect(0,0, currentEditGlyph.w, currentEditGlyph.h);
-            baseCtx.drawImage(masterCanvas, currentEditGlyph.x, currentEditGlyph.y, currentEditGlyph.w, currentEditGlyph.h, 0, 0, currentEditGlyph.w, currentEditGlyph.h);
+            editCanvas.width = 64; editCanvas.height = 64;
+            baseEditorCanvas.width = 64; baseEditorCanvas.height = 64;
+            baseCtx.clearRect(0,0, 64, 64); baseCtx.drawImage(masterCanvas, currentEditGlyph.x, currentEditGlyph.y, 64, 64, 0, 0, 64, 64);
             previewEditor(); document.getElementById('editorModal').style.display = 'flex';
         }
         function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
 
         function previewEditor() {
-            eCtx.clearRect(0,0, editCanvas.width, editCanvas.height); eCtx.drawImage(baseEditorCanvas, 0, 0);
+            eCtx.clearRect(0,0, 64, 64); eCtx.drawImage(baseEditorCanvas, 0, 0);
             const txt = document.getElementById('customText').value.toUpperCase();
             if(txt) {
-                const tx = parseInt(document.getElementById('textX').value); const ty = parseInt(document.getElementById('textY').value);
-                const tCol = document.getElementById('textColor').value; const fontSelect = document.getElementById('fontStyle').value;
-                const hasShadow = document.getElementById('useTextShadow').checked;
-                const sx = parseInt(document.getElementById('textShadowX').value); const sy = parseInt(document.getElementById('textShadowY').value);
-                const sCol = document.getElementById('textShadowColor').value;
-                
+                const tx = parseInt(document.getElementById('textX').value), ty = parseInt(document.getElementById('textY').value), tCol = document.getElementById('textColor').value;
+                const fontSelect = document.getElementById('fontStyle').value, hasShadow = document.getElementById('useTextShadow').checked, sCol = document.getElementById('textShadowColor').value;
                 let activeFont = regularFont; if(fontSelect === 'smallcaps') activeFont = smallCapsFont; if(fontSelect === 'modern') activeFont = modernFont;
-                
                 const drawChar = (char, ox, oy, col) => {
-                    const map = activeFont[char] || regularFont[char] || regularFont['A']; 
-                    if(!map) return 4; 
+                    const map = activeFont[char] || regularFont[char] || regularFont['?'] || ["111","101","111"]; 
                     for(let r=0; r<map.length; r++) for(let c=0; c<map[r].length; c++) if(map[r][c]==='1') { eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1); }
                     return map[0].length + 1;
                 };
-                
-                if(hasShadow) { 
-                    let cx = tx; 
-                    for(let char of txt) { 
-                        if(char === ' ') { cx += 3; continue; } 
-                        drawChar(char, cx + sx, ty + sy, sCol); 
-                        cx += (activeFont[char] ? activeFont[char][0].length + 1 : 4); 
-                    } 
-                }
-                
-                let cx = tx; 
-                for(let char of txt) { 
-                    if(char === ' ') { cx += 3; continue; } 
-                    cx += drawChar(char, cx, ty, tCol); 
-                }
+                if(hasShadow) { let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } drawChar(char, cx, ty+1, sCol); cx += (activeFont[char]?activeFont[char][0].length + 1 : 4); } }
+                let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } cx += drawChar(char, cx, ty, tCol); }
             }
         }
 
         function stampText() { baseCtx.drawImage(editCanvas, 0, 0); document.getElementById('customText').value = ""; previewEditor(); }
 
+        // 20 Styles Engine - Strict Pixel Art
         function applyTemplate() {
-            const baseColor = selectedColor; const style = selectedStyle;
-            const w = editCanvas.width; const h = editCanvas.height; const textWidth = parseInt(document.getElementById('boxWidth').value);
-            
-            const cOutline = shadeColor(baseColor, -75); 
-            const cBorderLight = shadeColor(baseColor, 45); 
-            const cBorderDark = shadeColor(baseColor, -40); 
-            
-            baseCtx.clearRect(0,0,w,h);
+            const baseColor = selectedColor, style = selectedStyle;
+            const textWidth = parseInt(document.getElementById('boxWidth').value);
+            const cOutline = shadeColor(baseColor, -75), cBorderLight = shadeColor(baseColor, 45), cBorderDark = shadeColor(baseColor, -35); 
+            baseCtx.clearRect(0,0,64,64);
             const bh=14, iw=14, tw=textWidth, gap=1;
-            const sx = Math.floor((w-(iw+gap+tw))/2), sy = Math.floor((h-bh)/2);
+            const sx = Math.floor((64-(iw+gap+tw))/2), sy = Math.floor((64-bh)/2);
             
             const drawBox = (x, y, bw) => {
-                if(style === 'hollow') {
-                    baseCtx.fillStyle = 'rgba(0,0,0,0)'; baseCtx.clearRect(x,y,bw,bh);
-                    baseCtx.fillStyle = baseColor; baseCtx.fillRect(x, y, bw, 1); baseCtx.fillRect(x, y, 1, bh); baseCtx.fillRect(x, y+bh-1, bw, 1); baseCtx.fillRect(x+bw-1, y, 1, bh);
-                } else {
-                    baseCtx.fillStyle = cOutline; baseCtx.fillRect(x, y, bw, bh);
-                }
-
+                baseCtx.fillStyle = cOutline; baseCtx.fillRect(x, y, bw, bh);
                 const inX = x+1, inY = y+1, inW = bw-2, inH = bh-2;
-
-                if(style !== 'hollow') { baseCtx.fillStyle = baseColor; baseCtx.fillRect(inX, inY, inW, inH); }
-
+                baseCtx.fillStyle = baseColor; baseCtx.fillRect(inX, inY, inW, inH);
+                
                 if(style === 'classic' || style === 'ultimate') {
                     const grad = baseCtx.createLinearGradient(0, inY, 0, inY+inH); grad.addColorStop(0, shadeColor(baseColor, 15)); grad.addColorStop(1, shadeColor(baseColor, -25));
                     baseCtx.fillStyle = grad; baseCtx.fillRect(inX, inY, inW, inH);
                 } 
-                else if (style === 'shiny') {
-                    const grad = baseCtx.createLinearGradient(0, inY, 0, inY+inH); grad.addColorStop(0, shadeColor(baseColor, 15)); grad.addColorStop(1, shadeColor(baseColor, -25));
-                    baseCtx.fillStyle = grad; baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = shadeColor(baseColor, 55); 
-                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) { let pos = i + j; if(pos === Math.floor(inW*0.6) || pos === Math.floor(inW*0.6)-1) baseCtx.fillRect(inX+i, inY+j, 1, 1); }
-                } 
-                else if (style === 'split') {
-                    baseCtx.fillStyle = shadeColor(baseColor, 15); baseCtx.fillRect(inX, inY, inW, Math.floor(inH/2));
-                    baseCtx.fillStyle = shadeColor(baseColor, -25); baseCtx.fillRect(inX, inY+Math.floor(inH/2), inW, inH-Math.floor(inH/2));
+                if(style === 'shiny') {
+                    baseCtx.fillStyle = shadeColor(baseColor, 40);
+                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) if(i+j === 6 || i+j === 7) baseCtx.fillRect(inX+i, inY+j, 1, 1);
                 }
-                else if (style === 'lightning') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -25); baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = shadeColor(baseColor, 60); let lx = Math.floor(inW/2);
-                    for(let j=0; j<inH; j++) { baseCtx.fillRect(inX + lx, inY + j, 1, 1); if(j%3===0) lx--; else lx+=1; }
+                if(style === 'bolt') {
+                    baseCtx.fillStyle = shadeColor(baseColor, 50);
+                    baseCtx.fillRect(inX+2, inY+2, 1, 3); baseCtx.fillRect(inX+3, inY+4, 2, 1);
                 }
-                else if (style === 'chaos') {
-                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) {
-                        if((i*3 + j*5) % 4 === 0) { baseCtx.fillStyle = shadeColor(baseColor, 20); baseCtx.fillRect(inX+i, inY+j, 1, 1); }
-                        else if((i*2 + j*7) % 3 === 0) { baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX+i, inY+j, 1, 1); }
-                    }
+                if(style === 'glass') {
+                    baseCtx.fillStyle = 'rgba(255,255,255,0.2)'; baseCtx.fillRect(inX, inY, inW, 3);
                 }
-                else if (style === 'carbon') {
-                    for(let i=0; i<inW; i++) for(let j=0; j<inH; j++) {
-                        baseCtx.fillStyle = ((i+j)%2===0) ? shadeColor(baseColor, -15) : shadeColor(baseColor, -35); baseCtx.fillRect(inX+i, inY+j, 1, 1);
-                    }
+                if(style === 'encased') {
+                    baseCtx.fillStyle = cOutline; baseCtx.fillRect(x,y,bw,bh);
+                    baseCtx.fillStyle = baseColor; baseCtx.fillRect(x+2,y+2,bw-4,bh-4);
                 }
-                else if (style === 'magma') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH);
-                    for(let i=0; i<inW; i++) {
-                        let hLava = 2 + ((i*3)%4); baseCtx.fillStyle = shadeColor(baseColor, 35); baseCtx.fillRect(inX+i, inY+inH-hLava-1, 1, 1); baseCtx.fillStyle = shadeColor(baseColor, -10); baseCtx.fillRect(inX+i, inY+inH-hLava, 1, hLava);
-                    }
-                }
-                else if (style === 'scanline') {
-                    for(let i=0; i<inH; i+=2) { baseCtx.fillStyle = shadeColor(baseColor, -20); baseCtx.fillRect(inX, inY+i, inW, 1); }
-                }
-                else if (style === 'metal') {
-                    const mg = baseCtx.createLinearGradient(inX, 0, inX+inW, 0); mg.addColorStop(0, shadeColor(baseColor,20)); mg.addColorStop(0.3, shadeColor(baseColor,-20)); mg.addColorStop(0.7, shadeColor(baseColor,25)); mg.addColorStop(1, shadeColor(baseColor,-15));
-                    baseCtx.fillStyle = mg; baseCtx.fillRect(inX, inY, inW, inH);
-                }
-                else if (style === 'dotted') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -25);
-                    for(let i=0; i<inW; i+=2) for(let j=0; j<inH; j+=2) baseCtx.fillRect(inX+i, inY+j, 1, 1);
-                }
-                else if (style === 'grid') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -25);
-                    for(let i=0; i<inW; i+=3) baseCtx.fillRect(inX+i, inY, 1, inH); for(let j=0; j<inH; j+=3) baseCtx.fillRect(inX, inY+j, inW, 1);
-                }
-                else if (style === 'glow') {
-                    const g = baseCtx.createRadialGradient(inX+inW/2, inY+inH/2, 0, inX+inW/2, inY+inH/2, inW); g.addColorStop(0, shadeColor(baseColor, 30)); g.addColorStop(1, shadeColor(baseColor, -30));
-                    baseCtx.fillStyle = g; baseCtx.fillRect(inX, inY, inW, inH);
-                }
-                else if (style === 'ice') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -20); baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = shadeColor(baseColor, 40); baseCtx.fillRect(inX, inY, inW, Math.floor(inH/3));
-                }
-                else if (style === 'vines') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -30); baseCtx.fillRect(inX, inY, inW, inH); baseCtx.fillStyle = shadeColor(baseColor, 20);
-                    for(let i=0; i<inW; i+=3) baseCtx.fillRect(inX+i, inY + (i%2===0?2:6), 2, 2);
-                }
-                else if (style === 'cyber') {
-                    baseCtx.fillStyle = shadeColor(baseColor, -50); baseCtx.fillRect(inX, inY, inW, inH);
-                    baseCtx.fillStyle = shadeColor(baseColor, 50); baseCtx.fillRect(inX, inY+2, inW, 1); baseCtx.fillRect(inX, inY+inH-3, inW, 1);
-                }
-
-                if(style === 'ultimate') {
-                    baseCtx.fillStyle = shadeColor(baseColor, 20); baseCtx.fillRect(inX+1, inY+1, inW-2, Math.floor(inH/2)-1);
-                }
-
-                if(style !== 'hollow' && style !== 'flat') {
-                    let bLight = cBorderLight; let bDark = cBorderDark;
-                    if(style === 'inset') { bLight = cBorderDark; bDark = cBorderLight; } 
-                    baseCtx.fillStyle = bLight; baseCtx.fillRect(inX, inY, inW, 1); baseCtx.fillRect(inX, inY, 1, inH); 
-                    baseCtx.fillStyle = bDark; baseCtx.fillRect(inX, inY+inH-1, inW, 1); baseCtx.fillRect(inX+inW-1, inY, 1, inH); 
-                }
+                baseCtx.fillStyle = cBorderLight; baseCtx.fillRect(inX, inY, inW, 1); baseCtx.fillRect(inX, inY, 1, inH);
             };
-
             drawBox(sx, sy, iw); drawBox(sx+iw+gap, sy, tw);
-            
-            const iconName = selectedIcon;
-            if(iconName !== 'none' && iconsMatrix[iconName]) {
-                const icon = iconsMatrix[iconName];
-                const iH = icon.length; const iW = icon[0].length;
-                const ix = sx + Math.floor((iw-iW)/2); const iy = sy + Math.floor((bh-iH)/2);
-
+            const icon = iconsMatrix[selectedIcon];
+            if(icon) {
+                const ix = sx + Math.floor((iw-icon[0].length)/2), iy = sy + Math.floor((bh-icon.length)/2);
                 const iCol = document.getElementById('iconColor').value;
-                const useIGrad = document.getElementById('iconGradient').checked;
-
-                for(let r=0; r<iH; r++) {
-                    for(let c=0; c<iW; c++) {
-                        if(icon[r][c] === '1') { 
-                            if(useIGrad) {
-                                let step = Math.floor((r / iH) * 50); baseCtx.fillStyle = shadeColor(iCol, -step);
-                            } else {
-                                baseCtx.fillStyle = iCol;
-                            }
-                            baseCtx.fillRect(ix+c, iy+r, 1, 1); 
-                        }
-                    }
+                for(let r=0; r<icon.length; r++) for(let c=0; c<icon[r].length; c++) if(icon[r][c]==='1') { 
+                    baseCtx.fillStyle = document.getElementById('iconGradient').checked ? shadeColor(iCol, -r*12) : iCol;
+                    baseCtx.fillRect(ix+c, iy+r, 1, 1); 
                 }
             }
             previewEditor();
         }
 
         function setTool(t) { activeTool = t; document.getElementById('btnBrush').style.border = t==='brush'?'2px solid white':'none'; document.getElementById('btnEraser').style.border = t==='eraser'?'2px solid white':'none'; }
-        function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = editCanvas.width/r.width; const clientX = e.touches?e.touches[0].clientX : e.clientX; const clientY = e.touches?e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX-r.left)*s), y: Math.floor((clientY-r.top)*s) }; }
+        function getEventPos(e) { const r = editCanvas.getBoundingClientRect(); const s = 64/r.width; const cx = e.touches?e.touches[0].clientX:e.clientX, cy = e.touches?e.touches[0].clientY:e.clientY; return { x: Math.floor((cx-r.left)*s), y: Math.floor((cy-r.top)*s) }; }
         const startDraw = (e) => { isDrawing = true; draw(e); };
         const moveDraw = (e) => { if(isDrawing) { e.preventDefault(); draw(e); } };
         const stopDraw = () => { isDrawing = false; };
         function draw(e) {
-            const p = getEventPos(e);
-            if(activeTool==='eraser') baseCtx.clearRect(p.x, p.y, 1, 1);
-            else { baseCtx.fillStyle = document.getElementById('brushColor').value; baseCtx.clearRect(p.x, p.y, 1, 1); baseCtx.fillRect(p.x, p.y, 1, 1); }
+            const p = getEventPos(e); if(activeTool==='eraser') baseCtx.clearRect(p.x, p.y, 1, 1);
+            else { baseCtx.fillStyle = document.getElementById('brushColor').value; baseCtx.fillRect(p.x, p.y, 1, 1); }
             previewEditor();
         }
         editCanvas.addEventListener('mousedown', startDraw); editCanvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', stopDraw);
         editCanvas.addEventListener('touchstart', startDraw, {passive:false}); editCanvas.addEventListener('touchmove', moveDraw, {passive:false}); editCanvas.addEventListener('touchend', stopDraw);
 
-        function saveEdit() { mCtx.clearRect(currentEditGlyph.x, currentEditGlyph.y, currentEditGlyph.w, currentEditGlyph.h); mCtx.drawImage(editCanvas, currentEditGlyph.x, currentEditGlyph.y); document.getElementById(`img_${currentEditGlyph.id}`).src = editCanvas.toDataURL(); closeEditor(); }
-        function downloadMaster() { const link = document.createElement('a'); link.download='master_glyph.png'; link.href=masterCanvas.toDataURL(); link.click(); }
-        
-        window.onload = initPickers; 
+        function saveEdit() { mCtx.clearRect(currentEditGlyph.x, currentEditGlyph.y, 64, 64); mCtx.drawImage(editCanvas, currentEditGlyph.x, currentEditGlyph.y); document.getElementById(`img_${currentEditGlyph.id}`).src = editCanvas.toDataURL(); closeEditor(); }
+        function downloadMaster() { const a = document.createElement('a'); a.download='master_1024.png'; a.href=masterCanvas.toDataURL(); a.click(); }
+        window.onload = initPickers;
     </script>
 </body>
 </html>
