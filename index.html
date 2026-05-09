@@ -3,198 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eldoria Glyph Inspector</title>
+    <title>Eldoria Rank Inspector | CSS Extractor</title>
     <style>
-        :root { --discord-blue: #7289da; --dark-bg: #2c2f33; --panel-bg: #23272a; }
-        body { background-color: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .container { background: var(--panel-bg); padding: 20px; border-radius: 12px; border: 2px solid var(--discord-blue); width: 95%; max-width: 1100px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        :root { 
+            --primary: #7289da; 
+            --gold: #faa61a; 
+            --success: #43b581; 
+            --bg: #2c2f33; 
+            --panel: #23272a; 
+        }
         
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .upload-section { background: #1e2124; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: center; }
-        
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            margin: 0; 
+        }
+
+        .main-container { 
+            background: var(--panel); 
+            padding: 25px; 
+            border-radius: 12px; 
+            border: 2px solid var(--primary); 
+            width: 95%; 
+            max-width: 1200px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h2 { color: var(--gold); margin: 0; }
+
+        .toolbar { 
+            background: #1e2124; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            align-items: center; 
+            justify-content: center;
+            border: 1px solid #444;
+        }
+
         .workspace { display: flex; gap: 20px; flex-wrap: wrap; }
-        
-        /* Area Image Viewer */
-        .viewer { flex: 2; min-width: 400px; position: relative; overflow: auto; background: #111; border: 2px solid #444; max-height: 700px; border-radius: 8px; }
+
+        /* Viewer Gambar Asli */
+        .image-viewer { 
+            flex: 2; 
+            min-width: 450px; 
+            position: relative; 
+            overflow: auto; 
+            background: #000; 
+            border: 2px solid #444; 
+            max-height: 700px; 
+            border-radius: 8px; 
+        }
         #glyphCanvas { cursor: crosshair; image-rendering: pixelated; display: block; }
 
-        /* Area Result & Export */
-        .sidebar { flex: 1; min-width: 300px; background: #1e2124; padding: 20px; border-radius: 8px; border: 1px solid var(--discord-blue); }
-        .preview-label { text-align: center; font-weight: bold; color: #faa61a; margin-bottom: 10px; }
-        .preview-box { width: 100px; height: 100px; background: #000; border: 2px dashed #43b581; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        /* Sidebar Hasil */
+        .sidebar { 
+            flex: 1; 
+            min-width: 320px; 
+            background: #1e2124; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid var(--primary); 
+        }
+
+        .preview-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-box { 
+            width: 83px; 
+            height: 83px; 
+            background: #111; 
+            border: 1px dashed var(--success); 
+            margin: 10px auto; 
+            overflow: hidden; 
+            position: relative; 
+        }
         
-        /* Container untuk hasil pixel art CSS */
-        #selectionPreview { width: 1px; height: 1px; position: absolute; top: 0; left: 0; }
+        #cssArtResult { width: 1px; height: 1px; position: absolute; top: 0; left: 0; }
 
         label { font-size: 13px; color: #aaa; margin-bottom: 5px; display: block; }
-        input[type="number"], textarea { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #444; background: #2c2f33; color: white; font-family: monospace; box-sizing: border-box; }
-        input[type="file"] { background: var(--discord-blue); padding: 8px; border-radius: 4px; cursor: pointer; }
-        
-        button { width: 100%; padding: 12px; background: #43b581; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.3s; }
-        button:hover { background: #3ca374; transform: translateY(-2px); }
-        
-        .coord-display { background: #000; padding: 10px; border-radius: 4px; border-left: 4px solid #faa61a; font-family: monospace; color: #faa61a; margin-bottom: 15px; }
+        input[type="number"], textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border-radius: 4px; 
+            border: 1px solid #444; 
+            background: var(--bg); 
+            color: white; 
+            font-family: monospace; 
+            box-sizing: border-box; 
+        }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--success); 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 15px; 
+            transition: 0.3s; 
+        }
+        .btn-main:hover { background: #3ca374; transform: scale(1.02); }
+
+        .coord-info { 
+            background: #000; 
+            padding: 12px; 
+            border-radius: 4px; 
+            border-left: 4px solid var(--gold); 
+            color: var(--gold); 
+            font-family: monospace; 
+            margin-bottom: 15px; 
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="main-container">
         <div class="header">
-            <h2>🔍 Eldoria Glyph Inspector & CSS Extractor</h2>
+            <h2>🔍 Eldoria Glyph Inspector</h2>
+            <p>Upload gambar Glyph kamu dan ekstrak rank menjadi kode CSS ringan.</p>
         </div>
-        
-        <div class="upload-section">
+
+        <div class="toolbar">
             <div style="flex: 1;">
-                <label>1. Pilih File Glyph (PNG 960x960):</label>
-                <input type="file" id="imageLoader" accept="image/png">
+                <label>1. Upload File (960x960 PNG):</label>
+                <input type="file" id="fileInput" accept="image/png" style="color:white;">
             </div>
             <div>
-                <label>Ukuran Grid (W):</label>
-                <input type="number" id="boxW" value="83" style="width: 80px; margin-bottom: 0;">
+                <label>Ukuran Box (W):</label>
+                <input type="number" id="boxW" value="83" style="width: 70px; margin-bottom: 0;">
             </div>
             <div>
-                <label>Ukuran Grid (H):</label>
-                <input type="number" id="boxH" value="83" style="width: 80px; margin-bottom: 0;">
+                <label>Ukuran Box (H):</label>
+                <input type="number" id="boxH" value="83" style="width: 70px; margin-bottom: 0;">
             </div>
         </div>
 
         <div class="workspace">
-            <!-- Tempat Gambar Asli -->
-            <div class="viewer">
+            <div class="image-viewer">
                 <canvas id="glyphCanvas"></canvas>
             </div>
 
-            <!-- Tempat Hasil Scan -->
             <div class="sidebar">
-                <div class="preview-label">PREVIEW CSS ART</div>
-                <div class="preview-box" id="previewContainer">
-                    <div id="selectionPreview"></div>
+                <div class="preview-section">
+                    <label>LIVE PREVIEW (83x83)</label>
+                    <div class="preview-box">
+                        <div id="cssArtResult"></div>
+                    </div>
                 </div>
-                
-                <label>Koordinat Terpilih:</label>
-                <div id="coordInfo" class="coord-display">X: 0, Y: 0</div>
-                
-                <button onclick="generateCSS()">✨ EKSTRAK JADI KODE CSS</button>
-                
-                <label style="margin-top: 15px;">Kode HTML & CSS (Siap Paste):</label>
-                <textarea id="outputCode" rows="12" readonly placeholder="Klik pada gambar lalu tekan tombol di atas..."></textarea>
-                
-                <p style="font-size: 11px; color: #666; text-align: center;">Trik: Gunakan ukuran box 83x83 agar pas dengan rank Eldoria.</p>
+
+                <div class="coord-info" id="statusInfo">Pilih koordinat pada gambar...</div>
+
+                <button class="btn-main" onclick="processPixels()">✨ GENERATE KODE CSS</button>
+
+                <label style="margin-top: 20px;">Copy Kode HTML/CSS ke Dashboard Adhost:</label>
+                <textarea id="finalCode" rows="12" readonly placeholder="Kode akan muncul di sini..."></textarea>
             </div>
         </div>
     </div>
 
     <script>
-        const imageLoader = document.getElementById('imageLoader');
+        const fileInput = document.getElementById('fileInput');
         const canvas = document.getElementById('glyphCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const previewDiv = document.getElementById('selectionPreview');
-        const output = document.getElementById('outputCode');
-        const coordInfo = document.getElementById('coordInfo');
+        const cssArtResult = document.getElementById('cssArtResult');
+        const finalCode = document.getElementById('finalCode');
+        const statusInfo = document.getElementById('statusInfo');
 
-        let img = new Image();
-        let selectedX = 0;
-        let selectedY = 0;
+        let originalImg = new Image();
+        let curX = 0;
+        let curY = 0;
 
-        // 1. Handle Upload Gambar
-        imageLoader.addEventListener('change', (e) => {
+        // 1. Loader Gambar
+        fileInput.addEventListener('change', (e) => {
             const reader = new FileReader();
             reader.onload = (event) => {
-                img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    drawOverlay();
+                originalImg.onload = () => {
+                    canvas.width = originalImg.width;
+                    canvas.height = originalImg.height;
+                    refreshCanvas();
                 };
-                img.src = event.target.result;
+                originalImg.src = event.target.result;
             };
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // 2. Handle Klik di Gambar
+        // 2. Klik untuk memilih area
         canvas.addEventListener('mousedown', (e) => {
-            if (!img.src) return;
+            if (!originalImg.src) return;
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             
+            curX = Math.floor((e.clientX - rect.left) * scaleX);
+            curY = Math.floor((e.clientY - rect.top) * scaleY);
+
             const w = parseInt(document.getElementById('boxW').value);
             const h = parseInt(document.getElementById('boxH').value);
 
-            // Klik mouse mendefinisikan pojok kiri atas kotak
-            selectedX = Math.floor((e.clientX - rect.left) * scaleX);
-            selectedY = Math.floor((e.clientY - rect.top) * scaleY);
-
-            coordInfo.innerText = `X: ${selectedX}, Y: ${selectedY} (Box: ${w}x${h})`;
-            
-            drawOverlay();
+            statusInfo.innerText = `X: ${curX}, Y: ${curY} | Box: ${w}x${h}`;
+            refreshCanvas();
         });
 
-        function drawOverlay() {
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+        function refreshCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImg, 0, 0);
             
             const w = parseInt(document.getElementById('boxW').value);
             const h = parseInt(document.getElementById('boxH').value);
             
-            // Gambar kotak seleksi merah
+            // Draw Selector
             ctx.strokeStyle = "#ff0000";
             ctx.lineWidth = 2;
-            ctx.strokeRect(selectedX, selectedY, w, h);
-
-            // Gambar highlight transparan
+            ctx.strokeRect(curX, curY, w, h);
             ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
-            ctx.fillRect(selectedX, selectedY, w, h);
+            ctx.fillRect(curX, curY, w, h);
         }
 
         function rgbToHex(r, g, b) {
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         }
 
-        // 3. Sistem Scan Piksel & Ubah ke CSS Murni
-        function generateCSS() {
-            if (!img.src) return alert("Upload gambar dulu!");
+        // 3. Ekstraksi Pixel ke Box-Shadow
+        function processPixels() {
+            if (!originalImg.src) return alert("Upload file glyph dulu!");
             
             const w = parseInt(document.getElementById('boxW').value);
             const h = parseInt(document.getElementById('boxH').value);
             
-            // Ambil data piksel area kotak
-            const imgData = ctx.getImageData(selectedX, selectedY, w, h).data;
-            let shadowData = [];
+            const imgData = ctx.getImageData(curX, curY, w, h).data;
+            let shadows = [];
 
-            // Memperkecil skala agar preview box shadow muat (opsional)
             for (let y = 0; y < h; y++) {
                 for (let x = 0; x < w; x++) {
-                    const idx = (y * w + x) * 4;
-                    const r = imgData[idx];
-                    const g = imgData[idx+1];
-                    const b = imgData[idx+2];
-                    const a = imgData[idx+3];
+                    const i = (y * w + x) * 4;
+                    const r = imgData[i];
+                    const g = imgData[i+1];
+                    const b = imgData[i+2];
+                    const a = imgData[i+3];
 
-                    if (a > 50) { // Hanya ambil pixel yang solid (nggak terlalu transparan)
+                    // Hanya ambil pixel yang solid (tidak transparan)
+                    if (a > 30) {
                         const hex = rgbToHex(r, g, b);
-                        shadowData.push(`${x}px ${y}px ${hex}`);
+                        shadows.push(`${x}px ${y}px ${hex}`);
                     }
                 }
             }
 
-            const cssCode = `<style>
-.eldoria-rank-pixel {
+            const className = `rank-eldoria-${Math.floor(Math.random()*1000)}`;
+            const codeOutput = `<style>
+.${className} {
     width: 1px;
     height: 1px;
     background: transparent;
     box-shadow: 
-        ${shadowData.join(',\n        ')};
+        ${shadows.join(',\n        ')};
+    /* Scale ini agar pixel terlihat tajam di web */
+    transform: scale(1.5);
+    transform-origin: top left;
 }
 </style>
 
-<!-- Elemen Rank -->
-<div class="eldoria-rank-pixel"></div>`;
+<div class="${className}"></div>`;
 
-            output.value = cssCode;
-            
-            // Render ke preview box
-            previewDiv.style.boxShadow = shadowData.join(',');
+            finalCode.value = codeOutput;
+            cssArtResult.style.boxShadow = shadows.join(',');
+            alert("Berhasil mengekstrak " + shadows.length + " pixel!");
         }
     </script>
 </body>
