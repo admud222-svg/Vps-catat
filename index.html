@@ -3,319 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdHost Testimoni & Web Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Pixel Shine Generator</title>
     <style>
-        body { background-color: #f3f4f6; }
-        .card-online { border-left: 4px solid #10b981; }
-        .card-expired { border-left: 4px solid #ef4444; }
-        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+        body {
+            background-color: #2c2f33;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 { margin-top: 0; }
+        .controls {
+            background: #23272a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        input[type="number"], input[type="color"], input[type="range"] {
+            padding: 5px;
+            border: 1px solid #7289da;
+            border-radius: 4px;
+            background: #2c2f33;
+            color: white;
+        }
+        button {
+            background-color: #7289da;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #5b6eae; }
+        .btn-template { background-color: #43b581; }
+        .btn-template:hover { background-color: #3ca374; }
+        .btn-download { background-color: #faa61a; }
+        .btn-download:hover { background-color: #e09619; }
+
+        /* Container Canvas dengan background checkerboard transparan */
+        .canvas-container {
+            background-image: 
+                linear-gradient(45deg, #808080 25%, transparent 25%), 
+                linear-gradient(-45deg, #808080 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #808080 75%), 
+                linear-gradient(-45deg, transparent 75%, #808080 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 2px solid #7289da;
+            border-radius: 4px;
+            /* Ukuran display di layar diperbesar, tapi pixel aslinya tetap kecil */
+            width: 320px; 
+            height: 320px;
+            cursor: crosshair;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            /* Ini trik CSS supaya gambarnya kotak tajam (pixelated), bukan blur */
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
     </style>
 </head>
-<body class="p-6 md:p-10 font-sans text-gray-800 relative">
+<body>
 
-    <div class="max-w-4xl mx-auto">
-        <div class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-600 mb-2">🚀 AdHost Admin System</h1>
-            <p class="text-gray-500">Generator Testimoni & Data Login Web</p>
+    <h1>✨ Pixel Shine Generator</h1>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Lebar (px)</label>
+            <input type="number" id="widthInput" value="32" min="8" max="128">
         </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
-            <h2 class="text-xl font-bold mb-4 flex items-center">📝 Input Invoice</h2>
-            <textarea id="invoiceInput" rows="6" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4 font-mono text-sm" placeholder="Paste invoice WhatsApp di sini..."></textarea>
-            <button onclick="processInvoice()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg">
-                Simpan Transaksi
-            </button>
+        <div class="control-group">
+            <label>Tinggi (px)</label>
+            <input type="number" id="heightInput" value="32" min="8" max="128">
         </div>
-
-        <h2 class="text-xl font-bold mb-4">Daftar Transaksi & Layanan</h2>
-        <div id="cardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            </div>
-    </div>
-
-    <div id="dateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] px-4">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm relative transform transition-all">
-            <button onclick="closeDateModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">✖</button>
-            <h3 class="text-lg font-bold text-gray-800 mb-1">📅 Konfirmasi Tanggal</h3>
-            <p class="text-xs text-gray-500 mb-4">Pastikan tanggal pembelian sudah sesuai.</p>
-            
-            <input type="date" id="transactionDateInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-5 text-gray-700 font-bold cursor-pointer">
-            
-            <div class="flex gap-2 justify-end">
-                <button onclick="closeDateModal()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">Batal</button>
-                <button onclick="confirmTransaction()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md">
-                    Simpan Data
-                </button>
-            </div>
+        <div class="control-group" style="justify-content: flex-end;">
+            <button onclick="resizeCanvas()">Ubah Ukuran</button>
+        </div>
+        <div class="control-group">
+            <label>Warna Brush</label>
+            <input type="color" id="colorInput" value="#ffffff">
+        </div>
+        <div class="control-group">
+            <label>Transparansi (Opacity)</label>
+            <input type="range" id="opacityInput" min="0.1" max="1" step="0.1" value="1">
+        </div>
+        <div class="control-group" style="justify-content: flex-end;">
+            <button onclick="setEraser()" style="background:#f04747;">Penghapus</button>
         </div>
     </div>
 
-    <div id="customModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md relative transform transition-all">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-lg leading-none">✖</button>
-            <h3 class="text-lg font-bold text-gray-800 mb-1">⚙️ Setup Web Login</h3>
-            <p class="text-xs text-gray-500 mb-4">Masukkan username untuk klien, lalu klik Copy.</p>
-            
-            <div class="flex gap-2 items-stretch">
-                <input type="text" id="userPanelInput" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm" placeholder="Masukkan User Panel...">
-                <button onclick="confirmCopyWeb()" id="btn-modal-copy" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg transition shadow-md whitespace-nowrap">
-                    📋 Copy
-                </button>
-            </div>
-        </div>
+    <div class="controls">
+        <button class="btn-template" onclick="loadTemplate()">Load Template Shine Diagonal</button>
+        <button class="btn-template" onclick="clearCanvas()" style="background:#f04747;">Bersihkan Kanvas</button>
+        <button class="btn-download" onclick="downloadImage()">⬇️ Download PNG</button>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="pixelCanvas" width="32" height="32"></canvas>
     </div>
 
     <script>
-        const bulanMap = {
-            "januari": 0, "jan": 0, "februari": 1, "feb": 1, "maret": 2, "mar": 2,
-            "april": 3, "apr": 3, "mei": 4, "juni": 5, "jun": 5, "juli": 6, "jul": 6,
-            "agustus": 7, "agu": 7, "september": 8, "sep": 8, "oktober": 9, "okt": 9,
-            "november": 10, "nov": 10, "desember": 11, "des": 11
-        };
-        const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        const namaHariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let isEraser = false;
 
-        let currentWebId = null;
-        let pendingData = null; 
-
-        document.addEventListener("DOMContentLoaded", renderCards);
-
-        function processInvoice() {
-            const rawText = document.getElementById("invoiceInput").value;
-            if (!rawText.trim()) return alert("Teks invoice kosong!");
-            const text = rawText.replace(/[*_]/g, ''); 
-
-            const extract = (regex) => {
-                const match = text.match(regex);
-                return match ? match[1].trim() : "-";
-            };
-
-            const orderId = extract(/🆔 Order ID\s*:\s*([^\n]+)/i);
-            const tanggalOri = extract(/📅 Tanggal\s*:\s*([^\n]+)/i);
-            const wa = extract(/📱 WhatsApp\s*:\s*([^\n]+)/i);
-            const namaPaket = extract(/▪️ Nama\s*:\s*([^\n]+)/i);
-            const harga = extract(/▪️ Harga\s*:\s*([^\n]+)/i);
-            const spek = extract(/▪️ Spek\s*:\s*([^\n]+)/i);
-
-            if (orderId === "-" || namaPaket === "-") {
-                return alert("Gagal mengambil data! Pastikan teks invoice sudah benar.");
-            }
-
-            let defaultDate = new Date();
-            const dateMatch = tanggalOri.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
-            if (dateMatch) {
-                const day = parseInt(dateMatch[1]);
-                const monthStr = dateMatch[2].toLowerCase();
-                const year = parseInt(dateMatch[3]);
-                const monthIndex = bulanMap[monthStr];
-                if (monthIndex !== undefined) {
-                    defaultDate = new Date(year, monthIndex, day);
-                }
-            }
-
-            const yyyy = defaultDate.getFullYear();
-            const mm = String(defaultDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(defaultDate.getDate()).padStart(2, '0');
-            document.getElementById("transactionDateInput").value = `${yyyy}-${mm}-${dd}`;
-
-            pendingData = { orderId, wa, namaPaket, harga, spek };
-            document.getElementById('dateModal').classList.remove('hidden');
+        function resizeCanvas() {
+            const w = document.getElementById('widthInput').value;
+            const h = document.getElementById('heightInput').value;
+            canvas.width = w;
+            canvas.height = h;
+            clearCanvas();
         }
 
-        // FUNGSI KONFIRMASI TANGGAL (SUDAH FIX OVERFLOW BULAN 31 -> 30)
-        function confirmTransaction() {
-            if (!pendingData) return;
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
 
-            const dateValue = document.getElementById("transactionDateInput").value;
-            if (!dateValue) return alert("Pilih tanggal terlebih dahulu!");
+        function setEraser() {
+            isEraser = true;
+        }
 
-            const [yearStr, monthStr, dayStr] = dateValue.split('-');
-            const year = parseInt(yearStr);
-            const monthIndex = parseInt(monthStr) - 1;
-            const day = parseInt(dayStr);
+        function hexToRgba(hex, opacity) {
+            let r = parseInt(hex.slice(1, 3), 16);
+            let g = parseInt(hex.slice(3, 5), 16);
+            let b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        }
 
-            const purchaseDate = new Date(year, monthIndex, day); 
+        function drawPixel(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Menghitung posisi mouse dikonversi ke koordinat pixel asli
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            if (isEraser) {
+                ctx.clearRect(x, y, 1, 1);
+            } else {
+                const hexColor = document.getElementById('colorInput').value;
+                const opacity = document.getElementById('opacityInput').value;
+                ctx.fillStyle = hexToRgba(hexColor, opacity);
+                // Hapus pixel lama di titik itu sebelum numpuk warna transparan
+                ctx.clearRect(x, y, 1, 1); 
+                ctx.fillRect(x, y, 1, 1);
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            // Jika pencet warna, matikan mode eraser
+            if(e.button === 0 && !isEraser && document.getElementById('colorInput').value) {
+                isEraser = false; 
+            }
+            drawPixel(e);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) drawPixel(e);
+        });
+
+        canvas.addEventListener('mouseup', () => { isDrawing = false; });
+        canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+
+        // Balikin jadi mode gambar kalau ganti warna/opacity
+        document.getElementById('colorInput').addEventListener('change', () => isEraser = false);
+        document.getElementById('opacityInput').addEventListener('change', () => isEraser = false);
+
+        // --- FUNGSI UTAMA: TEMPLATE SHINE ---
+        function loadTemplate() {
+            clearCanvas();
+            const w = canvas.width;
+            const h = canvas.height;
             
-            // Logika 1 Bulan Expired yang Benar
-            const expiryDate = new Date(year, monthIndex, day);
-            const expectedTargetMonth = expiryDate.getMonth() + 1;
-            expiryDate.setMonth(expectedTargetMonth);
-            
-            // Pengecekan overlap: Kalau targetnya April tapi malah lompat ke Mei karena tanggal 31
-            if (expiryDate.getMonth() !== expectedTargetMonth % 12) {
-                expiryDate.setDate(0); // Tarik ke hari terakhir bulan sebelumnya (misal 30 April)
-            }
+            // Loop untuk menggambar garis diagonal miring dari kanan atas ke kiri bawah
+            for (let i = 0; i < Math.max(w, h); i++) {
+                let x = w - 1 - i; // Mulai dari ujung kanan
+                let y = i;         // Mulai dari atas
 
-            const hari = namaHariIndo[purchaseDate.getDay()];
-            const tgl = purchaseDate.getDate();
-            const bln = namaBulanIndo[purchaseDate.getMonth()];
-            const thn = purchaseDate.getFullYear();
-            const tanggalFix = `${hari}, ${tgl} ${bln} ${thn}`;
-
-            const { orderId, wa, namaPaket, harga, spek } = pendingData;
-
-            const textDone = `TRANSACTION DONE ✅\n\n🆔 Order ID : ${orderId}\n📅 Tanggal : ${tanggalFix}\n\n📦 RINCIAN PAKET\n▪️ Nama : ${namaPaket}\n▪️ Harga : ${harga}\n▪️ Spek : ${spek}\n\nTerimakasih Sudah Beli Di AdHost 👍🏼`;
-
-            const newData = {
-                id: Date.now().toString(),
-                orderId, tanggal: tanggalFix, wa, namaPaket, harga, spek,
-                purchaseDateMs: purchaseDate.getTime(),
-                expiryDateMs: expiryDate.getTime(),
-                textDone
-            };
-
-            let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            db.unshift(newData);
-            localStorage.setItem("adhost_db", JSON.stringify(db));
-
-            document.getElementById("invoiceInput").value = "";
-            closeDateModal();
-            renderCards();
-        }
-
-        function closeDateModal() {
-            document.getElementById('dateModal').classList.add('hidden');
-            pendingData = null;
-        }
-
-        function renderCards() {
-            const container = document.getElementById("cardsContainer");
-            container.innerHTML = "";
-            let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const now = today.getTime();
-
-            db.forEach(data => {
-                const expDateObj = new Date(data.expiryDateMs);
-                expDateObj.setHours(0, 0, 0, 0);
-                const expiryMs = expDateObj.getTime();
-
-                const isExpired = now >= expiryMs;
-                const cardStatusClass = isExpired ? 'card-expired' : 'card-online';
-                
-                let sisaHariText = "Habis";
-                if (!isExpired) {
-                    const diffTime = expiryMs - now;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    sisaHariText = `${diffDays} hari lagi`;
-                }
-                
-                let waLink = data.wa.replace(/\D/g, '');
-                if (waLink.startsWith('0')) waLink = '62' + waLink.substring(1);
-
-                container.innerHTML += `
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col ${cardStatusClass}">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-xs font-bold text-gray-400">${data.orderId}</span>
-                            ${isExpired ? '<span class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">EXPIRED</span>' : '<span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">ONLINE</span>'}
-                        </div>
-                        
-                        <h3 class="font-bold text-gray-800 text-lg">${data.namaPaket}</h3>
-                        
-                        <div class="text-xs text-gray-600 mb-4 space-y-1 bg-gray-50 p-2 rounded-lg">
-                            <p>⚙️ ${data.spek}</p>
-                            <p>📅 <strong>Beli:</strong> ${new Date(data.purchaseDateMs).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <button onclick="copyTesti('${data.id}')" id="btn-t-${data.id}" class="bg-gray-800 text-white text-xs py-2.5 rounded font-bold hover:bg-gray-900 transition">📋 Copy Testi</button>
-                            <a href="https://wa.me/${waLink}" target="_blank" class="bg-green-500 text-white text-xs py-2.5 rounded font-bold hover:bg-green-600 transition text-center flex items-center justify-center">💬 WA Client</a>
-                            
-                            <button onclick="openModal('${data.id}')" id="btn-w-${data.id}" class="col-span-2 bg-blue-600 text-white text-xs py-2.5 rounded font-bold hover:bg-blue-700 transition">
-                                🌐 Copy Text Web Login
-                            </button>
-                        </div>
-
-                        <div class="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
-                            <span class="text-[11px] text-gray-500 font-medium">
-                                Exp: <span class="text-gray-800 font-bold">${expDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span> 
-                                <span class="${isExpired ? 'text-red-500' : 'text-orange-500'} ml-1 font-bold">(${sisaHariText})</span>
-                            </span>
-                            <button onclick="deleteData('${data.id}')" class="text-gray-400 hover:text-red-500 text-lg" title="Hapus Data">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // --- FUNGSI MODAL WEB LOGIN ---
-        function openModal(id) {
-            currentWebId = id; 
-            const modal = document.getElementById('customModal');
-            const input = document.getElementById('userPanelInput');
-            input.value = "user" + Math.floor(Math.random() * 1000); 
-            modal.classList.remove('hidden');
-            setTimeout(() => input.focus(), 100); 
-        }
-
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
-            currentWebId = null;
-        }
-
-        function confirmCopyWeb() {
-            if (!currentWebId) return;
-            const userPanel = document.getElementById('userPanelInput').value;
-            if (!userPanel.trim()) {
-                alert("Nama User Panel tidak boleh kosong!");
-                return;
-            }
-
-            const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            const data = db.find(d => d.id === currentWebId);
-
-            if (data) {
-                const textWeb = `*🆔 Order ID :* ${data.orderId}\n*👤User Panel :* ${userPanel}\n*🔑 Pw Panel :* 1212\n*🌐 Panel Web:* https://panel.admudsmp.my.id`;
-                
-                navigator.clipboard.writeText(textWeb).then(() => {
-                    const btnModal = document.getElementById('btn-modal-copy');
-                    btnModal.innerText = "✅ Done!";
-                    btnModal.classList.replace("bg-blue-600", "bg-green-600");
+                if (x >= 0 && x < w && y >= 0 && y < h) {
+                    // 1. Garis utama (Putih Solid) - "Gradak" berundak
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+                    ctx.fillRect(x, y, 1, 1);
                     
-                    const btnLuar = document.getElementById(`btn-w-${currentWebId}`);
-                    const originalLuar = btnLuar.innerText;
-                    btnLuar.innerText = "✅ Web Login Copied!";
-                    btnLuar.classList.replace("bg-blue-600", "bg-green-600");
-
-                    setTimeout(() => {
-                        btnModal.innerText = "📋 Copy";
-                        btnModal.classList.replace("bg-green-600", "bg-blue-600");
-                        
-                        btnLuar.innerText = originalLuar;
-                        btnLuar.classList.replace("bg-green-600", "bg-blue-600");
-                        closeModal(); 
-                    }, 1000);
-                });
+                    // 2. Shadow tipis di kanannya (Transparan)
+                    if(x + 1 < w) {
+                        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+                        ctx.fillRect(x + 1, y, 1, 1);
+                    }
+                    
+                    // 3. Shadow tipis di kirinya (Sangat Transparan)
+                    if(x - 1 >= 0) {
+                        ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+                        ctx.fillRect(x - 1, y, 1, 1);
+                    }
+                }
             }
+            alert("Template Shine berhasil dimuat! Garisnya diagonal berundak (gradak) dengan shadow tipis.");
         }
 
-        function copyTesti(id) {
-            const db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-            const data = db.find(d => d.id === id);
-            if (data) {
-                navigator.clipboard.writeText(data.textDone).then(() => {
-                    const btn = document.getElementById(`btn-t-${id}`);
-                    const originalText = btn.innerText;
-                    btn.innerText = "✅ Copied!";
-                    btn.classList.replace("bg-gray-800", "bg-green-600");
-                    setTimeout(() => { 
-                        btn.innerText = originalText; 
-                        btn.classList.replace("bg-green-600", "bg-gray-800");
-                    }, 2000);
-                });
-            }
-        }
-
-        function deleteData(id) {
-            if (confirm("Hapus data transaksi ini?")) {
-                let db = JSON.parse(localStorage.getItem("adhost_db")) || [];
-                db = db.filter(d => d.id !== id);
-                localStorage.setItem("adhost_db", JSON.stringify(db));
-                renderCards();
-            }
+        // --- FUNGSI DOWNLOAD ---
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'custom_shine.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
     </script>
 </body>
