@@ -102,7 +102,7 @@
                 <button class="btn-warning" style="flex:1;" onclick="downloadGlyphExportTxt()">📝 EXPORT TXT GLYPH MC</button>
                 <button class="btn-success" style="flex:1;" onclick="downloadGlyphExportJson()">📦 EXPORT JSON GLYPH</button>
             </div>
-            <div style="margin-top:10px; width:100%; font-size:11px; color:#8fa8ff; text-align:center; line-height:1.4;">Export TXT berisi nama glyph, kode unicode, dan karakter glyph jadi siap copas ke Minecraft.</div>
+            <div style="margin-top:10px; width:100%; font-size:11px; color:#8fa8ff; text-align:center; line-height:1.4;">Export TXT berisi nama glyph, kode unicode, dan karakter glyph jadi siap copas ke Minecraft. Style Rank Mini dibuat kecil untuk chat dan teks otomatis auto-fit.</div>
         </div>
         <div class="glyph-gallery" id="galleryContainer">
             <div class="empty-state">
@@ -124,7 +124,7 @@
                 </div>
                 <div class="slider-group" style="margin-top:15px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #333;">
                     <label style="color:var(--gold);">BOX WIDTH</label>
-                    <input type="range" id="boxWidth" min="20" max="49" value="42" oninput="applyTemplate()">
+                    <input type="range" id="boxWidth" min="20" max="49" value="48" oninput="applyTemplate()">
                 </div>
             </div>
 
@@ -248,7 +248,7 @@
         ];
 
         const bgStyles = [
-            { id: "ranktag", name: "Rank Tag" }, { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "glass", name: "Frosted" },
+            { id: "ranktag_mini", name: "Rank Mini" }, { id: "ranktag", name: "Rank Tag" }, { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "glass", name: "Frosted" },
             { id: "encased", name: "Encased" }, { id: "split", name: "Split" }, { id: "bolt", name: "Lightning" },
             { id: "chaos", name: "Chaos" }, { id: "carbon", name: "Carbon" }, { id: "magma", name: "Magma" },
             { id: "scan", name: "Scanline" }, { id: "metal", name: "Metal" }, { id: "dots", name: "Dotted" },
@@ -271,7 +271,7 @@
         ];
 
         let selectedColor = rankColors[0].color; 
-        let selectedStyle = 'ranktag'; 
+        let selectedStyle = 'ranktag_mini'; 
         let selectedIcon = iconList[1].id;
 
         function initPickers() {
@@ -451,23 +451,64 @@
             eCtx.clearRect(0,0, 64, 64); eCtx.drawImage(baseEditorCanvas, 0, 0);
             const txt = document.getElementById('customText').value.toUpperCase();
             if(txt) {
-                const tx = parseInt(document.getElementById('textX').value), ty = parseInt(document.getElementById('textY').value), tCol = document.getElementById('textColor').value;
+                const tCol = document.getElementById('textColor').value;
                 const fontSelect = document.getElementById('fontStyle').value, hasShadow = document.getElementById('useTextShadow').checked;
-                const sx = parseInt(document.getElementById('textShadowX').value), sy = parseInt(document.getElementById('textShadowY').value), sCol = document.getElementById('textShadowColor').value;
-                
+                const sxSh = parseInt(document.getElementById('textShadowX').value), sySh = parseInt(document.getElementById('textShadowY').value), sCol = document.getElementById('textShadowColor').value;
+                const autoRankFit = selectedStyle === 'ranktag_mini';
                 let activeFont = mcTenFont;
                 if(fontSelect === 'capsbold') activeFont = capsBoldFont;
                 if(fontSelect === 'smallcaps') activeFont = smallCapsFont;
                 if(fontSelect === 'regular') activeFont = regularFont;
+                let spacing = 1;
+
+                if(autoRankFit) {
+                    // Mini rank harus muat di chat: pakai font kecil otomatis.
+                    activeFont = smallCapsFont;
+                    spacing = 0;
+                }
+
+                const measureText = (value) => {
+                    let w = 0;
+                    for(let char of value) {
+                        if(char === ' ') { w += 2; continue; }
+                        const map = activeFont[char] || smallCapsFont[char] || smallCapsFont['A'];
+                        w += map[0].length + spacing;
+                    }
+                    return Math.max(0, w - spacing);
+                };
+
+                let tx = parseInt(document.getElementById('textX').value), ty = parseInt(document.getElementById('textY').value);
+                if(autoRankFit) {
+                    const textWidth = parseInt(document.getElementById('boxWidth').value);
+                    const bh = 11, iw = 11, gap = 1;
+                    const startX = Math.floor((64-(iw+gap+textWidth))/2), startY = 27;
+                    const textBoxX = startX + iw + gap;
+                    const allowedW = Math.max(8, textWidth - 5);
+                    const measured = measureText(txt);
+                    tx = textBoxX + Math.max(2, Math.floor((allowedW - measured) / 2));
+                    ty = startY + 3;
+                }
 
                 const drawChar = (char, ox, oy, col) => {
-                    const map = activeFont[char] || smallCapsFont[char] || smallCapsFont['A']; 
+                    const map = activeFont[char] || smallCapsFont[char] || smallCapsFont['A'];
                     for(let r=0; r<map.length; r++) for(let c=0; c<map[r].length; c++) if(map[r][c]==='1') { eCtx.fillStyle = col; eCtx.fillRect(ox+c, oy+r, 1, 1); }
-                    return map[0].length + 1;
+                    return map[0].length + spacing;
                 };
-                
-                if(hasShadow) { let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } drawChar(char, cx+sx, ty+sy, sCol); cx += (activeFont[char]?activeFont[char][0].length + 1 : 4); } }
-                let cx = tx; for(let char of txt) { if(char === ' ') { cx += 3; continue; } cx += drawChar(char, cx, ty, tCol); }
+
+                if(hasShadow) {
+                    let cx = tx;
+                    for(let char of txt) {
+                        if(char === ' ') { cx += autoRankFit ? 2 : 3; continue; }
+                        drawChar(char, cx+sxSh, ty+sySh, sCol);
+                        const map = activeFont[char] || smallCapsFont[char] || smallCapsFont['A'];
+                        cx += map[0].length + spacing;
+                    }
+                }
+                let cx = tx;
+                for(let char of txt) {
+                    if(char === ' ') { cx += autoRankFit ? 2 : 3; continue; }
+                    cx += drawChar(char, cx, ty, tCol);
+                }
             }
         }
 
@@ -485,30 +526,52 @@
             const cBorderBot = shadeColor(baseColor, -50); 
             
             baseCtx.clearRect(0,0,64,64);
-            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 15 : 14, tw = textWidth, gap = 1;
-            const sx = Math.floor((64-(iw+gap+tw))/2), sy = selectedStyle === 'ranktag' ? 24 : Math.floor((64-bh)/2);
+            const bh = selectedStyle === 'ranktag_mini' ? 11 : (selectedStyle === 'ranktag' ? 16 : 14), iw = selectedStyle === 'ranktag_mini' ? 11 : (selectedStyle === 'ranktag' ? 15 : 14), tw = textWidth, gap = 1;
+            const sx = Math.floor((64-(iw+gap+tw))/2), sy = selectedStyle === 'ranktag_mini' ? 27 : (selectedStyle === 'ranktag' ? 24 : Math.floor((64-bh)/2));
             
             const drawBox = (x, y, bw) => {
-                if(style === 'ranktag') {
-                    const outline = shadeColor(baseColor, -85);
-                    const edgeDark = shadeColor(baseColor, -55);
-                    const edgeMid = shadeColor(baseColor, -20);
-                    const mid = baseColor;
-                    const midLight = shadeColor(baseColor, 32);
-                    const hi = shadeColor(baseColor, 70);
-                    const low = shadeColor(baseColor, -38);
-                    baseCtx.fillStyle = outline; baseCtx.fillRect(x, y, bw, bh);
+                if(style === 'ranktag' || style === 'ranktag_mini') {
+                    const outer = shadeColor(baseColor, -72);
+                    const fillTop = shadeColor(baseColor, 22);
+                    const fillMid = shadeColor(baseColor, 10);
+                    const fillBot = shadeColor(baseColor, -6);
+                    const fillEdge = shadeColor(baseColor, -18);
+                    const cornerWhite = '#FFFFFF';
+                    const cornerSoft = shadeColor(baseColor, 78);
+
+                    // Outer dark frame
+                    baseCtx.fillStyle = outer; baseCtx.fillRect(x, y, bw, bh);
+
+                    // White outline like the sample tag
                     baseCtx.fillStyle = '#FFFFFF'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                    baseCtx.fillStyle = hi; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
-                    baseCtx.fillStyle = midLight; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
-                    baseCtx.fillStyle = hi; baseCtx.fillRect(x+3, y+3, bw-6, 2);
-                    baseCtx.fillStyle = shadeColor(baseColor, 46); baseCtx.fillRect(x+3, y+5, bw-6, 2);
-                    baseCtx.fillStyle = mid; baseCtx.fillRect(x+3, y+7, bw-6, 2);
-                    baseCtx.fillStyle = edgeMid; baseCtx.fillRect(x+3, y+9, bw-6, 2);
-                    baseCtx.fillStyle = low; baseCtx.fillRect(x+3, y+11, bw-6, 2);
-                    baseCtx.fillStyle = edgeDark; baseCtx.fillRect(x+3, y+13, bw-6, 1);
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.55)'; baseCtx.fillRect(x+4, y+4, Math.max(6, Math.floor((bw-8) * 0.55)), 1);
-                    baseCtx.fillStyle = shadeColor(baseColor, 62); baseCtx.fillRect(x+4, y+6, Math.max(4, Math.floor((bw-8) * 0.35)), 1);
+
+                    // Main fill area: same color family, only lighter/darker, no heavy 3D bevel
+                    const inX = x+2, inY = y+2, inW = bw-4, inH = bh-4;
+                    baseCtx.fillStyle = fillTop; baseCtx.fillRect(inX, inY, inW, Math.max(1, Math.floor(inH*0.28)));
+                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.28)), inW, Math.max(1, Math.floor(inH*0.36)));
+                    baseCtx.fillStyle = fillBot; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.64)), inW, inH - Math.max(1, Math.floor(inH*0.64)));
+
+                    // Subtle top/bottom tint so it matches the sample better
+                    baseCtx.fillStyle = shadeColor(baseColor, 38); baseCtx.fillRect(inX, inY, inW, 1);
+                    baseCtx.fillStyle = fillEdge; baseCtx.fillRect(inX, inY + inH - 1, inW, 1);
+
+                    // White corner / edge accents on both icon box and name box
+                    baseCtx.fillStyle = cornerWhite;
+                    baseCtx.fillRect(x+1, y+1, 1, 2);
+                    baseCtx.fillRect(x+1, y+1, 2, 1);
+                    baseCtx.fillRect(x+bw-2, y+1, 1, 2);
+                    baseCtx.fillRect(x+bw-3, y+1, 2, 1);
+                    baseCtx.fillRect(x+1, y+bh-2, 1, 2);
+                    baseCtx.fillRect(x+1, y+bh-2, 2, 1);
+                    baseCtx.fillRect(x+bw-2, y+bh-2, 1, 2);
+                    baseCtx.fillRect(x+bw-3, y+bh-2, 2, 1);
+
+                    // Soft colored corner pixels just inside so the outline is not too plain
+                    baseCtx.fillStyle = cornerSoft;
+                    baseCtx.fillRect(x+2, y+2, 1, 1);
+                    baseCtx.fillRect(x+bw-3, y+2, 1, 1);
+                    baseCtx.fillRect(x+2, y+bh-3, 1, 1);
+                    baseCtx.fillRect(x+bw-3, y+bh-3, 1, 1);
                     return;
                 }
                 if(style === 'hollow') {
@@ -629,7 +692,7 @@
                 const iCol = document.getElementById('iconColor').value;
                 const useIShadow = document.getElementById('useIconShadow').checked;
                 const isx = parseInt(document.getElementById('iconShadowX').value), isy = parseInt(document.getElementById('iconShadowY').value), isCol = document.getElementById('iconShadowColor').value;
-                drawMatrixIcon(baseCtx, icon, sx + 1, sy + 1, iw - 2, bh - 2, iCol, useIShadow, isx, isy, isCol, document.getElementById('iconGradient').checked);
+                drawMatrixIcon(baseCtx, icon, sx + 2, sy + 2, iw - 4, bh - 4, iCol, useIShadow, isx, isy, isCol, document.getElementById('iconGradient').checked);
             }
             previewEditor();
         }
