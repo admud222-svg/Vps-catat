@@ -98,6 +98,11 @@
         <div class="master-viewer">
             <div class="canvas-wrapper"><canvas id="masterCanvas" width="1024" height="1024"></canvas></div>
             <button class="btn-success btn-full" style="margin-top: 15px;" onclick="downloadMaster()">⬇️ EXPORT MASTER PNG</button>
+            <div class="tool-row" style="margin-top:10px;">
+                <button class="btn-warning" style="flex:1;" onclick="downloadGlyphExportTxt()">📝 EXPORT TXT GLYPH MC</button>
+                <button class="btn-success" style="flex:1;" onclick="downloadGlyphExportJson()">📦 EXPORT JSON GLYPH</button>
+            </div>
+            <div style="margin-top:10px; width:100%; font-size:11px; color:#8fa8ff; text-align:center; line-height:1.4;">Export TXT berisi nama glyph, kode unicode, dan karakter glyph jadi siap copas ke Minecraft.</div>
         </div>
         <div class="glyph-gallery" id="galleryContainer">
             <div class="empty-state">
@@ -138,6 +143,7 @@
                 <details open>
                     <summary>🔤 2. TEKS & 4 FONT ENGINE FULL</summary>
                     <div class="details-content">
+                        <input type="text" id="glyphName" placeholder="Nama glyph export, contoh: DIAMOND" oninput="syncGlyphNameToPreview()">
                         <input type="text" id="customText" placeholder="SILVERLIGHT / MOD / ADMIN..." oninput="previewEditor()">
                         <div class="tool-row">
                             <select id="fontStyle" onchange="previewEditor()" style="flex:2.5;">
@@ -242,7 +248,7 @@
         ];
 
         const bgStyles = [
-            { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "glass", name: "Frosted" },
+            { id: "ranktag", name: "Rank Tag" }, { id: "classic", name: "Classic" }, { id: "shiny", name: "Shiny" }, { id: "glass", name: "Frosted" },
             { id: "encased", name: "Encased" }, { id: "split", name: "Split" }, { id: "bolt", name: "Lightning" },
             { id: "chaos", name: "Chaos" }, { id: "carbon", name: "Carbon" }, { id: "magma", name: "Magma" },
             { id: "scan", name: "Scanline" }, { id: "metal", name: "Metal" }, { id: "dots", name: "Dotted" },
@@ -262,7 +268,7 @@
         ];
 
         let selectedColor = rankColors[0].color; 
-        let selectedStyle = bgStyles[0].id; 
+        let selectedStyle = 'ranktag'; 
         let selectedIcon = iconList[1].id;
 
         function initPickers() {
@@ -346,10 +352,10 @@
             for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) {
                 const hex = (baseHex + (r * 16) + c).toString(16).toUpperCase();
                 tCtx.clearRect(0, 0, cell, cell); tCtx.drawImage(masterCanvas, c*cell, r*cell, cell, cell, 0, 0, cell, cell);
-                const obj = { id: `gl_${c}_${r}`, x: c*cell, y: r*cell, hex, imgData: temp.toDataURL() };
+                const obj = { id: `gl_${c}_${r}`, x: c*cell, y: r*cell, hex, char: String.fromCodePoint(baseHex + (r * 16) + c), name: `GLYPH_${hex}`, text: '', imgData: temp.toDataURL() };
                 glyphDataList.push(obj);
                 const card = document.createElement('div'); card.className = 'glyph-card';
-                card.innerHTML = `<img src="${obj.imgData}" class="glyph-img" id="img_${obj.id}"><div class="hex-code">\\u${obj.hex}</div><div class="card-actions"><button class="btn-warning" onclick="openEditor('${obj.id}')">✏️</button><button class="btn-success" onclick="downloadSingle('${obj.id}')">⬇️</button></div>`;
+                card.innerHTML = `<img src="${obj.imgData}" class="glyph-img" id="img_${obj.id}"><div class="hex-code">\\u${obj.hex}</div><div id="meta_${obj.id}" style="font-size:11px; color:#fff; text-align:center; word-break:break-word;">${obj.name}</div><div style="font-size:10px; color:#8ad;">${obj.char}</div><div class="card-actions"><button class="btn-warning" onclick="openEditor('${obj.id}')">✏️</button><button class="btn-success" onclick="downloadSingle('${obj.id}')">⬇️</button></div>`;
                 gallery.appendChild(card);
             }
         }
@@ -360,9 +366,25 @@
             currentEditGlyph = glyphDataList.find(g => g.id === id);
             editCanvas.width = 64; editCanvas.height = 64; baseEditorCanvas.width = 64; baseEditorCanvas.height = 64;
             baseCtx.clearRect(0,0, 64, 64); baseCtx.drawImage(masterCanvas, currentEditGlyph.x, currentEditGlyph.y, 64, 64, 0, 0, 64, 64);
+            document.getElementById('glyphName').value = currentEditGlyph.name || '';
+            document.getElementById('customText').value = currentEditGlyph.text || currentEditGlyph.name || '';
             previewEditor(); document.getElementById('editorModal').style.display = 'flex';
         }
         function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
+
+        function slugifyGlyphName(str) {
+            return (str || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'GLYPH_' + currentEditGlyph.hex;
+        }
+
+        function syncGlyphNameToPreview() {
+            const nameInput = document.getElementById('glyphName');
+            nameInput.value = slugifyGlyphName(nameInput.value);
+        }
+
+        function updateGlyphCardMeta(g) {
+            const el = document.getElementById(`meta_${g.id}`);
+            if (el) el.textContent = g.name;
+        }
 
         function previewEditor() {
             eCtx.clearRect(0,0, 64, 64); eCtx.drawImage(baseEditorCanvas, 0, 0);
@@ -388,7 +410,7 @@
             }
         }
 
-        function stampText() { baseCtx.drawImage(editCanvas, 0, 0); document.getElementById('customText').value = ""; previewEditor(); }
+        function stampText() { baseCtx.drawImage(editCanvas, 0, 0); currentEditGlyph.text = document.getElementById('customText').value.toUpperCase(); previewEditor(); }
 
         // --- FULL STYLES ENGINE WITH THICK 3D BORDERS & THICK SHINY ---
         function applyTemplate() {
@@ -402,10 +424,20 @@
             const cBorderBot = shadeColor(baseColor, -50); 
             
             baseCtx.clearRect(0,0,64,64);
-            const bh=14, iw=14, tw=textWidth, gap=1;
-            const sx = Math.floor((64-(iw+gap+tw))/2), sy = Math.floor((64-bh)/2);
+            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 12 : 14, tw = textWidth, gap = 1;
+            const sx = Math.floor((64-(iw+gap+tw))/2), sy = selectedStyle === 'ranktag' ? 24 : Math.floor((64-bh)/2);
             
             const drawBox = (x, y, bw) => {
+                if(style === 'ranktag') {
+                    baseCtx.fillStyle = '#0D1D38'; baseCtx.fillRect(x, y, bw, bh);
+                    baseCtx.fillStyle = '#FFFFFF'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    baseCtx.fillStyle = '#7FEFFF'; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+                    baseCtx.fillStyle = '#46CFF6'; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
+                    baseCtx.fillStyle = '#B9F8FF'; baseCtx.fillRect(x+3, y+3, bw-6, 2);
+                    baseCtx.fillStyle = '#1F8FE0'; baseCtx.fillRect(x+3, y+bh-5, bw-6, 2);
+                    baseCtx.fillStyle = 'rgba(255,255,255,0.45)'; baseCtx.fillRect(x+4, y+4, Math.max(8, bw-12), 2);
+                    return;
+                }
                 if(style === 'hollow') {
                     baseCtx.fillStyle = 'rgba(0,0,0,0)'; baseCtx.clearRect(x,y,bw,bh);
                     // Hollow has thick border too
@@ -551,7 +583,47 @@
         editCanvas.addEventListener('mousedown', startDraw); editCanvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', stopDraw);
         editCanvas.addEventListener('touchstart', startDraw, {passive:false}); editCanvas.addEventListener('touchmove', moveDraw, {passive:false}); editCanvas.addEventListener('touchend', stopDraw);
 
-        function saveEdit() { mCtx.clearRect(currentEditGlyph.x, currentEditGlyph.y, 64, 64); mCtx.drawImage(editCanvas, currentEditGlyph.x, currentEditGlyph.y); document.getElementById(`img_${currentEditGlyph.id}`).src = editCanvas.toDataURL(); closeEditor(); }
+        function saveEdit() {
+            currentEditGlyph.name = slugifyGlyphName(document.getElementById('glyphName').value || document.getElementById('customText').value || currentEditGlyph.name);
+            currentEditGlyph.text = document.getElementById('customText').value.toUpperCase();
+            mCtx.clearRect(currentEditGlyph.x, currentEditGlyph.y, 64, 64);
+            mCtx.drawImage(editCanvas, currentEditGlyph.x, currentEditGlyph.y);
+            currentEditGlyph.imgData = editCanvas.toDataURL();
+            document.getElementById(`img_${currentEditGlyph.id}`).src = currentEditGlyph.imgData;
+            updateGlyphCardMeta(currentEditGlyph);
+            closeEditor();
+        }
+
+        function buildGlyphExportList() {
+            return glyphDataList.map(g => ({ name: g.name || `GLYPH_${g.hex}`, unicode: `\\u${g.hex}`, char: g.char, text: g.text || '' }));
+        }
+
+        function downloadTextFile(filename, content, mime='text/plain') {
+            const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+            const a = document.createElement('a');
+            a.download = filename;
+            a.href = URL.createObjectURL(blob);
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 500);
+        }
+
+        function downloadGlyphExportTxt() {
+            const lines = ['# Eldoria Glyph Export', '# Format: NAME | UNICODE | GLYPH | PREVIEW_TEXT', '# Karakter glyph di kolom ke-3 bisa langsung dicopy ke Minecraft jika font glyph sudah dipasang.', ''];
+            buildGlyphExportList().forEach(g => {
+                lines.push(`${g.name} | ${g.unicode} | ${g.char} | ${g.text || g.name}`);
+            });
+            downloadTextFile('eldoria_glyph_export.txt', lines.join('\n'));
+        }
+
+        function downloadGlyphExportJson() {
+            const payload = {
+                baseHex: document.getElementById('baseHex').value.toUpperCase(),
+                generatedAt: new Date().toISOString(),
+                glyphs: buildGlyphExportList()
+            };
+            downloadTextFile('eldoria_glyph_export.json', JSON.stringify(payload, null, 2), 'application/json');
+        }
+
         function downloadMaster() { const a = document.createElement('a'); a.download='master_1024.png'; a.href=masterCanvas.toDataURL(); a.click(); }
         window.onload = initPickers;
     </script>
