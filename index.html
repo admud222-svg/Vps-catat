@@ -463,8 +463,9 @@
 
                 if(autoRankFit) {
                     // Mini rank harus muat di chat: pakai font kecil otomatis.
+                    // Kasih jarak huruf tipis 1px biar tidak terlalu mepet.
                     activeFont = smallCapsFont;
-                    spacing = 0;
+                    spacing = 1;
                 }
 
                 const measureText = (value) => {
@@ -483,7 +484,7 @@
                     const bh = 11, iw = 11, gap = 1;
                     const startX = Math.floor((64-(iw+gap+textWidth))/2), startY = 27;
                     const textBoxX = startX + iw + gap;
-                    const allowedW = Math.max(8, textWidth - 5);
+                    const allowedW = Math.max(8, textWidth - 4);
                     const measured = measureText(txt);
                     tx = textBoxX + Math.max(2, Math.floor((allowedW - measured) / 2));
                     ty = startY + 3;
@@ -532,42 +533,44 @@
             const drawBox = (x, y, bw) => {
                 if(style === 'ranktag' || style === 'ranktag_mini') {
                     const outer = shadeColor(baseColor, -72);
-                    const edgeTop = shadeColor(baseColor, 34);
-                    const edgeLeft = shadeColor(baseColor, 14);
-                    const edgeRight = shadeColor(baseColor, -20);
-                    const edgeBottom = shadeColor(baseColor, -42);
-                    const fillTop = shadeColor(baseColor, 18);
-                    const fillMid = shadeColor(baseColor, 4);
-                    const fillBot = shadeColor(baseColor, -10);
+                    const fillTop = shadeColor(baseColor, 22);
+                    const fillMid = shadeColor(baseColor, 10);
+                    const fillBot = shadeColor(baseColor, -6);
+                    const fillEdge = shadeColor(baseColor, -18);
+                    const cornerWhite = '#FFFFFF';
+                    const cornerSoft = shadeColor(baseColor, 78);
 
-                    // Frame utama pakai warna rank, bukan outline putih full
+                    // Outer dark frame
                     baseCtx.fillStyle = outer; baseCtx.fillRect(x, y, bw, bh);
-                    baseCtx.fillStyle = edgeTop; baseCtx.fillRect(x+1, y+1, bw-2, 1);
-                    baseCtx.fillStyle = edgeLeft; baseCtx.fillRect(x+1, y+2, 1, bh-4);
-                    baseCtx.fillStyle = edgeRight; baseCtx.fillRect(x+bw-2, y+2, 1, bh-4);
-                    baseCtx.fillStyle = edgeBottom; baseCtx.fillRect(x+1, y+bh-2, bw-2, 1);
 
-                    // Isi badge tetap flat, hanya variasi terang/gelap dari warna pilihan
+                    // White outline like the sample tag
+                    baseCtx.fillStyle = '#FFFFFF'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+
+                    // Main fill area: same color family, only lighter/darker, no heavy 3D bevel
                     const inX = x+2, inY = y+2, inW = bw-4, inH = bh-4;
-                    const topH = Math.max(1, Math.floor(inH * 0.34));
-                    const midH = Math.max(1, Math.floor(inH * 0.34));
-                    baseCtx.fillStyle = fillTop; baseCtx.fillRect(inX, inY, inW, topH);
-                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX, inY + topH, inW, midH);
-                    baseCtx.fillStyle = fillBot; baseCtx.fillRect(inX, inY + topH + midH, inW, inH - topH - midH);
+                    baseCtx.fillStyle = fillTop; baseCtx.fillRect(inX, inY, inW, Math.max(1, Math.floor(inH*0.28)));
+                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.28)), inW, Math.max(1, Math.floor(inH*0.36)));
+                    baseCtx.fillStyle = fillBot; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.64)), inW, inH - Math.max(1, Math.floor(inH*0.64)));
 
-                    // Cahaya putih cuma di pojok/sudut, bukan outline penuh
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.92)';
-                    baseCtx.fillRect(x+2, y+2, 2, 1);
-                    baseCtx.fillRect(x+2, y+2, 1, 2);
-                    baseCtx.fillRect(x+bw-4, y+2, 2, 1);
-                    baseCtx.fillRect(x+bw-3, y+2, 1, 2);
+                    // Subtle top/bottom tint so it matches the sample better
+                    baseCtx.fillStyle = shadeColor(baseColor, 38); baseCtx.fillRect(inX, inY, inW, 1);
+                    baseCtx.fillStyle = fillEdge; baseCtx.fillRect(inX, inY + inH - 1, inW, 1);
 
-                    // Highlight pendek di bagian atas, seperti kilau pixel kecil
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.38)';
-                    baseCtx.fillRect(x+4, y+3, Math.max(2, Math.floor((bw-8) * 0.20)), 1);
+                    // White corner / edge accents on both icon box and name box
+                    baseCtx.fillStyle = cornerWhite;
+                    baseCtx.fillRect(x+1, y+1, 1, 2);
+                    baseCtx.fillRect(x+1, y+1, 2, 1);
+                    baseCtx.fillRect(x+bw-2, y+1, 1, 2);
+                    baseCtx.fillRect(x+bw-3, y+1, 2, 1);
+                    baseCtx.fillRect(x+1, y+bh-2, 1, 2);
+                    baseCtx.fillRect(x+1, y+bh-2, 2, 1);
+                    baseCtx.fillRect(x+bw-2, y+bh-2, 1, 2);
+                    baseCtx.fillRect(x+bw-3, y+bh-2, 2, 1);
 
-                    // Titik kilau kecil di bawah supaya ada depth tapi tetap tidak jadi garis putih
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.25)';
+                    // Soft colored corner pixels just inside so the outline is not too plain
+                    baseCtx.fillStyle = cornerSoft;
+                    baseCtx.fillRect(x+2, y+2, 1, 1);
+                    baseCtx.fillRect(x+bw-3, y+2, 1, 1);
                     baseCtx.fillRect(x+2, y+bh-3, 1, 1);
                     baseCtx.fillRect(x+bw-3, y+bh-3, 1, 1);
                     return;
