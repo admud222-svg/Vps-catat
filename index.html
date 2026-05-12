@@ -532,49 +532,60 @@
             
             const drawBox = (x, y, bw) => {
                 if(style === 'ranktag' || style === 'ranktag_mini') {
-                    const outer = shadeColor(baseColor, -72);
-                    const outlineBright = shadeColor(baseColor, 30);
-                    const fillTop = shadeColor(baseColor, 18);
-                    const fillMid = shadeColor(baseColor, 6);
+                    const outer = shadeColor(baseColor, -70);
+                    const outlineBright = shadeColor(baseColor, 28);
+                    const outlineDark = shadeColor(baseColor, -28);
+                    const fillTop = shadeColor(baseColor, 16);
+                    const fillMid = shadeColor(baseColor, 4);
                     const fillBot = shadeColor(baseColor, -10);
-                    const fillEdge = shadeColor(baseColor, -22);
-                    const innerLight = shadeColor(baseColor, 44);
+                    const innerLight = shadeColor(baseColor, 38);
+                    const innerShadow = shadeColor(baseColor, -24);
 
-                    // Outer dark frame
-                    baseCtx.fillStyle = outer; baseCtx.fillRect(x, y, bw, bh);
+                    // frame dasar
+                    baseCtx.fillStyle = outer;
+                    baseCtx.fillRect(x, y, bw, bh);
 
-                    // Outline pakai warna serupa yang lebih cerah, bukan putih penuh
-                    baseCtx.fillStyle = outlineBright; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
+                    // bentuk sudut agak masuk / melengkung ke dalam (pixel-cut corners)
+                    baseCtx.clearRect(x+1, y+1, 1, 1);
+                    baseCtx.clearRect(x+bw-2, y+1, 1, 1);
+                    baseCtx.clearRect(x+1, y+bh-2, 1, 1);
+                    baseCtx.clearRect(x+bw-2, y+bh-2, 1, 1);
 
-                    // Main fill area: warna serupa, atas lebih terang, bawah lebih gelap
+                    // outline warna serupa: atas/kiri lebih terang, bawah/kanan lebih gelap
+                    baseCtx.fillStyle = outlineBright;
+                    baseCtx.fillRect(x+2, y+1, bw-4, 1); // top
+                    baseCtx.fillRect(x+1, y+2, 1, bh-4); // left
+                    baseCtx.fillRect(x+2, y+2, 1, 1); // inner bevel tl
+                    baseCtx.fillRect(x+2, y+bh-3, 1, 1); // inner bevel bl
+
+                    baseCtx.fillStyle = outlineDark;
+                    baseCtx.fillRect(x+2, y+bh-2, bw-4, 1); // bottom
+                    baseCtx.fillRect(x+bw-2, y+2, 1, bh-4); // right
+                    baseCtx.fillRect(x+bw-3, y+2, 1, 1); // inner bevel tr
+                    baseCtx.fillRect(x+bw-3, y+bh-3, 1, 1); // inner bevel br
+
+                    // area isi
                     const inX = x+2, inY = y+2, inW = bw-4, inH = bh-4;
-                    baseCtx.fillStyle = fillTop; baseCtx.fillRect(inX, inY, inW, Math.max(1, Math.floor(inH*0.30)));
-                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.30)), inW, Math.max(1, Math.floor(inH*0.34)));
-                    baseCtx.fillStyle = fillBot; baseCtx.fillRect(inX, inY + Math.max(1, Math.floor(inH*0.64)), inW, inH - Math.max(1, Math.floor(inH*0.64)));
+                    baseCtx.fillStyle = fillTop; baseCtx.fillRect(inX+1, inY, inW-2, Math.max(1, Math.floor(inH*0.30)));
+                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX+1, inY + Math.max(1, Math.floor(inH*0.30)), inW-2, Math.max(1, Math.floor(inH*0.34)));
+                    baseCtx.fillStyle = fillBot; baseCtx.fillRect(inX+1, inY + Math.max(1, Math.floor(inH*0.64)), inW-2, inH - Math.max(1, Math.floor(inH*0.64)));
+                    // sisi isi kiri kanan biar ikut bentuk sudut masuk
+                    baseCtx.fillStyle = fillMid; baseCtx.fillRect(inX, inY+1, 1, inH-2); baseCtx.fillRect(inX+inW-1, inY+1, 1, inH-2);
 
-                    // Garis highlight halus di atas dan shadow tipis di bawah
-                    baseCtx.fillStyle = innerLight; baseCtx.fillRect(inX, inY, inW, 1);
-                    baseCtx.fillStyle = fillEdge; baseCtx.fillRect(inX, inY + inH - 1, inW, 1);
+                    // highlight dan shadow halus
+                    baseCtx.fillStyle = innerLight; baseCtx.fillRect(inX+2, inY, Math.max(2, inW-5), 1);
+                    baseCtx.fillStyle = innerShadow; baseCtx.fillRect(inX+2, inY+inH-1, Math.max(2, inW-5), 1);
 
-                    // Putih cuma buat cahaya di pojok atas & bawah
+                    // putih hanya di 2 sudut: kiri atas dan kanan bawah
                     baseCtx.fillStyle = '#FFFFFF';
-                    // top-left
-                    baseCtx.fillRect(x+1, y+1, 1, 2);
-                    baseCtx.fillRect(x+1, y+1, 2, 1);
-                    // top-right
-                    baseCtx.fillRect(x+bw-2, y+1, 1, 2);
-                    baseCtx.fillRect(x+bw-3, y+1, 2, 1);
-                    // bottom-left
-                    baseCtx.fillRect(x+1, y+bh-2, 1, 2);
-                    baseCtx.fillRect(x+1, y+bh-2, 2, 1);
-                    // bottom-right
-                    baseCtx.fillRect(x+bw-2, y+bh-2, 1, 2);
-                    baseCtx.fillRect(x+bw-3, y+bh-2, 2, 1);
-
-                    // Tambah sedikit pixel putih lembut di dalam sudut atas biar terasa glow, bukan outline
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.75)';
+                    // top-left glow
+                    baseCtx.fillRect(x+1, y+2, 1, 1);
+                    baseCtx.fillRect(x+2, y+1, 1, 1);
                     baseCtx.fillRect(x+2, y+2, 1, 1);
-                    baseCtx.fillRect(x+bw-3, y+2, 1, 1);
+                    // bottom-right glow
+                    baseCtx.fillRect(x+bw-2, y+bh-3, 1, 1);
+                    baseCtx.fillRect(x+bw-3, y+bh-2, 1, 1);
+                    baseCtx.fillRect(x+bw-3, y+bh-3, 1, 1);
                     return;
                 }
                 if(style === 'hollow') {
