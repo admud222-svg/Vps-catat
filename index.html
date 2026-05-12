@@ -34,7 +34,7 @@
 
         .glyph-gallery { background: var(--bg-panel); padding: 15px; border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 80vh; overflow-y: auto; align-content: start; border: 1px solid var(--border); }
         .glyph-card { background: #070809; border: 1px solid #222; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .glyph-img { width: 64px; height: 64px; background-color: #000; image-rendering: pixelated; border: 1px dashed #444; border-radius: 4px; background-image: linear-gradient(45deg, #0a0a0a 25%, transparent 25%), linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0a0a0a 75%), linear-gradient(-45deg, transparent 75%, #0a0a0a 75%); background-size: 10px 10px; }
+        .glyph-img { width: 64px; height: 64px; background-color: #000; image-rendering: pixelated; border: 1px solid #4be4ff; box-shadow: 0 0 12px rgba(75,228,255,0.18); border-radius: 4px; background-image: linear-gradient(45deg, #0a0a0a 25%, transparent 25%), linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #0a0a0a 75%), linear-gradient(-45deg, transparent 75%, #0a0a0a 75%); background-size: 10px 10px; }
         .hex-code { font-family: monospace; font-size: 12px; color: var(--gold); }
         .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; }
 
@@ -56,8 +56,8 @@
         .color-box { width: 100%; aspect-ratio: 1/1; border-radius: 6px; cursor: pointer; border: 2px solid #333; transition: 0.1s; }
         .color-box.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 10px var(--gold); }
         
-        .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 8px; }
-        .icon-box { width: 100%; aspect-ratio: 1/1; border-radius: 6px; cursor: pointer; background: #000; border: 1px solid #333; display: flex; justify-content: center; align-items: center; font-size: 16px; transition: 0.1s; color: #fff; }
+        .icon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 8px; }
+        .icon-box { width: 100%; aspect-ratio: 1/1; border-radius: 8px; cursor: pointer; background: linear-gradient(180deg,#050607,#14181d); border: 1px solid #333; display: flex; justify-content: center; align-items: center; font-size: 18px; transition: 0.1s; color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
         .icon-box.active { border-color: #fff; background: #222; transform: scale(1.1); }
         
         .style-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
@@ -124,7 +124,7 @@
                 </div>
                 <div class="slider-group" style="margin-top:15px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid #333;">
                     <label style="color:var(--gold);">BOX WIDTH</label>
-                    <input type="range" id="boxWidth" min="20" max="49" value="40" oninput="applyTemplate()">
+                    <input type="range" id="boxWidth" min="20" max="49" value="42" oninput="applyTemplate()">
                 </div>
             </div>
 
@@ -155,7 +155,7 @@
                             <input type="color" id="textColor" value="#ffffff" oninput="previewEditor()" style="flex:1; height:38px; padding:0; cursor:pointer;">
                         </div>
                         <div class="slider-group"><label>POS X</label><input type="range" id="textX" min="0" max="64" value="23" oninput="previewEditor()"></div>
-                        <div class="slider-group"><label>POS Y</label><input type="range" id="textY" min="0" max="64" value="26" oninput="previewEditor()"></div>
+                        <div class="slider-group"><label>POS Y</label><input type="range" id="textY" min="0" max="64" value="27" oninput="previewEditor()"></div>
                         
                         <div style="background: #000; padding: 10px; border-radius: 8px; border: 1px solid #333; margin-top: 5px;">
                             <label style="display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; margin-bottom: 8px;">
@@ -258,13 +258,16 @@
         ];
 
         const iconList = [
-            { id: "none", label: "❌" }, { id: "crown", label: "👑" }, { id: "skull", label: "💀" },
-            { id: "shield", label: "🛡️" }, { id: "check", label: "✔️" }, { id: "lightning", label: "⚡" },
-            { id: "sword", label: "⚔️" }, { id: "gem", label: "💎" }, { id: "head", label: "👤" },
+            { id: "none", label: "❌" }, { id: "crown", label: "👑" }, { id: "gem", label: "💎" },
+            { id: "star", label: "⭐" }, { id: "shield", label: "🛡️" }, { id: "sword", label: "⚔️" },
+            { id: "lightning", label: "⚡" }, { id: "skull", label: "💀" }, { id: "head", label: "👤" },
             { id: "queen", label: "👸" }, { id: "staff", label: "🪄" }, { id: "hammer", label: "🔨" },
             { id: "dragon", label: "🐲" }, { id: "helmet", label: "🪖" }, { id: "bow", label: "🏹" },
             { id: "potion", label: "🧪" }, { id: "book", label: "📖" }, { id: "anvil", label: "⚒️" },
-            { id: "fire", label: "🔥" }, { id: "youtube", label: "▶️" }
+            { id: "fire", label: "🔥" }, { id: "youtube", label: "▶️" }, { id: "wing", label: "🪽" },
+            { id: "pickaxe", label: "⛏️" }, { id: "chest", label: "📦" }, { id: "trident", label: "🔱" },
+            { id: "heart", label: "❤️" }, { id: "spark", label: "✨" }, { id: "admin", label: "🧿" },
+            { id: "leaf", label: "🍃" }
         ];
 
         let selectedColor = rankColors[0].color; 
@@ -314,16 +317,35 @@
         // 4. REGULAR (Classic 1px)
         const regularFont = smallCapsFont;
 
-        const iconsMatrix = { 
-            crown:["00100100","01000010","11011011","11111111","11111111"], skull:["011110","111111","101101","111111","010010"], 
-            shield:["111111","100001","100001","010010","001100"], check:["000001","000011","100110","111100","011000"], 
-            head:["01110","11111","11111","01110","11111"], queen:["10101","11111","11111","11111","01110"], 
-            staff:["00100","01110","00100","00100","00100"], hammer:["11111","11111","00100","00100","00100"], 
-            dragon:["01010","11111","11111","01110","10101"], youtube:["01111110","11111111","11110111","11111111","01111110"], 
-            lightning:["00110","01100","11111","00110","01000"], sword:["00001","00011","01110","11100","01000"], gem:["011110","111111","011110","001100"],
-            helmet:["011110","010010","110011","101101","100001"], bow:["00110","01010","10010","11000","00000"], 
-            potion:["001100","001100","011110","111111","011110"], book:["000000","011011","111111","111111","011011"], 
-            anvil:["11111","00100","01110","11111","00000"], fire:["00100","01100","11110","11111","01110"]
+        const iconsMatrix = {
+            crown:["00100100","01011010","11111111","11111111","01111110"],
+            skull:["011110","111111","101101","111111","010010"],
+            shield:["011110","111111","111111","011110","001100"],
+            check:["000001","000011","100110","111100","011000"],
+            head:["01110","11111","11111","01110","11111"],
+            queen:["10101","11111","11111","11111","01110"],
+            staff:["00100","01110","00100","00100","00100"],
+            hammer:["11111","11111","00100","00100","00100"],
+            dragon:["01010","11111","11111","01110","10101"],
+            youtube:["01111110","11111111","11110111","11111111","01111110"],
+            lightning:["00110","01100","11111","00110","01000"],
+            sword:["00001","00011","01110","11100","01000"],
+            gem:["001100","011110","111111","011110","001100"],
+            star:["00100","11111","01110","11111","00100"],
+            helmet:["011110","111111","110011","101101","100001"],
+            bow:["00110","01010","10010","11000","00000"],
+            potion:["001100","001100","011110","111111","011110"],
+            book:["110011","111111","111111","111111","110011"],
+            anvil:["11111","00100","01110","11111","00000"],
+            fire:["00100","01100","11110","11111","01110"],
+            wing:["11000","11110","11111","01110","00100"],
+            pickaxe:["11111","01100","00100","00100","00100"],
+            chest:["11111","10001","11111","10001","11111"],
+            trident:["10101","11111","00100","00100","00100"],
+            heart:["01010","11111","11111","01110","00100"],
+            spark:["00100","10101","01110","10101","00100"],
+            admin:["01110","11011","10101","11011","01110"],
+            leaf:["00110","01111","11110","11100","01000"]
         };
 
         function shadeColor(color, percent) {
@@ -331,6 +353,24 @@
             R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
             R = Math.min(255, Math.max(0, R)); G = Math.min(255, Math.max(0, G)); B = Math.min(255, Math.max(0, B));
             return "#"+((R.toString(16).padStart(2,'0')))+((G.toString(16).padStart(2,'0')))+((B.toString(16).padStart(2,'0')));
+        }
+
+        function drawMatrixIcon(ctx, icon, boxX, boxY, boxW, boxH, color, useShadow, shadowX, shadowY, shadowColor, useGradient) {
+            if(!icon) return;
+            const mw = icon[0].length, mh = icon.length;
+            let scale = Math.floor(Math.min((boxW - 2) / mw, (boxH - 2) / mh));
+            scale = Math.max(1, Math.min(2, scale));
+            const drawW = mw * scale, drawH = mh * scale;
+            const startX = boxX + Math.floor((boxW - drawW) / 2);
+            const startY = boxY + Math.floor((boxH - drawH) / 2);
+            const drawPixel = (dx, dy, fill) => { ctx.fillStyle = fill; ctx.fillRect(dx, dy, scale, scale); };
+            if(useShadow) {
+                for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(icon[r][c] === '1') drawPixel(startX + c*scale + shadowX, startY + r*scale + shadowY, shadowColor);
+            }
+            for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(icon[r][c] === '1') {
+                const fill = useGradient ? shadeColor(color, Math.max(-35, 18 - (r*14))) : color;
+                drawPixel(startX + c*scale, startY + r*scale, fill);
+            }
         }
 
         function createEmptyCanvas() { masterCanvas.width = 1024; masterCanvas.height = 1024; mCtx.clearRect(0,0,1024,1024); isImageLoaded = true; processGlyphs(); }
@@ -424,18 +464,23 @@
             const cBorderBot = shadeColor(baseColor, -50); 
             
             baseCtx.clearRect(0,0,64,64);
-            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 12 : 14, tw = textWidth, gap = 1;
+            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 16 : 14, tw = textWidth, gap = 1;
             const sx = Math.floor((64-(iw+gap+tw))/2), sy = selectedStyle === 'ranktag' ? 24 : Math.floor((64-bh)/2);
             
             const drawBox = (x, y, bw) => {
                 if(style === 'ranktag') {
-                    baseCtx.fillStyle = '#0D1D38'; baseCtx.fillRect(x, y, bw, bh);
+                    baseCtx.fillStyle = '#071224'; baseCtx.fillRect(x, y, bw, bh);
                     baseCtx.fillStyle = '#FFFFFF'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                    baseCtx.fillStyle = '#7FEFFF'; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
-                    baseCtx.fillStyle = '#46CFF6'; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
-                    baseCtx.fillStyle = '#B9F8FF'; baseCtx.fillRect(x+3, y+3, bw-6, 2);
-                    baseCtx.fillStyle = '#1F8FE0'; baseCtx.fillRect(x+3, y+bh-5, bw-6, 2);
-                    baseCtx.fillStyle = 'rgba(255,255,255,0.45)'; baseCtx.fillRect(x+4, y+4, Math.max(8, bw-12), 2);
+                    baseCtx.fillStyle = '#A8F6FF'; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+                    baseCtx.fillStyle = '#58D9FF'; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
+                    baseCtx.fillStyle = '#D9FEFF'; baseCtx.fillRect(x+3, y+3, bw-6, 2);
+                    baseCtx.fillStyle = '#8BEFFF'; baseCtx.fillRect(x+3, y+5, bw-6, 2);
+                    baseCtx.fillStyle = '#42C0F4'; baseCtx.fillRect(x+3, y+7, bw-6, 2);
+                    baseCtx.fillStyle = '#289CDD'; baseCtx.fillRect(x+3, y+9, bw-6, 2);
+                    baseCtx.fillStyle = '#1676C6'; baseCtx.fillRect(x+3, y+11, bw-6, 2);
+                    baseCtx.fillStyle = '#0D4C97'; baseCtx.fillRect(x+3, y+13, bw-6, 1);
+                    baseCtx.fillStyle = 'rgba(255,255,255,0.55)'; baseCtx.fillRect(x+4, y+4, Math.max(6, Math.floor((bw-8) * 0.55)), 1);
+                    baseCtx.fillStyle = '#C5FCFF'; baseCtx.fillRect(x+4, y+6, Math.max(4, Math.floor((bw-8) * 0.35)), 1);
                     return;
                 }
                 if(style === 'hollow') {
@@ -553,19 +598,10 @@
             
             const icon = iconsMatrix[selectedIcon];
             if(icon) {
-                const ix = sx + Math.floor((iw-icon[0].length)/2), iy = sy + Math.floor((bh-icon.length)/2);
                 const iCol = document.getElementById('iconColor').value;
                 const useIShadow = document.getElementById('useIconShadow').checked;
-
-                if(useIShadow) {
-                    const isx = parseInt(document.getElementById('iconShadowX').value), isy = parseInt(document.getElementById('iconShadowY').value), isCol = document.getElementById('iconShadowColor').value;
-                    baseCtx.fillStyle = isCol; for(let r=0; r<icon.length; r++) for(let c=0; c<icon[r].length; c++) if(icon[r][c]==='1') baseCtx.fillRect(ix+c+isx, iy+r+isy, 1, 1);
-                }
-
-                for(let r=0; r<icon.length; r++) for(let c=0; c<icon[r].length; c++) if(icon[r][c]==='1') { 
-                    baseCtx.fillStyle = document.getElementById('iconGradient').checked ? shadeColor(iCol, -r*10) : iCol;
-                    baseCtx.fillRect(ix+c, iy+r, 1, 1); 
-                }
+                const isx = parseInt(document.getElementById('iconShadowX').value), isy = parseInt(document.getElementById('iconShadowY').value), isCol = document.getElementById('iconShadowColor').value;
+                drawMatrixIcon(baseCtx, icon, sx, sy, iw, bh, iCol, useIShadow, isx, isy, isCol, document.getElementById('iconGradient').checked);
             }
             previewEditor();
         }
