@@ -323,28 +323,28 @@
         const regularFont = smallCapsFont;
 
         const iconsMatrix = {
-            crown:["00100100","01011010","11111111","11111111","01111110"],
-            skull:["011110","111111","101101","111111","010010"],
-            shield:["011110","111111","111111","011110","001100"],
-            check:["000001","000011","100110","111100","011000"],
-            head:["01110","11111","11111","01110","11111"],
+            crown:["10101","11111","11111","01110","00100"],
+            skull:["01110","11111","10101","11111","01010"],
+            shield:["01110","11111","11111","01110","00100"],
+            check:["00001","00011","10110","11100","01000"],
+            head:["01110","11111","10101","11111","10101"],
             queen:["10101","11111","11111","11111","01110"],
             staff:["00100","01110","00100","00100","00100"],
-            hammer:["11111","11111","00100","00100","00100"],
-            dragon:["01010","11111","11111","01110","10101"],
-            youtube:["01111110","11111111","11110111","11111111","01111110"],
-            lightning:["00110","01100","11111","00110","01000"],
-            sword:["00001","00011","01110","11100","01000"],
-            gem:["001100","011110","111111","011110","001100"],
+            hammer:["11110","11110","00100","00100","00100"],
+            dragon:["10001","11111","01110","11111","10101"],
+            youtube:["11111","10001","10111","10001","11111"],
+            lightning:["00110","01100","11111","00110","01100"],
+            sword:["00100","00100","00100","01110","00100"],
+            gem:["00100","01110","11111","01110","00100"],
             star:["00100","11111","01110","11111","00100"],
-            helmet:["011110","111111","110011","101101","100001"],
-            bow:["00110","01010","10010","11000","00000"],
-            potion:["001100","001100","011110","111111","011110"],
-            book:["110011","111111","111111","111111","110011"],
-            anvil:["11111","00100","01110","11111","00000"],
-            fire:["00100","01100","11110","11111","01110"],
-            wing:["11000","11110","11111","01110","00100"],
-            pickaxe:["11111","01100","00100","00100","00100"],
+            helmet:["01110","11111","10101","11111","10001"],
+            bow:["01100","01010","01001","01010","01100"],
+            potion:["00100","00100","01110","11111","01110"],
+            book:["11011","11111","11111","11111","11011"],
+            anvil:["11111","01110","00100","01110","11111"],
+            fire:["00100","01100","11110","01111","00110"],
+            wing:["11000","11100","11111","01110","00100"],
+            pickaxe:["11111","00110","00100","00100","00100"],
             chest:["11111","10001","11111","10001","11111"],
             trident:["10101","11111","00100","00100","00100"],
             heart:["01010","11111","11111","01110","00100"],
@@ -362,18 +362,34 @@
 
         function drawMatrixIcon(ctx, icon, boxX, boxY, boxW, boxH, color, useShadow, shadowX, shadowY, shadowColor, useGradient) {
             if(!icon) return;
-            const mw = icon[0].length, mh = icon.length;
-            let scale = Math.floor(Math.min((boxW - 2) / mw, (boxH - 2) / mh));
+            let top = 999, left = 999, right = -1, bottom = -1;
+            for(let r=0; r<icon.length; r++) {
+                for(let c=0; c<icon[r].length; c++) {
+                    if(icon[r][c] === '1') {
+                        if(r < top) top = r;
+                        if(c < left) left = c;
+                        if(c > right) right = c;
+                        if(r > bottom) bottom = r;
+                    }
+                }
+            }
+            if(right < 0) return;
+            const trimmed = [];
+            for(let r=top; r<=bottom; r++) trimmed.push(icon[r].slice(left, right + 1));
+            const mw = trimmed[0].length, mh = trimmed.length;
+            const innerPadX = 2, innerPadY = 2;
+            const maxW = Math.max(1, boxW - innerPadX * 2), maxH = Math.max(1, boxH - innerPadY * 2);
+            let scale = Math.floor(Math.min(maxW / mw, maxH / mh));
             scale = Math.max(1, Math.min(2, scale));
             const drawW = mw * scale, drawH = mh * scale;
             const startX = boxX + Math.floor((boxW - drawW) / 2);
             const startY = boxY + Math.floor((boxH - drawH) / 2);
             const drawPixel = (dx, dy, fill) => { ctx.fillStyle = fill; ctx.fillRect(dx, dy, scale, scale); };
             if(useShadow) {
-                for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(icon[r][c] === '1') drawPixel(startX + c*scale + shadowX, startY + r*scale + shadowY, shadowColor);
+                for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(trimmed[r][c] === '1') drawPixel(startX + c*scale + shadowX, startY + r*scale + shadowY, shadowColor);
             }
-            for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(icon[r][c] === '1') {
-                const fill = useGradient ? shadeColor(color, Math.max(-35, 18 - (r*14))) : color;
+            for(let r=0; r<mh; r++) for(let c=0; c<mw; c++) if(trimmed[r][c] === '1') {
+                const fill = useGradient ? shadeColor(color, Math.max(-28, 18 - (r*10))) : color;
                 drawPixel(startX + c*scale, startY + r*scale, fill);
             }
         }
@@ -469,7 +485,7 @@
             const cBorderBot = shadeColor(baseColor, -50); 
             
             baseCtx.clearRect(0,0,64,64);
-            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 16 : 14, tw = textWidth, gap = 1;
+            const bh = selectedStyle === 'ranktag' ? 16 : 14, iw = selectedStyle === 'ranktag' ? 15 : 14, tw = textWidth, gap = 1;
             const sx = Math.floor((64-(iw+gap+tw))/2), sy = selectedStyle === 'ranktag' ? 24 : Math.floor((64-bh)/2);
             
             const drawBox = (x, y, bw) => {
@@ -613,7 +629,7 @@
                 const iCol = document.getElementById('iconColor').value;
                 const useIShadow = document.getElementById('useIconShadow').checked;
                 const isx = parseInt(document.getElementById('iconShadowX').value), isy = parseInt(document.getElementById('iconShadowY').value), isCol = document.getElementById('iconShadowColor').value;
-                drawMatrixIcon(baseCtx, icon, sx, sy, iw, bh, iCol, useIShadow, isx, isy, isCol, document.getElementById('iconGradient').checked);
+                drawMatrixIcon(baseCtx, icon, sx + 1, sy + 1, iw - 2, bh - 2, iCol, useIShadow, isx, isy, isCol, document.getElementById('iconGradient').checked);
             }
             previewEditor();
         }
