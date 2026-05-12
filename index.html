@@ -279,22 +279,27 @@
             rankColors.forEach(c => {
                 let div = document.createElement('div'); div.className = 'color-box' + (c.color === selectedColor ? ' active' : '');
                 div.style.background = c.color; div.title = c.name;
-                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; };
+                div.onclick = () => { document.querySelectorAll('.color-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedColor = c.color; autoRefreshTemplate(); };
                 cp.appendChild(div);
             });
             const sp = document.getElementById('stylePicker'); sp.innerHTML = '';
             bgStyles.forEach(st => {
                 let btn = document.createElement('div'); btn.className = 'style-btn' + (st.id === selectedStyle ? ' active' : '');
-                btn.innerText = st.name; btn.onclick = () => { document.querySelectorAll('.style-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); selectedStyle = st.id; };
+                btn.innerText = st.name; btn.onclick = () => { document.querySelectorAll('.style-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); selectedStyle = st.id; autoRefreshTemplate(); };
                 sp.appendChild(btn);
             });
             const ip = document.getElementById('iconPicker'); ip.innerHTML = '';
             iconList.forEach(ic => {
                 let div = document.createElement('div'); div.className = 'icon-box' + (ic.id === selectedIcon ? ' active' : '');
                 div.innerText = ic.label; div.title = ic.id;
-                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; };
+                div.onclick = () => { document.querySelectorAll('.icon-box').forEach(el => el.classList.remove('active')); div.classList.add('active'); selectedIcon = ic.id; autoRefreshTemplate(); };
                 ip.appendChild(div);
             });
+        }
+
+        function autoRefreshTemplate() {
+            const modal = document.getElementById('editorModal');
+            if(currentEditGlyph && modal && modal.style.display === 'flex') applyTemplate();
         }
 
         // --- FULL FONT ENGINES (A-Z, 0-9) ---
@@ -469,18 +474,25 @@
             
             const drawBox = (x, y, bw) => {
                 if(style === 'ranktag') {
-                    baseCtx.fillStyle = '#071224'; baseCtx.fillRect(x, y, bw, bh);
+                    const outline = shadeColor(baseColor, -85);
+                    const edgeDark = shadeColor(baseColor, -55);
+                    const edgeMid = shadeColor(baseColor, -20);
+                    const mid = baseColor;
+                    const midLight = shadeColor(baseColor, 32);
+                    const hi = shadeColor(baseColor, 70);
+                    const low = shadeColor(baseColor, -38);
+                    baseCtx.fillStyle = outline; baseCtx.fillRect(x, y, bw, bh);
                     baseCtx.fillStyle = '#FFFFFF'; baseCtx.fillRect(x+1, y+1, bw-2, bh-2);
-                    baseCtx.fillStyle = '#A8F6FF'; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
-                    baseCtx.fillStyle = '#58D9FF'; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
-                    baseCtx.fillStyle = '#D9FEFF'; baseCtx.fillRect(x+3, y+3, bw-6, 2);
-                    baseCtx.fillStyle = '#8BEFFF'; baseCtx.fillRect(x+3, y+5, bw-6, 2);
-                    baseCtx.fillStyle = '#42C0F4'; baseCtx.fillRect(x+3, y+7, bw-6, 2);
-                    baseCtx.fillStyle = '#289CDD'; baseCtx.fillRect(x+3, y+9, bw-6, 2);
-                    baseCtx.fillStyle = '#1676C6'; baseCtx.fillRect(x+3, y+11, bw-6, 2);
-                    baseCtx.fillStyle = '#0D4C97'; baseCtx.fillRect(x+3, y+13, bw-6, 1);
+                    baseCtx.fillStyle = hi; baseCtx.fillRect(x+2, y+2, bw-4, bh-4);
+                    baseCtx.fillStyle = midLight; baseCtx.fillRect(x+3, y+3, bw-6, bh-6);
+                    baseCtx.fillStyle = hi; baseCtx.fillRect(x+3, y+3, bw-6, 2);
+                    baseCtx.fillStyle = shadeColor(baseColor, 46); baseCtx.fillRect(x+3, y+5, bw-6, 2);
+                    baseCtx.fillStyle = mid; baseCtx.fillRect(x+3, y+7, bw-6, 2);
+                    baseCtx.fillStyle = edgeMid; baseCtx.fillRect(x+3, y+9, bw-6, 2);
+                    baseCtx.fillStyle = low; baseCtx.fillRect(x+3, y+11, bw-6, 2);
+                    baseCtx.fillStyle = edgeDark; baseCtx.fillRect(x+3, y+13, bw-6, 1);
                     baseCtx.fillStyle = 'rgba(255,255,255,0.55)'; baseCtx.fillRect(x+4, y+4, Math.max(6, Math.floor((bw-8) * 0.55)), 1);
-                    baseCtx.fillStyle = '#C5FCFF'; baseCtx.fillRect(x+4, y+6, Math.max(4, Math.floor((bw-8) * 0.35)), 1);
+                    baseCtx.fillStyle = shadeColor(baseColor, 62); baseCtx.fillRect(x+4, y+6, Math.max(4, Math.floor((bw-8) * 0.35)), 1);
                     return;
                 }
                 if(style === 'hollow') {
